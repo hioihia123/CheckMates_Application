@@ -4,6 +4,13 @@
  */
 package form;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+
 /**
  *
  * @author nguyenp
@@ -14,7 +21,23 @@ public class Login extends javax.swing.JFrame {
      * Creates new form Login
      */
     public Login() {
-        initComponents();
+      setUndecorated(true);  // Removes window decorations (title bar, borders)
+      setBackground(new Color(255,255,255));  // Transparent background
+      initComponents();
+
+    }
+    
+  
+    
+      @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // Create a Rounded Rectangle Background
+        g2.setColor(new Color(255, 255, 255, 255)); // Semi-transparent White
+        g2.fillRoundRect(20, 20, getWidth() - 40, getHeight() - 40, 50, 50); // Rounded Borders
     }
 
     /**
@@ -27,8 +50,13 @@ public class Login extends javax.swing.JFrame {
     private void initComponents() {
 
         app_exit = new javax.swing.JButton();
+        label2 = new java.awt.Label();
+        label1 = new java.awt.Label();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setAlwaysOnTop(true);
+        setAutoRequestFocus(false);
+        setBackground(new java.awt.Color(255, 255, 255));
         setUndecorated(true);
 
         app_exit.setFont(new java.awt.Font("Helvetica Neue", 1, 14)); // NOI18N
@@ -50,19 +78,42 @@ public class Login extends javax.swing.JFrame {
             }
         });
 
+        label2.setBackground(new java.awt.Color(255, 255, 255));
+        label2.setFont(new java.awt.Font("Microsoft Sans Serif", 1, 36)); // NOI18N
+        label2.setForeground(new java.awt.Color(0, 0, 0));
+        label2.setText("CheckMates");
+
+        label1.setBackground(new java.awt.Color(255, 255, 255));
+        label1.setFont(new java.awt.Font("Maku", 3, 18)); // NOI18N
+        label1.setForeground(new java.awt.Color(0, 0, 0));
+        label1.setText("Let's CheckMates!");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(app_exit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 595, Short.MAX_VALUE))
+                .addGap(157, 157, 157)
+                .addComponent(label2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 234, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(235, 235, 235)
+                .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(app_exit, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 470, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(app_exit, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(81, 81, 81))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(label2, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(354, Short.MAX_VALUE))
         );
 
         pack();
@@ -80,7 +131,9 @@ public class Login extends javax.swing.JFrame {
     private void app_exitMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_app_exitMouseExited
         app_exit.setForeground(java.awt.Color.BLACK);
     }//GEN-LAST:event_app_exitMouseExited
-
+ 
+     
+  
     /**
      * @param args the command line arguments
      */
@@ -118,5 +171,7 @@ public class Login extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton app_exit;
+    private java.awt.Label label1;
+    private java.awt.Label label2;
     // End of variables declaration//GEN-END:variables
 }
