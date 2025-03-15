@@ -33,6 +33,17 @@ public class Login extends javax.swing.JFrame {
 
         app_exit.setFont(new java.awt.Font("Helvetica Neue", 1, 14)); // NOI18N
         app_exit.setText("X");
+        app_exit.setBorderPainted(false);
+        app_exit.setContentAreaFilled(false);
+        app_exit.setFocusPainted(false);
+        app_exit.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                app_exitMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                app_exitMouseExited(evt);
+            }
+        });
         app_exit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 app_exitActionPerformed(evt);
@@ -43,9 +54,9 @@ public class Login extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 595, Short.MAX_VALUE)
-                .addComponent(app_exit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(app_exit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 595, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -61,6 +72,14 @@ public class Login extends javax.swing.JFrame {
     private void app_exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_app_exitActionPerformed
         System.exit(0);
     }//GEN-LAST:event_app_exitActionPerformed
+
+    private void app_exitMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_app_exitMouseEntered
+        app_exit.setForeground(java.awt.Color.RED);
+    }//GEN-LAST:event_app_exitMouseEntered
+
+    private void app_exitMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_app_exitMouseExited
+        app_exit.setForeground(java.awt.Color.BLACK);
+    }//GEN-LAST:event_app_exitMouseExited
 
     /**
      * @param args the command line arguments
