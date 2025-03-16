@@ -139,7 +139,7 @@ public class SignUp extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 System.out.println("Terms and Conditions clicked");
-                openWebPage("https://www.cm8tes.com"); // Change URL to actual Terms and Conditions
+                openWebPage("https://terms.cm8tes.com"); // Change URL to actual Terms and Conditions
                 
             }
         });
