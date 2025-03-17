@@ -4,6 +4,10 @@
  */
 package form;
 
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -16,6 +20,9 @@ import javax.swing.UIManager;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
+import javax.swing.JTextField;
+import javax.swing.JButton;
+
 import javax.imageio.ImageIO;
 import java.io.File;
 
@@ -46,6 +53,10 @@ public class Login extends javax.swing.JFrame {
     
     // Add it to the content pane. 
     getContentPane().add(outlinedText);
+    
+  
+    
+    
 
 
  }
@@ -85,7 +96,6 @@ public void paint(Graphics g) {
         label4 = new java.awt.Label();
         label5 = new java.awt.Label();
         userName = new java.awt.TextField();
-        pWord = new javax.swing.JPasswordField();
         btnLogin = new javax.swing.JButton();
 
         jButton1.setText("jButton1");
@@ -145,13 +155,6 @@ public void paint(Graphics g) {
             }
         });
 
-        pWord.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
-        pWord.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pWordActionPerformed(evt);
-            }
-        });
-
         btnLogin.setText("Login");
         btnLogin.setAutoscrolls(true);
         btnLogin.setBorderPainted(false);
@@ -177,7 +180,6 @@ public void paint(Graphics g) {
                             .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(pWord, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(196, 196, 196)
@@ -199,8 +201,7 @@ public void paint(Graphics g) {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(label3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(41, 41, 41)
-                        .addComponent(pWord))
+                        .addGap(0, 70, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -229,10 +230,6 @@ public void paint(Graphics g) {
         app_exit.setForeground(java.awt.Color.BLACK);
     }//GEN-LAST:event_app_exitMouseExited
 
-    private void pWordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pWordActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_pWordActionPerformed
-
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnLoginActionPerformed
@@ -248,12 +245,14 @@ public void paint(Graphics g) {
     userName.setFont(new Font("Arial", Font.PLAIN, 16));
     // Note: AWT TextField cannot have borders like Swing components.
     
-    // 2) Password field (JPasswordField) styling remains unchanged
+    /* 2) Password field (JPasswordField) styling remains unchanged
     pWord.setBackground(Color.WHITE);
     pWord.setForeground(Color.BLACK);
     pWord.setCaretColor(Color.BLACK);
     pWord.setFont(new Font("Arial", Font.PLAIN, 16));
     pWord.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2, true));
+    */
+ 
 
     // 3) Style the Login button as text-only with no box or border.
     btnLogin.setContentAreaFilled(false); // No background fill
@@ -291,13 +290,63 @@ public void paint(Graphics g) {
         Login.this.dispose();
     }
 });
+    
+    // Hide the original auto‑generated password field (if not needed)
+    //pWord.setVisible(false);
+    
+    Image closedEye = Toolkit.getDefaultToolkit().getImage("eye_closed.png");
+    Image openEye   = Toolkit.getDefaultToolkit().getImage("open_eye.png");
 
+
+    // Create an AWT TextField for the password
+    TextField awtPasswordField = new TextField(34);
+    awtPasswordField.setEchoChar('*');
+    awtPasswordField.setBackground(java.awt.Color.WHITE);
+    awtPasswordField.setForeground(java.awt.Color.BLACK);
+
+    // Create an AWT Button for toggling the password visibility
+    Button btnTogglePassword = new Button("Show");
+    final char defaultEchoChar = '*';
+    btnTogglePassword.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // If currently hiding the text, reveal it.
+            if (awtPasswordField.getEchoChar() != (char) 0) {
+                awtPasswordField.setEchoChar((char) 0);
+                btnTogglePassword.setLabel("Hide");
+            } else {
+                // Otherwise, reset to the default echo character.
+                awtPasswordField.setEchoChar(defaultEchoChar);
+                btnTogglePassword.setLabel("Show");
+            }
+        }
+    });
+
+    // 1) Create two row panels.
+     Panel row1 = new Panel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+     Panel row2 = new Panel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+
+     // 2) Add the password field to the top row (left-aligned).
+     row1.add(awtPasswordField);
+
+     // 3) Add the toggle button to the bottom row (right-aligned).
+     row2.add(btnTogglePassword);
+
+     // 4) Create a parent panel with 2 rows (GridLayout(2,1)).
+     Panel awtPasswordPanel = new Panel(new GridLayout(2, 1, 0, 5));
+     awtPasswordPanel.setBackground(Color.WHITE);
+
+     // 5) Add row1 and row2 to the parent panel.
+     awtPasswordPanel.add(row1);
+     awtPasswordPanel.add(row2);
+
+     // 6) Position the parent panel in  frame (null layout).
+     getContentPane().setLayout(null);
+     awtPasswordPanel.setBounds(190, 220, 300, 70);  // Adjust as needed
+    getContentPane().add(awtPasswordPanel);
+    
 }
 
-
-
-
-  
     /**
      * @param args the command line arguments
      */
@@ -342,7 +391,6 @@ public void paint(Graphics g) {
     private java.awt.Label label3;
     private java.awt.Label label4;
     private java.awt.Label label5;
-    private javax.swing.JPasswordField pWord;
     private java.awt.TextField userName;
     // End of variables declaration//GEN-END:variables
 }
