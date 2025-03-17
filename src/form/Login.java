@@ -54,9 +54,7 @@ public class Login extends javax.swing.JFrame {
     // Add it to the content pane. 
     getContentPane().add(outlinedText);
     
-  
-    
-    
+
 
 
  }
@@ -155,7 +153,7 @@ public void paint(Graphics g) {
             }
         });
 
-        btnLogin.setText("Login");
+        btnLogin.setText("LOGIN ewqeqwe");
         btnLogin.setAutoscrolls(true);
         btnLogin.setBorderPainted(false);
         btnLogin.addActionListener(new java.awt.event.ActionListener() {
@@ -189,23 +187,19 @@ public void paint(Graphics g) {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(244, 244, 244)
                         .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(110, Short.MAX_VALUE))
+                .addContainerGap(91, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(app_exit, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(141, 141, 141)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(label3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 70, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(46, 46, 46)
+                .addGap(141, 141, 141)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(userName, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(label3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(38, 38, 38)
+                .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
                 .addComponent(btnLogin)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(label4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -303,6 +297,9 @@ public void paint(Graphics g) {
     awtPasswordField.setEchoChar('*');
     awtPasswordField.setBackground(java.awt.Color.WHITE);
     awtPasswordField.setForeground(java.awt.Color.BLACK);
+    awtPasswordField.setMinimumSize(new Dimension(8, 26));
+
+
 
     // Create an AWT Button for toggling the password visibility
     Button btnTogglePassword = new Button("Show");
@@ -317,7 +314,7 @@ public void paint(Graphics g) {
             } else {
                 // Otherwise, reset to the default echo character.
                 awtPasswordField.setEchoChar(defaultEchoChar);
-                btnTogglePassword.setLabel("Show");
+                btnTogglePassword.setLabel("Show"); 
             }
         }
     });
@@ -342,8 +339,8 @@ public void paint(Graphics g) {
 
      // 6) Position the parent panel in  frame (null layout).
      getContentPane().setLayout(null);
-     awtPasswordPanel.setBounds(190, 220, 300, 70);  // Adjust as needed
-    getContentPane().add(awtPasswordPanel);
+     awtPasswordPanel.setBounds(195, 250, 300,70);  // Adjust as needed
+     getContentPane().add(awtPasswordPanel);
     
 }
 
