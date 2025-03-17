@@ -33,12 +33,22 @@ public class Login extends javax.swing.JFrame {
      */
     public Login() {
       setUndecorated(true);  // Removes window decorations (title bar, borders)
-      setBackground(new Color(255,255,255));  // Transparent background
+      setBackground(Color.WHITE);
       initComponents();
       customizeComponents();  // Our custom styling method
+      
+      // Create an instance of  custom canvas
+    OutlinedTextCanvas outlinedText = new OutlinedTextCanvas();
+    
+    // Set its size and location (adjust as needed)
+    outlinedText.setSize(300, 100);
+    outlinedText.setLocation(190, 40);  // Coordinates 
+    
+    // Add it to the content pane. 
+    getContentPane().add(outlinedText);
 
 
-    }
+ }
     
   
     
@@ -50,7 +60,7 @@ public void paint(Graphics g) {
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
     // Set the fill color to pure white
-    g2.setColor(Color.WHITE);
+    g2.setColor(Color.WHITE); // Fully transparent black
     g2.fillRoundRect(20, 20, getWidth() - 40, getHeight() - 40, 50, 50);
 }
 
@@ -68,8 +78,8 @@ public void paint(Graphics g) {
     private void initComponents() {
 
         jButton1 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
         app_exit = new javax.swing.JButton();
-        label2 = new java.awt.Label();
         label1 = new java.awt.Label();
         label3 = new java.awt.Label();
         label4 = new java.awt.Label();
@@ -80,10 +90,13 @@ public void paint(Graphics g) {
 
         jButton1.setText("jButton1");
 
+        jLabel1.setText("jLabel1");
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setAlwaysOnTop(true);
         setAutoRequestFocus(false);
         setBackground(new java.awt.Color(255, 255, 255));
+        setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setUndecorated(true);
 
         app_exit.setFont(new java.awt.Font("Helvetica Neue", 1, 14)); // NOI18N
@@ -105,15 +118,10 @@ public void paint(Graphics g) {
             }
         });
 
-        label2.setBackground(new java.awt.Color(255, 255, 255));
-        label2.setFont(new java.awt.Font("Microsoft Sans Serif", 1, 36)); // NOI18N
-        label2.setForeground(new java.awt.Color(0, 0, 0));
-        label2.setText("CheckMates");
-
         label1.setBackground(new java.awt.Color(255, 255, 255));
         label1.setFont(new java.awt.Font("Maku", 3, 18)); // NOI18N
         label1.setForeground(new java.awt.Color(0, 0, 0));
-        label1.setText("Let's CheckMates!");
+        label1.setText("Let's CheckMates");
 
         label3.setBackground(new java.awt.Color(255, 255, 255));
         label3.setFont(new java.awt.Font("Microsoft Sans Serif", 1, 24)); // NOI18N
@@ -169,18 +177,17 @@ public void paint(Graphics g) {
                             .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(pWord, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(168, 168, 168)
+                                .addGap(196, 196, 196)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(label4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(btnLogin)))
-                            .addComponent(label2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(btnLogin)))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(244, 244, 244)
                         .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(113, Short.MAX_VALUE))
+                .addContainerGap(110, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -188,9 +195,7 @@ public void paint(Graphics g) {
                 .addComponent(app_exit, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addComponent(label2, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(47, 47, 47)
+                        .addGap(141, 141, 141)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(label3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -332,8 +337,8 @@ public void paint(Graphics g) {
     private javax.swing.JButton app_exit;
     private javax.swing.JButton btnLogin;
     private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
     private java.awt.Label label1;
-    private java.awt.Label label2;
     private java.awt.Label label3;
     private java.awt.Label label4;
     private java.awt.Label label5;
