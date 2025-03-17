@@ -73,7 +73,7 @@
                       <Component id="label1" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace pref="91" max="32767" attributes="0"/>
+              <EmptySpace pref="100" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -187,7 +187,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="btnLogin">
       <Properties>
-        <Property name="text" type="java.lang.String" value="LOGIN ewqeqwe"/>
+        <Property name="text" type="java.lang.String" value="LOGIN    xxx"/>
         <Property name="autoscrolls" type="boolean" value="true"/>
         <Property name="borderPainted" type="boolean" value="false"/>
       </Properties>

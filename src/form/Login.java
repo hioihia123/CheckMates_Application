@@ -153,7 +153,7 @@ public void paint(Graphics g) {
             }
         });
 
-        btnLogin.setText("LOGIN ewqeqwe");
+        btnLogin.setText("LOGIN    xxx");
         btnLogin.setAutoscrolls(true);
         btnLogin.setBorderPainted(false);
         btnLogin.addActionListener(new java.awt.event.ActionListener() {
@@ -187,7 +187,7 @@ public void paint(Graphics g) {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(244, 244, 244)
                         .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(91, Short.MAX_VALUE))
+                .addContainerGap(100, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
