@@ -75,7 +75,7 @@ public void paint(Graphics g) {
 
 
     
-    
+    //djaidjioadsjioasiodaidoaidas
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -383,6 +383,7 @@ public void paint(Graphics g) {
             }
         });
     }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton app_exit;
