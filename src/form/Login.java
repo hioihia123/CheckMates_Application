@@ -33,7 +33,7 @@ import java.io.File;
  *
  * @author nguyenp
  */
-//kl
+
 public class Login extends javax.swing.JFrame {
 
     /**
@@ -62,7 +62,7 @@ public class Login extends javax.swing.JFrame {
     
 
  }
-    
+    //kjkjk
   
     
      /*@Override
