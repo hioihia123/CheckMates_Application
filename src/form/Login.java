@@ -25,30 +25,55 @@ import javax.swing.JButton;
 
 import javax.imageio.ImageIO;
 import java.io.File;
-
-
+import java.io.IOException;
 
 
 /**
  *
  * @author nguyenp
  */
-//kl
+
 public class Login extends javax.swing.JFrame {
 
     /**
      * Creates new form Login
      */
+    private Image backgroundImage;
     public Login() {
-      setUndecorated(true);  // Removes window decorations (title bar, borders)
-      setBackground(Color.WHITE);
-      initComponents();
-      customizeComponents();  // Our custom styling method
+      // Removes window decorations (title bar, borders)
+        setUndecorated(true);
+           
+        // 1) Load the background image
+        try {
+            // Update this path to point to your actual image file
+            backgroundImage = ImageIO.read(new File("/Users/nguyenp/NetBeansProjects/CheckMates/src/form/background.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        // 2) Create a custom panel that draws the background image
+        JPanel backgroundPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (backgroundImage != null) {
+                    // Draw the image to fill the entire panel
+                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                }
+            }
+        };
+//dasdadadadadadsddadada
+        //set a layout
+        backgroundPanel.setLayout(null); // or any other layout
 
-     //Swing's default
-     getContentPane().setBackground(Color.WHITE);
+        // 3) Make this custom panel the frame's content pane
+        setContentPane(backgroundPanel);
 
+        // 4) Now call the auto-generated initComponents() to add your UI elements
+        initComponents();
+
+        // 5) Then call any custom styling
+        customizeComponents();
       
       // Create an instance of  custom canvas
     OutlinedTextCanvas outlinedText = new OutlinedTextCanvas();
@@ -60,9 +85,11 @@ public class Login extends javax.swing.JFrame {
     // Add it to the content pane. 
     getContentPane().add(outlinedText);
     
+    
+    
 
  }
-    
+    //kjkjk
   
     
      /*@Override
@@ -104,7 +131,6 @@ public void paint(Graphics g) {
         label5 = new java.awt.Label();
         userName = new java.awt.TextField();
         btnLogin = new javax.swing.JButton();
-        jLabel2 = new javax.swing.JLabel();
 
         jButton1.setText("jButton1");
 
@@ -173,8 +199,6 @@ public void paint(Graphics g) {
             }
         });
 
-        jLabel2.setText("jLabel2");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -199,10 +223,7 @@ public void paint(Graphics g) {
                                     .addComponent(btnLogin)))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(244, 244, 244)
-                        .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(270, 270, 270)
-                        .addComponent(jLabel2)))
+                        .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(100, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -214,9 +235,7 @@ public void paint(Graphics g) {
                         .addGap(141, 141, 141)
                         .addComponent(label3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(2, 2, 2)
-                        .addComponent(jLabel2)
-                        .addGap(126, 126, 126)
+                        .addGap(145, 145, 145)
                         .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(41, 41, 41)
                 .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -406,7 +425,6 @@ public void paint(Graphics g) {
     private javax.swing.JButton btnLogin;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private java.awt.Label label1;
     private java.awt.Label label3;
     private java.awt.Label label4;

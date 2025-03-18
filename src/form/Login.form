@@ -72,10 +72,6 @@
                       <EmptySpace min="-2" pref="244" max="-2" attributes="0"/>
                       <Component id="label1" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="270" max="-2" attributes="0"/>
-                      <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                  </Group>
               </Group>
               <EmptySpace pref="100" max="32767" attributes="0"/>
           </Group>
@@ -91,9 +87,7 @@
                       <Component id="label3" min="-2" pref="26" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
-                      <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="126" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="145" max="-2" attributes="0"/>
                       <Component id="userName" min="-2" pref="27" max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -208,11 +202,6 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnLoginActionPerformed"/>
       </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel2">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="jLabel2"/>
-      </Properties>
     </Component>
   </SubComponents>
 </Form>
