@@ -43,35 +43,43 @@ public class Login extends javax.swing.JFrame {
       setBackground(Color.WHITE);
       initComponents();
       customizeComponents();  // Our custom styling method
+
+
+     //Swing's default
+     getContentPane().setBackground(Color.WHITE);
+
       
       // Create an instance of  custom canvas
     OutlinedTextCanvas outlinedText = new OutlinedTextCanvas();
     
     // Set its size and location (adjust as needed)
     outlinedText.setSize(300, 100);
-    outlinedText.setLocation(190, 40);  // Coordinates 
+    outlinedText.setLocation(190, 68);  // Coordinates 
     
     // Add it to the content pane. 
     getContentPane().add(outlinedText);
     
 
-
-
  }
     
   
     
-     @Override
+     /*@Override
 public void paint(Graphics g) {
-    super.paint(g);
-    Graphics2D g2 = (Graphics2D) g;
+    super.paint(g);  // Let Swing do its usual background painting first
     
+    Graphics2D g2 = (Graphics2D) g;
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-    // Set the fill color to pure white
-    g2.setColor(Color.WHITE); // Fully white
+    
+    // 1) Fill the entire background with white
+    g2.setColor(Color.WHITE);
+    g2.fillRect(0, 0, getWidth(), getHeight());
+    
+    // 2) Then draw your round rectangle (if you want)
+    g2.setColor(Color.WHITE); // or any other color
     g2.fillRoundRect(20, 20, getWidth() - 40, getHeight() - 40, 50, 50);
 }
+    */
 
 
     
@@ -95,6 +103,7 @@ public void paint(Graphics g) {
         label5 = new java.awt.Label();
         userName = new java.awt.TextField();
         btnLogin = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
 
         jButton1.setText("jButton1");
 
@@ -148,7 +157,6 @@ public void paint(Graphics g) {
 
         userName.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
         userName.setMinimumSize(new java.awt.Dimension(8, 24));
-        userName.setPreferredSize(new java.awt.Dimension(8, 24));
         userName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 userNameActionPerformed(evt);
@@ -163,6 +171,8 @@ public void paint(Graphics g) {
                 btnLoginActionPerformed(evt);
             }
         });
+
+        jLabel2.setText("jLabel2");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -188,7 +198,10 @@ public void paint(Graphics g) {
                                     .addComponent(btnLogin)))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(244, 244, 244)
-                        .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(270, 270, 270)
+                        .addComponent(jLabel2)))
                 .addContainerGap(100, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -200,15 +213,17 @@ public void paint(Graphics g) {
                         .addGap(141, 141, 141)
                         .addComponent(label3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(145, 145, 145)
+                        .addGap(2, 2, 2)
+                        .addComponent(jLabel2)
+                        .addGap(126, 126, 126)
                         .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
-                .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(41, 41, 41)
+                .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
                 .addComponent(btnLogin)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(label4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(38, 38, 38)
+                .addGap(17, 17, 17)
                 .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(20, 20, 20))
         );
@@ -390,6 +405,7 @@ public void paint(Graphics g) {
     private javax.swing.JButton btnLogin;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private java.awt.Label label1;
     private java.awt.Label label3;
     private java.awt.Label label4;
