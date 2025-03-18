@@ -37,7 +37,7 @@ public class OutlinedTextCanvas extends Canvas {
         int textHeight = fm.getHeight();
         int ascent = fm.getAscent();
         
-        // Calculate a simple left-top coordinate (you can center it within the Canvas if desired)
+        // Calculate a simple left-top coordinate 
         int padding = 10;
         int x = padding;
         int y = padding + ascent;
