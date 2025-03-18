@@ -31,6 +31,7 @@ public class SignUp extends JFrame {
     private JLabel lblTitle;
     private JTextField txtUsername;
     private JPasswordField txtPassword;
+    private JTextField professorName;
     private JButton btnSubmit;
     private JCheckBox chkTerms;
 
@@ -40,7 +41,10 @@ public class SignUp extends JFrame {
         setSize(400, 300);
         setLocationRelativeTo(null); // Center the frame
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Close only this window
-
+        //Set only the uppertop panel to white
+        setBackground(Color.WHITE);
+        //Set the whole background is white
+        getContentPane().setBackground(Color.WHITE);
         // Initialize components
         initComponents();
     }
@@ -71,100 +75,84 @@ public class SignUp extends JFrame {
 }
 
     private void initComponents() {
-        // Use a null layout for simple absolute positioning (or use a layout manager)
-        setLayout(null);
+    // Using a null layout for absolute positioning
+    setLayout(null);
 
-        // Title Label
-        lblTitle = new JLabel("Create New Account");
-        lblTitle.setFont(new Font("Arial", Font.BOLD, 20));
-        lblTitle.setBounds(100, 20, 250, 30);
-        add(lblTitle);
+    // Title Label
+    lblTitle = new JLabel("Create New Account");
+    lblTitle.setFont(new Font("Arial", Font.BOLD, 20));
+    lblTitle.setBounds(100, 20, 250, 30);
+    add(lblTitle);
 
-        // Username field
-        HintTextField txtUsername = new HintTextField("Enter email");
-        txtUsername.setFont(new Font("Arial", Font.PLAIN, 16));
-        txtUsername.setBounds(100, 70, 200, 30);
-        txtUsername.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2, true));
-        add(txtUsername);
-        
-        
+    // 1) Professor Name field
+    professorName = new HintTextField("Enter Name");
+    professorName.setFont(new Font("Arial", Font.PLAIN, 16));
+    // Change the Y-position so it doesn't overlap with username
+    professorName.setBounds(100, 70, 200, 30);
+    professorName.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2, true));
+    add(professorName);
 
-        // Password field
-        HintPasswordField txtPassword = new HintPasswordField("Enter password");
-        txtPassword.setFont(new Font("Arial", Font.PLAIN, 16));
-        txtPassword.setBounds(100, 110, 200, 30);
-        txtPassword.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2, true));
-        add(txtPassword);
-        
-         /* Terms and Conditions Checkbox
-        chkTerms = new JCheckBox("I agree to the");
-        chkTerms.setBounds(100, 150, 150, 30);
-        add(chkTerms);
-       
-        
-         // Terms and Conditions Hyperlink
-        JLabel lblTerms = new JLabel("<html><a href='#'>Terms and Conditions</a></html>");
-        lblTerms.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        lblTerms.setForeground(Color.BLUE);
-        lblTerms.setBounds(255, 150, 150, 30);
-        add(lblTerms);
-        
-        
-        // Add click event to open Terms and Conditions link
-        lblTerms.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                System.out.println("Terms and Conditions clicked");
-                openWebPage("https://www.google.com"); // Change URL to actual Terms and Conditions
-                
-            }
-        });
-        */
-        JPanel termsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        termsPanel.setBounds(100, 150, 300, 30);
-        termsPanel.setOpaque(false); // make the panel transparent
+    // 2) Username field
+    txtUsername = new HintTextField("Enter email");
+    txtUsername.setFont(new Font("Arial", Font.PLAIN, 16));
+    // Move this down to avoid overlap (e.g., y=110)
+    txtUsername.setBounds(100, 110, 200, 30);
+    txtUsername.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2, true));
+    add(txtUsername);
 
-        JCheckBox chkTerms = new JCheckBox("I agree to the ");
-        termsPanel.add(chkTerms);
+    // 3) Password field
+    txtPassword = new HintPasswordField("Enter password");
+    txtPassword.setFont(new Font("Arial", Font.PLAIN, 16));
+    // Move this further down (e.g., y=150)
+    txtPassword.setBounds(100, 150, 200, 30);
+    txtPassword.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2, true));
+    add(txtPassword);
 
-        JLabel lblTerms = new JLabel("<html><a href='https://www.google.com'>Terms and Conditions</a></html>");
-        lblTerms.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        lblTerms.setForeground(Color.BLUE);
-        termsPanel.add(lblTerms);
+    // 4) Terms & Conditions panel
+    JPanel termsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    termsPanel.setBounds(100, 190, 300, 30);
+    termsPanel.setOpaque(false);
 
-        add(termsPanel);
-        
-        // Add click event to open Terms and Conditions link
-        lblTerms.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                System.out.println("Terms and Conditions clicked");
-                openWebPage("https://terms.cm8tes.com"); // Change URL to actual Terms and Conditions
-                
-            }
-        });
+    chkTerms = new JCheckBox("I agree to the ");
+    termsPanel.add(chkTerms);
 
-        // Submit Button
-        btnSubmit = new JButton("Sign Up");
-        btnSubmit.setFont(new Font("Arial", Font.BOLD, 18));
-        btnSubmit.setBounds(140, 190, 120, 30);
-        btnSubmit.setOpaque(true);
-        btnSubmit.setContentAreaFilled(true);
-        btnSubmit.setBackground(Color.WHITE);
-        btnSubmit.setForeground(Color.BLACK);
-        btnSubmit.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
-        add(btnSubmit);
-        
-         // Add action listener to enable button when checkbox is checked
-        chkTerms.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                btnSubmit.setEnabled(chkTerms.isSelected());
-            }
-        });
+    JLabel lblTerms = new JLabel("<html><a href='https://www.google.com'>Terms and Conditions</a></html>");
+    lblTerms.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    lblTerms.setForeground(Color.BLUE);
+    termsPanel.add(lblTerms);
 
-        setVisible(true);
+    add(termsPanel);
+
+    // Link click action
+    lblTerms.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            openWebPage("https://terms.cm8tes.com");
+        }
+    });
+
+    // 5) Submit Button
+    btnSubmit = new JButton("Sign Up");
+    btnSubmit.setFont(new Font("Arial", Font.BOLD, 18));
+    // Adjust y-position (e.g., y=230)
+    btnSubmit.setBounds(140, 230, 120, 30);
+    btnSubmit.setBackground(Color.WHITE);
+    btnSubmit.setForeground(Color.BLACK);
+    btnSubmit.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
+    btnSubmit.setEnabled(false); // Initially disabled until checkbox is checked
+    add(btnSubmit);
+
+    // Enable the button only if the Terms & Conditions checkbox is selected
+    chkTerms.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            btnSubmit.setEnabled(chkTerms.isSelected());
+        }
+    });
+
+    setVisible(true);
 }
+
 
     // For testing, you can run this class directly
     public static void main(String[] args) {

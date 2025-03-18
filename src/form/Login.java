@@ -69,7 +69,7 @@ public void paint(Graphics g) {
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
     // Set the fill color to pure white
-    g2.setColor(Color.WHITE); // Fully transparent black
+    g2.setColor(Color.WHITE); // Fully white
     g2.fillRoundRect(20, 20, getWidth() - 40, getHeight() - 40, 50, 50);
 }
 
