@@ -26,6 +26,7 @@ import javax.swing.JButton;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 
 /**
@@ -40,56 +41,52 @@ public class Login extends javax.swing.JFrame {
      */
     private Image backgroundImage;
     public Login() {
-      // Removes window decorations (title bar, borders)
-        setUndecorated(true);
-           
-        // 1) Load the background image
-        try {
-            // Update this path to point to your actual image file
-            backgroundImage = ImageIO.read(new File("/Users/nguyenp/NetBeansProjects/CheckMates/src/form/background.jpg"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    // Removes window decorations (title bar, borders)
+    setUndecorated(true);
 
-        // 2) Create a custom panel that draws the background image
-        JPanel backgroundPanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (backgroundImage != null) {
-                    // Draw the image to fill the entire panel
-                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-                }
+    // 1) Load the background image from GitHub
+    try {
+        URL backgroundUrl = new URL("https://raw.githubusercontent.com/hioihia123/CheckMates_Application/refs/heads/master/background.jpg");
+        backgroundImage = ImageIO.read(backgroundUrl);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+
+    // 2) Create a custom panel that draws the background image
+    JPanel backgroundPanel = new JPanel() {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (backgroundImage != null) {
+                // Draw the image to fill the entire panel
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
             }
-        };
-//dasdadadadadadsddadadafewessfdsfdsfsfdsfdsfdsfdsfsfd
-        //set a layout
-        backgroundPanel.setLayout(null); // or any other layout
+        }
+    };
 
-        // 3) Make this custom panel the frame's content pane
-        setContentPane(backgroundPanel);
+    // Set a layout for your custom panel
+    backgroundPanel.setLayout(null); // or any other layout
 
-        // 4) Now call the auto-generated initComponents() to add your UI elements
-        initComponents();
+    // 3) Make this custom panel the frame's content pane
+    setContentPane(backgroundPanel);
 
-        // 5) Then call any custom styling
-        customizeComponents();
-      
-      // Create an instance of  custom canvas
+    // 4) Now call the auto-generated initComponents() to add your UI elements
+    initComponents();
+
+    // 5) Then call any custom styling
+    customizeComponents();
+
+    // Create an instance of custom canvas
     OutlinedTextCanvas outlinedText = new OutlinedTextCanvas();
-    
+
     // Set its size and location (adjust as needed)
     outlinedText.setSize(300, 100);
-    outlinedText.setLocation(190, 68);  // Coordinates 
-    
-    // Add it to the content pane. 
-    getContentPane().add(outlinedText);
-    
-    
-    
+    outlinedText.setLocation(190, 68);  // Coordinates
 
- }
-    //kjkjk
+    // Add it to the content pane.
+    getContentPane().add(outlinedText);
+}
+
   
     
      /*@Override
