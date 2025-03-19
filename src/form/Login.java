@@ -415,7 +415,7 @@ public void paint(Graphics g) {
             }
         });
     }
-    
+    //kjkjlk
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton app_exit;
@@ -429,4 +429,3 @@ public void paint(Graphics g) {
     private java.awt.TextField userName;
     // End of variables declaration//GEN-END:variables
 }
-//test amy snganf
