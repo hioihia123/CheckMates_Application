@@ -26,7 +26,7 @@ import java.net.URI;
 
 
 public class SignUp extends JFrame {
-
+//hi
     // Declare your UI components
     private JLabel lblTitle;
     private JTextField txtUsername;
