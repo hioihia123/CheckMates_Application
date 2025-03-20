@@ -13,16 +13,29 @@ import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
+import javax.swing.JCheckBox;
+import javax.swing.JOptionPane;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.awt.Font;
 import java.awt.Color;
-import javax.swing.BorderFactory;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 
 public class SignUp extends JFrame {
@@ -132,31 +145,97 @@ public class SignUp extends JFrame {
     });
 
     // 5) Submit Button
-    btnSubmit = new JButton("Sign Up");
-    btnSubmit.setFont(new Font("Arial", Font.BOLD, 18));
-    // Adjust y-position (e.g., y=230)
-    btnSubmit.setBounds(140, 230, 120, 30);
-    btnSubmit.setBackground(Color.WHITE);
-    btnSubmit.setForeground(Color.BLACK);
-    btnSubmit.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
-    btnSubmit.setEnabled(false); // Initially disabled until checkbox is checked
-    add(btnSubmit);
+    // Create and configure the submit button first
+  btnSubmit = new JButton("Sign Up");
+  btnSubmit.setFont(new Font("Arial", Font.BOLD, 18));
+  btnSubmit.setBounds(140, 230, 120, 30);
+  btnSubmit.setBackground(Color.WHITE);
+  btnSubmit.setForeground(Color.BLACK);
+  btnSubmit.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
+  btnSubmit.setEnabled(false); // Disabled until checkbox is checked
+add(btnSubmit);
 
-    // Enable the button only if the Terms & Conditions checkbox is selected
-    chkTerms.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            btnSubmit.setEnabled(chkTerms.isSelected());
+// Then add the listener for the checkbox that enables/disables the button
+chkTerms.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        btnSubmit.setEnabled(chkTerms.isSelected());
+    }
+});
+
+     // Submit button action to send HTTP POST to PHP
+    btnSubmit.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        final String name = professorName.getText();
+        final String email = txtUsername.getText();
+        final String password = new String(txtPassword.getPassword());
+
+        // Run HTTP request on a separate thread to avoid UI blocking
+        new Thread(() -> {
+            try {
+                String response = sendSignUpRequest(name, email, password);
+                // Update UI on the Event Dispatch Thread
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(SignUp.this, "Response from server: " + response);
+                    // Check if the response indicates success before redirecting
+                    if (response.toLowerCase().contains("success")) {
+                        // Open the Login form and close this one
+                        new Login().setVisible(true);
+                        SignUp.this.dispose();
+                    }
+                });
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(SignUp.this, "Error: " + ex.getMessage());
+                });
+            }
+        }).start();
+    }
+});
+
+
+        setVisible(true);
+    }
+    
+   // Helper method to send sign-up data to the PHP bridge
+    private String sendSignUpRequest(String name, String email, String password) throws IOException {
+        // URL to your PHP endpoint
+        String urlString = "http://cm8tes.com/signup.php";
+        // Build the POST parameters
+        String urlParameters = "professorName=" + URLEncoder.encode(name, "UTF-8") +
+                "&email=" + URLEncoder.encode(email, "UTF-8") +
+                "&passWord=" + URLEncoder.encode(password, "UTF-8");
+
+        byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        conn.setDoOutput(true);
+
+        // Write POST data
+        try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
+            out.write(postData);
         }
-    });
 
-    setVisible(true);
-}
+        // Read the response
+        int responseCode = conn.getResponseCode();
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
 
+        // Optionally, you can parse the JSON response here using a JSON library
+        return response.toString();
+    }
 
     // For testing, you can run this class directly
     public static void main(String[] args) {
         new SignUp().setVisible(true);
     }
 }
-
