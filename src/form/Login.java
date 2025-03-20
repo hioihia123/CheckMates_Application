@@ -83,7 +83,7 @@ public class Login extends javax.swing.JFrame {
     // 4) Now call the auto-generated initComponents() to add your UI elements
     initComponents();
 
-    // 5) Then call any custom styling
+    // 5) Then call custom styling
     customizeComponents();
 
     // Create an instance of custom canvas
