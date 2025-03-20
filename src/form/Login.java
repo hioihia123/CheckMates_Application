@@ -274,12 +274,9 @@ public void paint(Graphics g) {
     }//GEN-LAST:event_app_exitMouseExited
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
-        // Retrieve email and password from your login form components.
-    // Assuming you have an AWT TextField named userName for email
-    // and for example an AWT TextField for password (or a JPasswordField)
+    // Retrieve email and password from  login form components.
     String email = userName.getText().trim();
-    // For demonstration, assuming an AWT TextField "awtPasswordField" exists:
-    // (If using JPasswordField, use: new String(jPasswordField.getPassword()))
+    
     String password = awtPasswordField.getText().trim();
 
     if(email.isEmpty() || password.isEmpty()){
