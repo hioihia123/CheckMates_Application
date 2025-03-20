@@ -36,6 +36,8 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import org.json.JSONObject;
+
 
 
 public class SignUp extends JFrame {
@@ -167,22 +169,50 @@ chkTerms.addActionListener(new ActionListener() {
     btnSubmit.addActionListener(new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-        final String name = professorName.getText();
-        final String email = txtUsername.getText();
-        final String password = new String(txtPassword.getPassword());
+        String name = professorName.getText().trim();
+        String email = txtUsername.getText().trim();
+        String password = new String(txtPassword.getPassword()).trim();
+
+        // Check if any field is empty
+        if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(SignUp.this,
+                "Please fill in all fields (Name, Email, and Password).",
+                "Incomplete Form",
+                JOptionPane.ERROR_MESSAGE);
+            return; // Stop further processing if any field is empty
+        }
 
         // Run HTTP request on a separate thread to avoid UI blocking
         new Thread(() -> {
             try {
                 String response = sendSignUpRequest(name, email, password);
-                // Update UI on the Event Dispatch Thread
+                // Parse the JSON response
+                JSONObject obj = new JSONObject(response);
+                String status = obj.getString("status");
+
                 SwingUtilities.invokeLater(() -> {
-                    JOptionPane.showMessageDialog(SignUp.this, "Response from server: " + response);
-                    // Check if the response indicates success before redirecting
-                    if (response.toLowerCase().contains("success")) {
-                        // Open the Login form and close this one
+                    if (status.equalsIgnoreCase("Signed up successfully")) {
+                        JOptionPane.showMessageDialog(SignUp.this, "Registration successful!");
+                        // Redirect to login page after successful sign up
                         new Login().setVisible(true);
                         SignUp.this.dispose();
+                    } else if (obj.getString("message").toLowerCase().contains("email already exists")) {
+                        // Show confirmation dialog to ask if user wants to go back to login page
+                        int option = JOptionPane.showConfirmDialog(SignUp.this, 
+                                "The entered email already exists. Do you want to go back to the login page?",
+                                "Email Exists", 
+                                JOptionPane.YES_NO_OPTION, 
+                                JOptionPane.WARNING_MESSAGE);
+                        if (option == JOptionPane.YES_OPTION) {
+                            new Login().setVisible(true);
+                            SignUp.this.dispose();
+                        }
+                    } else {
+                        // Display any other error message
+                        JOptionPane.showMessageDialog(SignUp.this, 
+                                obj.getString("message"),
+                                "Registration Error", 
+                                JOptionPane.ERROR_MESSAGE);
                     }
                 });
             } catch (Exception ex) {
@@ -196,12 +226,13 @@ chkTerms.addActionListener(new ActionListener() {
 });
 
 
+
         setVisible(true);
-    }
+}
     
    // Helper method to send sign-up data to the PHP bridge
     private String sendSignUpRequest(String name, String email, String password) throws IOException {
-        // URL to your PHP endpoint
+        // URL to  PHP endpoint
         String urlString = "http://cm8tes.com/signup.php";
         // Build the POST parameters
         String urlParameters = "professorName=" + URLEncoder.encode(name, "UTF-8") +
