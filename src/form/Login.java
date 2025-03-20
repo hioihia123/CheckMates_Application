@@ -27,6 +27,15 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import org.json.JSONObject; // Make sure to include a JSON library
 
 
 /**
@@ -35,11 +44,12 @@ import java.net.URL;
  */
 
 public class Login extends javax.swing.JFrame {
-
+    
     /**
      * Creates new form Login
      */
     private Image backgroundImage;
+    private TextField awtPasswordField;
     public Login() {
     // Removes window decorations (title bar, borders)
     setUndecorated(true);
@@ -108,7 +118,6 @@ public void paint(Graphics g) {
 
 
     
-    //djaidjioadsjioasiodaidoaidas
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -121,6 +130,7 @@ public void paint(Graphics g) {
 
         jButton1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        textField1 = new java.awt.TextField();
         app_exit = new javax.swing.JButton();
         label1 = new java.awt.Label();
         label3 = new java.awt.Label();
@@ -132,6 +142,8 @@ public void paint(Graphics g) {
         jButton1.setText("jButton1");
 
         jLabel1.setText("jLabel1");
+
+        textField1.setText("textField1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setAlwaysOnTop(true);
@@ -201,9 +213,6 @@ public void paint(Graphics g) {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(app_exit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(63, 63, 63)
@@ -222,21 +231,24 @@ public void paint(Graphics g) {
                         .addGap(244, 244, 244)
                         .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(100, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(app_exit, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(app_exit, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(141, 141, 141)
+                        .addGap(177, 177, 177)
                         .addComponent(label3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(145, 145, 145)
-                        .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(181, 181, 181)
+                        .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(app_exit, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(41, 41, 41)
                 .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 61, Short.MAX_VALUE)
                 .addComponent(btnLogin)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(label4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -262,7 +274,48 @@ public void paint(Graphics g) {
     }//GEN-LAST:event_app_exitMouseExited
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
-        // TODO add your handling code here:
+        // Retrieve email and password from your login form components.
+    // Assuming you have an AWT TextField named userName for email
+    // and for example an AWT TextField for password (or a JPasswordField)
+    String email = userName.getText().trim();
+    // For demonstration, assuming an AWT TextField "awtPasswordField" exists:
+    // (If using JPasswordField, use: new String(jPasswordField.getPassword()))
+    String password = awtPasswordField.getText().trim();
+
+    if(email.isEmpty() || password.isEmpty()){
+        JOptionPane.showMessageDialog(this, "Please enter both email and password.");
+        return;
+    }
+
+    // Run the login HTTP request on a separate thread
+    new Thread(() -> {
+        try {
+            String jsonResponse = sendLoginRequest(email, password);
+            // Parse the JSON response (using org.json library)
+            JSONObject obj = new JSONObject(jsonResponse);
+            if(obj.getString("status").equalsIgnoreCase("success")){
+                // Retrieve the professor's name
+                String professorName = obj.getString("professorName");
+                // Open the Dashboard window and pass the professor's name
+                SwingUtilities.invokeLater(() -> {
+                    new Dashboard(professorName).setVisible(true);
+                    Login.this.dispose();
+                });
+            } else {
+                // Login failed: display the error message from the response
+                String errorMsg = obj.optString("message", "Invalid email or password.");
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(Login.this, errorMsg, "Login Failed", JOptionPane.ERROR_MESSAGE);
+                });
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(Login.this, "Error: " + ex.getMessage(), "Login Error", JOptionPane.ERROR_MESSAGE);
+            });
+        }
+    }).start();
+
     }//GEN-LAST:event_btnLoginActionPerformed
 
     private void userNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userNameActionPerformed
@@ -330,7 +383,7 @@ public void paint(Graphics g) {
 
 
     // Create an AWT TextField for the password
-    TextField awtPasswordField = new TextField(34);
+    awtPasswordField = new TextField(34);
     awtPasswordField.setEchoChar('*');
     awtPasswordField.setBackground(java.awt.Color.WHITE);
     awtPasswordField.setForeground(java.awt.Color.BLACK);
@@ -380,6 +433,35 @@ public void paint(Graphics g) {
      getContentPane().add(awtPasswordPanel);
     
 }
+    private String sendLoginRequest(String email, String password) throws IOException {
+    // Update  PHP endpoint URL
+    String urlString = "http://cm8tes.com/login.php";
+    String urlParameters = "email=" + URLEncoder.encode(email, "UTF-8") +
+                           "&passWord=" + URLEncoder.encode(password, "UTF-8");
+    
+    byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
+    
+    URL url = new URL(urlString);
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    conn.setRequestMethod("POST");
+    conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+    conn.setDoOutput(true);
+    
+    // Send POST data
+    try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
+        out.write(postData);
+    }
+    
+    // Read the response
+    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+    String inputLine;
+    StringBuilder response = new StringBuilder();
+    while ((inputLine = in.readLine()) != null) {
+        response.append(inputLine);
+    }
+    in.close();
+    return response.toString();
+}
 
     /**
      * @param args the command line arguments
@@ -426,6 +508,7 @@ public void paint(Graphics g) {
     private java.awt.Label label3;
     private java.awt.Label label4;
     private java.awt.Label label5;
+    private java.awt.TextField textField1;
     private java.awt.TextField userName;
     // End of variables declaration//GEN-END:variables
 }
