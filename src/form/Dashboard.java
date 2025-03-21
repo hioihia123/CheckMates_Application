@@ -62,33 +62,43 @@ public class Dashboard extends javax.swing.JFrame {
      * This method is used to add custom components to the Dashboard.
      */
        private void initializeUI() {
-        // Create a greeting label using professor's name
-        greetingLabel = new JLabel("Hello, " + professor.getProfessorName() + "!");
-        greetingLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        greetingLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        
-        
-        // Additional personalized info can be added
-        JLabel infoLabel = new JLabel("Email: " + professor.getEmail());
-        infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    // Create and style the greeting label
+    greetingLabel = new JLabel("Hello, " + professor.getProfessorName() + "!");
+    greetingLabel.setFont(new Font("Roboto", Font.BOLD, 24));
+    greetingLabel.setForeground(new Color(50, 50, 50));
+    greetingLabel.setHorizontalAlignment(SwingConstants.LEFT);
+    
 
-        
-        
-        // Use a panel to organize your components
-        JPanel panel = new JPanel(new GridLayout(2, 1));
-        panel.setBackground(Color.WHITE);
-        panel.add(greetingLabel);
-        panel.add(infoLabel);
-        panel.setPreferredSize(new Dimension(1000, 800));
-        
-        // Replace the existing content pane's layout (optional)
-        getContentPane().removeAll();
-        getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(panel, BorderLayout.CENTER);
-        getContentPane().setBackground(Color.WHITE);
-        validate();
-        repaint();
-    }
+    
+    // Create a main panel with a modern background and padding
+    GradientPanel panel = new GradientPanel();
+    panel.setLayout(new BorderLayout());
+    
+    panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // adds padding
+    
+    // Organize the labels into a header panel
+    JPanel headerPanel = new JPanel(new BorderLayout());
+    headerPanel.setOpaque(false); // Make sure the panel is transparent to show the background
+    headerPanel.add(greetingLabel, BorderLayout.NORTH);
+    
+    // Center panel for additional info
+    JPanel centerPanel = new JPanel(new BorderLayout());
+    centerPanel.setOpaque(false);
+    
+    // Add sub-panels to the main panel
+    panel.add(headerPanel, BorderLayout.NORTH);
+    panel.add(centerPanel, BorderLayout.CENTER);
+    panel.setPreferredSize(new Dimension(1000, 800));
+    
+    // Replace the content pane's layout and add your modern panel
+    getContentPane().removeAll();
+    getContentPane().setLayout(new BorderLayout());
+    getContentPane().add(panel, BorderLayout.CENTER);
+    getContentPane().setBackground(new Color(240, 240, 240)); // a subtle overall background
+    validate();
+    repaint();
+}
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
