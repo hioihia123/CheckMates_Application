@@ -84,7 +84,7 @@ public class Dashboard extends javax.swing.JFrame {
     // Center panel for additional info
     JPanel centerPanel = new JPanel(new BorderLayout());
     centerPanel.setOpaque(false);
-    
+    //
     // Add sub-panels to the main panel
     panel.add(headerPanel, BorderLayout.NORTH);
     panel.add(centerPanel, BorderLayout.CENTER);
