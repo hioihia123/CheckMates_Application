@@ -274,32 +274,31 @@ public void paint(Graphics g) {
     }//GEN-LAST:event_app_exitMouseExited
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
-    // Retrieve email and password from  login form components.
     String email = userName.getText().trim();
-    
-    String password = awtPasswordField.getText().trim();
+    String password = awtPasswordField.getText().trim(); // assuming awtPasswordField is a class field
 
-    if(email.isEmpty() || password.isEmpty()){
+    if (email.isEmpty() || password.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Please enter both email and password.");
         return;
     }
 
-    // Run the login HTTP request on a separate thread
     new Thread(() -> {
         try {
             String jsonResponse = sendLoginRequest(email, password);
-            // Parse the JSON response (using org.json library)
             JSONObject obj = new JSONObject(jsonResponse);
-            if(obj.getString("status").equalsIgnoreCase("success")){
-                // Retrieve the professor's name
+            if (obj.getString("status").equalsIgnoreCase("success")) {
                 String professorName = obj.getString("professorName");
+                String profEmail = obj.getString("email");
+
+                // Create a Professor instance
+                Professor professor = new Professor(professorName, profEmail);
+                
                 // Open the Dashboard window and pass the professor's name
                 SwingUtilities.invokeLater(() -> {
-                    new Dashboard(professorName).setVisible(true);
+                    new Dashboard(professor).setVisible(true);
                     Login.this.dispose();
                 });
             } else {
-                // Login failed: display the error message from the response
                 String errorMsg = obj.optString("message", "Invalid email or password.");
                 SwingUtilities.invokeLater(() -> {
                     JOptionPane.showMessageDialog(Login.this, errorMsg, "Login Failed", JOptionPane.ERROR_MESSAGE);
@@ -312,6 +311,7 @@ public void paint(Graphics g) {
             });
         }
     }).start();
+
 
     }//GEN-LAST:event_btnLoginActionPerformed
 
