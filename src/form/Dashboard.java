@@ -61,33 +61,32 @@ public class Dashboard extends javax.swing.JFrame {
     /**
      * This method is used to add custom components to the Dashboard.
      */
-       private void initializeUI() {
+private void initializeUI() {
     // Create and style the greeting label
     greetingLabel = new JLabel("Hello, " + professor.getProfessorName() + "!");
     greetingLabel.setFont(new Font("Roboto", Font.BOLD, 24));
     greetingLabel.setForeground(new Color(50, 50, 50));
     greetingLabel.setHorizontalAlignment(SwingConstants.LEFT);
     
-
+    // Create and style the professor ID label
+    JLabel professorIDLabel = new JLabel("Professor ID: " + professor.getProfessorID());
+    professorIDLabel.setFont(new Font("Roboto", Font.PLAIN, 18));
+    professorIDLabel.setForeground(new Color(80, 80, 80));
+    professorIDLabel.setHorizontalAlignment(SwingConstants.LEFT);
     
     // Create a main panel with a modern background and padding
     GradientPanel panel = new GradientPanel();
     panel.setLayout(new BorderLayout());
-    
     panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // adds padding
     
-    // Organize the labels into a header panel
-    JPanel headerPanel = new JPanel(new BorderLayout());
-    headerPanel.setOpaque(false); // Make sure the panel is transparent to show the background
-    headerPanel.add(greetingLabel, BorderLayout.NORTH);
+    // Organize the labels into a header panel using a GridLayout to stack them vertically
+    JPanel headerPanel = new JPanel(new GridLayout(2, 1));
+    headerPanel.setOpaque(false); // Make the panel transparent
+    headerPanel.add(greetingLabel);
+    headerPanel.add(professorIDLabel);
     
-    // Center panel for additional info
-    JPanel centerPanel = new JPanel(new BorderLayout());
-    centerPanel.setOpaque(false);
-    
-    // Add sub-panels to the main panel
+    // Add the header panel to the main panel
     panel.add(headerPanel, BorderLayout.NORTH);
-    panel.add(centerPanel, BorderLayout.CENTER);
     panel.setPreferredSize(new Dimension(1000, 800));
     
     // Replace the content pane's layout and add your modern panel
@@ -98,6 +97,7 @@ public class Dashboard extends javax.swing.JFrame {
     validate();
     repaint();
 }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -164,7 +164,7 @@ public class Dashboard extends javax.swing.JFrame {
         //</editor-fold>
 
         // Create a Professors object
-    Professor prof = new Professor("Professor Name", "test@gmail.com");
+    Professor prof = new Professor("Professor Name", "test@gmail.com", "dasdadaad82313");
     java.awt.EventQueue.invokeLater(new Runnable() {
         public void run() {
             new Dashboard(prof).setVisible(true);
