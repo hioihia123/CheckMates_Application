@@ -335,7 +335,14 @@ public void paint(Graphics g) {
         // TODO add your handling code here:
     }//GEN-LAST:event_userNameActionPerformed
  
-    private void customizeComponents() {
+ private void customizeComponents() {
+            
+    try {
+    UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+} catch (Exception ex) {
+    ex.printStackTrace();
+}
+
     // 1) Email field (AWT TextField) styling remains unchanged
     userName.setBackground(Color.WHITE);
     userName.setForeground(Color.BLACK);
