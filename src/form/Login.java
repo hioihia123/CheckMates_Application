@@ -50,6 +50,7 @@ public class Login extends javax.swing.JFrame {
      */
     private Image backgroundImage;
     private TextField awtPasswordField;
+    private int failedAttempts = 0;
     public Login() {
     // Removes window decorations (title bar, borders)
     setUndecorated(true);
@@ -287,21 +288,36 @@ public void paint(Graphics g) {
             String jsonResponse = sendLoginRequest(email, password);
             JSONObject obj = new JSONObject(jsonResponse);
             if (obj.getString("status").equalsIgnoreCase("success")) {
+                // Reset failed attempts on success
+                failedAttempts = 0;
+                
                 String professorName = obj.getString("professorName");
                 String profEmail = obj.getString("email");
+                String profID = obj.getString("professor_id");
 
                 // Create a Professor instance
-                Professor professor = new Professor(professorName, profEmail);
+                Professor professor = new Professor(professorName, profEmail, profID);
                 
-                // Open the Dashboard window and pass the professor's name
+                // Open the Dashboard window and pass the professor's info
                 SwingUtilities.invokeLater(() -> {
                     new Dashboard(professor).setVisible(true);
                     Login.this.dispose();
                 });
             } else {
+                // Increment failed attempts on login failure
+                failedAttempts++;
                 String errorMsg = obj.optString("message", "Invalid email or password.");
+                
                 SwingUtilities.invokeLater(() -> {
-                    JOptionPane.showMessageDialog(Login.this, errorMsg, "Login Failed", JOptionPane.ERROR_MESSAGE);
+                    // If attempts reached 3, show warning message
+                    if (failedAttempts >= 3) {
+                        JOptionPane.showMessageDialog(Login.this, 
+                            "Forgot email or password? Please check your email for login info",
+                            "Login Failed",
+                            JOptionPane.WARNING_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(Login.this, errorMsg, "Login Failed", JOptionPane.ERROR_MESSAGE);
+                    }
                 });
             }
         } catch (Exception ex) {
