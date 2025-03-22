@@ -57,7 +57,7 @@ public class Login extends javax.swing.JFrame {
 
     // 1) Load the background image from GitHub
     try {
-        URL backgroundUrl = new URL("https://raw.githubusercontent.com/hioihia123/CheckMates_Application/refs/heads/master/background5.png");
+        URL backgroundUrl = new URL("https://raw.githubusercontent.com/hioihia123/CheckMates_Application/refs/heads/master/background7.png");
         backgroundImage = ImageIO.read(backgroundUrl);
     } catch (IOException e) {
         e.printStackTrace();
@@ -222,12 +222,12 @@ public void paint(Graphics g) {
                             .addComponent(label5, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(196, 196, 196)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(label4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(btnLogin)))))
+                                    .addComponent(btnLogin)))
+                            .addComponent(userName, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(244, 244, 244)
                         .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -335,7 +335,14 @@ public void paint(Graphics g) {
         // TODO add your handling code here:
     }//GEN-LAST:event_userNameActionPerformed
  
-    private void customizeComponents() {
+ private void customizeComponents() {
+            
+    try {
+    UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+} catch (Exception ex) {
+    ex.printStackTrace();
+}
+
     // 1) Email field (AWT TextField) styling remains unchanged
     userName.setBackground(Color.WHITE);
     userName.setForeground(Color.BLACK);
@@ -379,7 +386,6 @@ public void paint(Graphics g) {
     label4.addMouseListener(new java.awt.event.MouseAdapter() {
     @Override
     public void mouseClicked(java.awt.event.MouseEvent e) {
-        System.out.println("Sign Up Button Clicked");
         // Create and show the SignUp form
         new SignUp().setVisible(true);
 
