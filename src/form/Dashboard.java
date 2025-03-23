@@ -113,21 +113,41 @@ public class Dashboard extends javax.swing.JFrame {
     topBar.add(leftPanel, BorderLayout.WEST);
     topBar.add(rightPanel, BorderLayout.EAST);
 
-    // --- Question header: below the top bar ---
+    // "What's on your mind?" label
     JLabel questionHeader = new JLabel("What's on your mind?");
     questionHeader.setFont(new Font("Helvetica Neue", Font.BOLD, 36));
     questionHeader.setForeground(new Color(50, 50, 50));
-    questionHeader.setHorizontalAlignment(SwingConstants.LEFT);
-    
-    // --- Create a top section panel with vertical layout ---
-    JPanel topSection = new JPanel();
-    topSection.setLayout(new BoxLayout(topSection, BoxLayout.Y_AXIS));
-    topSection.setOpaque(false);
-    topSection.add(topBar);
-    // Optionally add some vertical spacing between topBar and question header
-    topSection.add(Box.createVerticalStrut(20));
-    topSection.add(questionHeader);
-    
+     // Remove the forced LEFT alignment so we can center it
+     // questionHeader.setHorizontalAlignment(SwingConstants.LEFT);
+
+     // Wrap questionHeader in a center-aligned panel
+     JPanel questionHeaderPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+     questionHeaderPanel.setOpaque(false);
+     questionHeaderPanel.add(questionHeader);
+
+     // Create the fancy hover button
+     FancyHoverButton fancyButton = new FancyHoverButton("Create Class");
+     fancyButton.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
+     fancyButton.setPreferredSize(new Dimension(180, 50)); // size as needed
+
+      // We'll place this button in the same topSection panel, below the question header
+     JPanel topSection = new JPanel();
+     topSection.setLayout(new BoxLayout(topSection, BoxLayout.Y_AXIS));
+     topSection.setOpaque(false);
+
+     topSection.add(topBar);
+
+      // Add the questionHeaderPanel (which centers the text)
+     topSection.add(questionHeaderPanel);
+
+     // Add some vertical spacing so the button doesn't overlap the label
+     topSection.add(Box.createVerticalStrut(40));
+
+     // Put the button in a small panel (FlowLayout) if you want it left-aligned
+     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+     buttonPanel.setOpaque(false);
+     buttonPanel.add(fancyButton);
+     topSection.add(buttonPanel);
     // --- Main panel setup ---
     GradientPanel panel = new GradientPanel();
     panel.setLayout(new BorderLayout());
@@ -235,7 +255,7 @@ public class Dashboard extends javax.swing.JFrame {
         //</editor-fold>
 
         // Create a Professors object
-    Professor prof = new Professor("Professor Name", "test@gmail.com", "dasdadaad82313");
+    Professor prof = new Professor("Professor Name", "test@gmail.com", "it's not a game. I am not a robot AI challenging you");
     java.awt.EventQueue.invokeLater(new Runnable() {
         public void run() {
             new Dashboard(prof).setVisible(true);
