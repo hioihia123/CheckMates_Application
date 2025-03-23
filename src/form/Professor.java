@@ -11,11 +11,12 @@ package form;
 public class Professor {
     private String professorName;
     private String email;
-    private String department;
+    private String professorID;
     
-    public Professor(String professorName, String email) {
+    public Professor(String professorName, String email, String professorID) {
         this.professorName = professorName;
         this.email = email;
+        this.professorID = professorID;
     }
     
     public String getProfessorName() {
@@ -26,8 +27,8 @@ public class Professor {
         return email;
     }
     
-    public String getDepartment() {
-        return department;
+    public String getProfessorID() {
+        return professorID;
     }
 }
 

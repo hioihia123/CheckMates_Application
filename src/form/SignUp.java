@@ -194,7 +194,8 @@ chkTerms.addActionListener(new ActionListener() {
                     if (status.equalsIgnoreCase("Signed up successfully")) {
                         JOptionPane.showMessageDialog(SignUp.this, "Registration successful!");
                         // Redirect to login page after successful sign up
-                        new Login().setVisible(true);
+                        new Login().show();
+
                         SignUp.this.dispose();
                     } else if (obj.getString("message").toLowerCase().contains("email already exists")) {
                         // Show confirmation dialog to ask if user wants to go back to login page
