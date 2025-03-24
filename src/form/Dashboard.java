@@ -234,11 +234,14 @@ public class Dashboard extends javax.swing.JFrame {
                     "&passcode=" + passcode;
             
             //Save the class information to your database with professor.getProfessorID()
-            saveClassToDatabase(professor.getProfessorID(), className, section, expirationMinutes);
+            saveClassToDatabase(professor.getProfessorID(), className, section, passcode, expirationMinutes);
+            
             // Generate the QR code image
             Image qrImage = generateQRCodeImage(checkInUrl, 200, 200);
             // Show the QR code dialog along with passcode and expiration info
             showQRCodeDialog(qrImage, checkInUrl, passcode, expirationMinutes);
+            
+            
 
             // e.g., saveClass(professor.getProfessorID(), className, section, passcode, expirationMinutes);
             
@@ -294,14 +297,15 @@ public class Dashboard extends javax.swing.JFrame {
     qrDialog.setVisible(true);
 }
 
-private void saveClassToDatabase(String professorId, String className, String section, int expirationMinutes) {
+private void saveClassToDatabase(String professorId, String className, String section, int passcode, int expirationMinutes) {
     new Thread(() -> {
         try {
             String urlString = "http://cm8tes.com/createClass.php"; // Update to your actual URL
             String urlParameters = "professor_id=" + URLEncoder.encode(professorId, "UTF-8") +
                                    "&class=" + URLEncoder.encode(className, "UTF-8") +
                                    "&section=" + URLEncoder.encode(section, "UTF-8") +
-                                   "&expiration=" + expirationMinutes;
+                                   "&expiration=" + expirationMinutes +
+                                   "&passcode=" + passcode;
             byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
 
             URL url = new URL(urlString);
