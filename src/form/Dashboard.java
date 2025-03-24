@@ -37,6 +37,12 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONObject; // Make sure to include a JSON library
+
+// Import ZXing libraries for QR code generation
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
 /**
  *
  * @author nguyenp
@@ -52,6 +58,7 @@ public class Dashboard extends javax.swing.JFrame {
      */
     public Dashboard(Professor professor) {
     this.professor = professor;
+    setBackground(Color.WHITE);
     initComponents(); 
     initializeUI();
     
@@ -129,8 +136,11 @@ public class Dashboard extends javax.swing.JFrame {
      FancyHoverButton fancyButton = new FancyHoverButton("Create Class");
      fancyButton.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
      fancyButton.setPreferredSize(new Dimension(180, 50)); // size as needed
+     // Add an action listener to open the create class dialog
+     fancyButton.addActionListener(e -> openCreateClassDialog());
 
-      // We'll place this button in the same topSection panel, below the question header
+
+      // place this button in the same topSection panel, below the question header
      JPanel topSection = new JPanel();
      topSection.setLayout(new BoxLayout(topSection, BoxLayout.Y_AXIS));
      topSection.setOpaque(false);
@@ -141,13 +151,14 @@ public class Dashboard extends javax.swing.JFrame {
      topSection.add(questionHeaderPanel);
 
      // Add some vertical spacing so the button doesn't overlap the label
-     topSection.add(Box.createVerticalStrut(40));
+     topSection.add(javax.swing.Box.createVerticalStrut(60));
 
      // Put the button in a small panel (FlowLayout) if you want it left-aligned
      JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
      buttonPanel.setOpaque(false);
      buttonPanel.add(fancyButton);
      topSection.add(buttonPanel);
+     
     // --- Main panel setup ---
     GradientPanel panel = new GradientPanel();
     panel.setLayout(new BorderLayout());
@@ -173,6 +184,169 @@ public class Dashboard extends javax.swing.JFrame {
     getContentPane().setBackground(new Color(240, 240, 240));
     validate();
     repaint();
+}
+   private void openCreateClassDialog() {
+    // Change grid layout to 4 rows x 2 columns to include an expiration input
+    JDialog dialog = new JDialog(this, "Create New Class", true);
+    dialog.setLayout(new GridLayout(4, 2, 10, 10));
+    dialog.setSize(400, 250);
+    dialog.setLocationRelativeTo(this);
+
+    JLabel nameLabel = new JLabel("Class Name:");
+    JTextField classNameField = new JTextField();
+
+    JLabel sectionLabel = new JLabel("Section:");
+    JTextField sectionField = new JTextField();
+
+    JLabel expirationLabel = new JLabel("Expiration (minutes):");
+    JTextField expirationField = new JTextField();
+    
+    // Create button panel (or use an empty cell for spacing)
+    JButton createButton = new JButton("Create");
+    createButton.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String className = classNameField.getText().trim();
+            String section = sectionField.getText().trim();
+            String expirationText = expirationField.getText().trim();
+            
+            if (className.isEmpty() || section.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "Please fill in both Class Name and Section.", "Incomplete Form", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // If expiration is empty or invalid, default to 60 minutes
+            int expirationMinutes = 60;
+            try {
+                if (!expirationText.isEmpty()) {
+                    expirationMinutes = Integer.parseInt(expirationText);
+                }
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(dialog, "Expiration must be a number (minutes). Using default of 60 minutes.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+            }
+            
+            // Generate a random 4-digit passcode
+            int passcode = (int) (Math.random() * 9000) + 1000;
+            
+            // Build the check-in URL (you may want to include class info or an ID)
+            String checkInUrl = "http://cm8tes.com/checkin.php?class=" +
+                    URLEncoder.encode(className, StandardCharsets.UTF_8) +
+                    "&passcode=" + passcode;
+            
+            //Save the class information to your database with professor.getProfessorID()
+            saveClassToDatabase(professor.getProfessorID(), className, section, expirationMinutes);
+            // Generate the QR code image
+            Image qrImage = generateQRCodeImage(checkInUrl, 200, 200);
+            // Show the QR code dialog along with passcode and expiration info
+            showQRCodeDialog(qrImage, checkInUrl, passcode, expirationMinutes);
+
+            
+            
+
+            // e.g., saveClass(professor.getProfessorID(), className, section, passcode, expirationMinutes);
+            
+            dialog.dispose();
+        }
+    });
+    
+    // Add components to the dialog in order:
+    dialog.add(nameLabel);
+    dialog.add(classNameField);
+    dialog.add(sectionLabel);
+    dialog.add(sectionField);
+    dialog.add(expirationLabel);
+    dialog.add(expirationField);
+    dialog.add(new JLabel()); // Empty cell for spacing
+    dialog.add(createButton);
+    
+    dialog.setVisible(true);
+}
+
+
+    // Method to generate a QR code image using ZXing
+    private Image generateQRCodeImage(String text, int width, int height) {
+        try {
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, width, height);
+            java.awt.image.BufferedImage qrImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
+            return qrImage;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // Method to show a dialog with the generated QR code
+    private void showQRCodeDialog(Image qrImage, String url, int passcode, int expirationMinutes) {
+    JDialog qrDialog = new JDialog(this, "Class Check-In QR Code", true);
+    qrDialog.setLayout(new BorderLayout());
+    qrDialog.setSize(300, 450);
+    qrDialog.setLocationRelativeTo(this);
+    
+    JLabel qrLabel = new JLabel(new ImageIcon(qrImage));
+    qrLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    
+    // Include passcode, URL, and expiration information in the info label
+    JLabel infoLabel = new JLabel("<html>Passcode: " + passcode + "<br>" +
+                                  "URL: " + url + "<br>" +
+                                  "Expires in: " + expirationMinutes + " minute(s)</html>");
+    infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    
+    qrDialog.add(qrLabel, BorderLayout.CENTER);
+    qrDialog.add(infoLabel, BorderLayout.SOUTH);
+    
+    qrDialog.setVisible(true);
+}
+
+private void saveClassToDatabase(String professorId, String className, String section, int expirationMinutes) {
+    new Thread(() -> {
+        try {
+            String urlString = "http://cm8tes.com/createClass.php"; // Update to your actual URL
+            String urlParameters = "professor_id=" + URLEncoder.encode(professorId, "UTF-8") +
+                                   "&class=" + URLEncoder.encode(className, "UTF-8") +
+                                   "&section=" + URLEncoder.encode(section, "UTF-8") +
+                                   "&expiration=" + expirationMinutes;
+            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
+
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setDoOutput(true);
+
+            try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
+                out.write(postData);
+            }
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            JSONObject json = new JSONObject(response.toString());
+            if ("success".equalsIgnoreCase(json.optString("status"))) {
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(Dashboard.this,
+                        "Class created successfully!\nPasscode: " + json.optInt("passcode") +
+                        "\nExpires: " + json.optString("passcode_expires"),
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+                });
+            } else {
+                String errMsg = json.optString("message", "Error creating class");
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(Dashboard.this, errMsg, "Error", JOptionPane.ERROR_MESSAGE);
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(Dashboard.this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            });
+        }
+    }).start();
 }
 
 
