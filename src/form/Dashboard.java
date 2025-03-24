@@ -229,7 +229,7 @@ public class Dashboard extends javax.swing.JFrame {
             int passcode = (int) (Math.random() * 9000) + 1000;
             
             // Build the check-in URL (you may want to include class info or an ID)
-            String checkInUrl = "http://cm8tes.com/checkin.php?class=" +
+            String checkInUrl = "http://www.student-check-in.cm8tes.com" +
                     URLEncoder.encode(className, StandardCharsets.UTF_8) +
                     "&passcode=" + passcode;
             
@@ -239,9 +239,6 @@ public class Dashboard extends javax.swing.JFrame {
             Image qrImage = generateQRCodeImage(checkInUrl, 200, 200);
             // Show the QR code dialog along with passcode and expiration info
             showQRCodeDialog(qrImage, checkInUrl, passcode, expirationMinutes);
-
-            
-            
 
             // e.g., saveClass(professor.getProfessorID(), className, section, passcode, expirationMinutes);
             
