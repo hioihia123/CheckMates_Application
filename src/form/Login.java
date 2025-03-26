@@ -57,7 +57,7 @@ public class Login extends javax.swing.JFrame {
 
     // 1) Load the background image from GitHub
     try {
-        URL backgroundUrl = new URL("https://raw.githubusercontent.com/hioihia123/CheckMates_Application/refs/heads/master/background7.png");
+        URL backgroundUrl = new URL("https://raw.githubusercontent.com/hioihia123/CheckMates_Application/refs/heads/master/background10.png");
         backgroundImage = ImageIO.read(backgroundUrl);
     } catch (IOException e) {
         e.printStackTrace();
