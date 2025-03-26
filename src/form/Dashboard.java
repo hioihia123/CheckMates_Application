@@ -173,13 +173,27 @@ public class Dashboard extends javax.swing.JFrame {
      // Create a new ClassDashboard window and pass the same professor object
      ClassDashboard classDash = new ClassDashboard(professor);
      classDash.setVisible(true);
+     
 });
+     //create a "View Attendance" button
+     FancyHoverButton viewAttendanceButton = new FancyHoverButton("Records");
+     viewAttendanceButton.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
+     viewAttendanceButton.setPreferredSize(new Dimension(180, 50));
+     viewAttendanceButton.setMaximumSize(new Dimension(180,50));
+     viewAttendanceButton.addActionListener(e -> {
+       ClassSelectionDashboard csd = new ClassSelectionDashboard(professor);
+       csd.setVisible(true);
+  });
+
+
 
 
 
      // Add spacing before adding the additional button
      additionalButtonsPanel.add(Box.createHorizontalStrut(20)); // 20-pixel space
      additionalButtonsPanel.add(viewClassButton);
+     additionalButtonsPanel.add(Box.createHorizontalStrut(20));
+     additionalButtonsPanel.add(viewAttendanceButton);
      
      // Then, add the additionalButtonsPanel to the main button panel that already contains the Create Class button.
      buttonPanel.add(additionalButtonsPanel);

@@ -62,8 +62,7 @@ public class ClassDashboard extends JFrame {
     }
 
     private void initComponents() {
-        // For styling, replicate the style from your main Dashboard
-        // Example: A top panel with a greeting, then a table below
+        // For styling
 
         // Top panel with greeting
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -74,7 +73,7 @@ public class ClassDashboard extends JFrame {
         topPanel.add(greetingLabel);
 
         // Table to display classes
-        classesTable = new JTable(); // We'll set the model after fetching data
+        classesTable = new JTable(); // set the model after fetching data
         JScrollPane scrollPane = new JScrollPane(classesTable);
 
         // Main content panel
@@ -90,7 +89,7 @@ public class ClassDashboard extends JFrame {
     }
 
     private void loadClassesForProfessor() {
-    // URL to your getClasses.php endpoint
+    // getClasses.php endpoint
     String urlString = "http://cm8tes.com/getClasses.php?professor_id=" + 
                    URLEncoder.encode(professor.getProfessorID(), StandardCharsets.UTF_8);
 
