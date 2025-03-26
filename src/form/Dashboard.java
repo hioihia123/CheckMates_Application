@@ -138,8 +138,8 @@ public class Dashboard extends javax.swing.JFrame {
      fancyButton.setPreferredSize(new Dimension(180, 50)); // size as needed
      // Add an action listener to open the create class dialog
      fancyButton.addActionListener(e -> openCreateClassDialog());
-
-
+     
+    
       // place this button in the same topSection panel, below the question header
      JPanel topSection = new JPanel();
      topSection.setLayout(new BoxLayout(topSection, BoxLayout.Y_AXIS));
@@ -154,11 +154,36 @@ public class Dashboard extends javax.swing.JFrame {
      topSection.add(javax.swing.Box.createVerticalStrut(60));
 
      // Put the button in a small panel (FlowLayout) if you want it left-aligned
-     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,0, 0));
      buttonPanel.setOpaque(false);
      buttonPanel.add(fancyButton);
      topSection.add(buttonPanel);
      
+     // Create a panel for additional buttons with BoxLayout along the X axis
+     JPanel additionalButtonsPanel = new JPanel();
+     additionalButtonsPanel.setLayout(new BoxLayout(additionalButtonsPanel, BoxLayout.X_AXIS));
+     additionalButtonsPanel.setOpaque(false);
+
+     //create a "View Class" button
+     FancyHoverButton viewClassButton = new FancyHoverButton("View Class");
+     viewClassButton.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
+     viewClassButton.setPreferredSize(new Dimension(180, 50));
+     viewClassButton.setMaximumSize(new Dimension(180,50));
+     viewClassButton.addActionListener(e -> {
+     // Create a new ClassDashboard window and pass the same professor object
+     ClassDashboard classDash = new ClassDashboard(professor);
+     classDash.setVisible(true);
+});
+
+
+
+     // Add spacing before adding the additional button
+     additionalButtonsPanel.add(Box.createHorizontalStrut(20)); // 20-pixel space
+     additionalButtonsPanel.add(viewClassButton);
+     
+     // Then, add the additionalButtonsPanel to the main button panel that already contains the Create Class button.
+     buttonPanel.add(additionalButtonsPanel);
+
     // --- Main panel setup ---
     GradientPanel panel = new GradientPanel();
     panel.setLayout(new BorderLayout());
@@ -186,7 +211,7 @@ public class Dashboard extends javax.swing.JFrame {
     repaint();
 }
    private void openCreateClassDialog() {
-    // Change grid layout to 4 rows x 2 columns to include an expiration input
+
     JDialog dialog = new JDialog(this, "Create New Class", true);
     dialog.setLayout(new GridLayout(4, 2, 10, 10));
     dialog.setSize(400, 250);
@@ -229,9 +254,7 @@ public class Dashboard extends javax.swing.JFrame {
             int passcode = (int) (Math.random() * 9000) + 1000;
             
             // Build the check-in URL (you may want to include class info or an ID)
-            String checkInUrl = "http://www.student-check-in.cm8tes.com" +
-                    URLEncoder.encode(className, StandardCharsets.UTF_8) +
-                    "&passcode=" + passcode;
+            String checkInUrl = "http://www.student-check-in.cm8tes.com";
             
             //Save the class information to your database with professor.getProfessorID()
             saveClassToDatabase(professor.getProfessorID(), className, section, passcode, expirationMinutes);
@@ -300,7 +323,7 @@ public class Dashboard extends javax.swing.JFrame {
 private void saveClassToDatabase(String professorId, String className, String section, int passcode, int expirationMinutes) {
     new Thread(() -> {
         try {
-            String urlString = "http://cm8tes.com/createClass.php"; // Update to your actual URL
+            String urlString = "http://cm8tes.com/createClass.php"; // Student check in php file
             String urlParameters = "professor_id=" + URLEncoder.encode(professorId, "UTF-8") +
                                    "&class=" + URLEncoder.encode(className, "UTF-8") +
                                    "&section=" + URLEncoder.encode(section, "UTF-8") +
