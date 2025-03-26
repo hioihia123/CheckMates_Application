@@ -91,7 +91,9 @@ public class ClassDashboard extends JFrame {
 
     private void loadClassesForProfessor() {
     // URL to your getClasses.php endpoint
-    String urlString = "http://cm8tes.com/getClasses.php";
+    String urlString = "http://cm8tes.com/getClasses.php?professor_id=" + 
+                   URLEncoder.encode(professor.getProfessorID(), StandardCharsets.UTF_8);
+
     java.util.List<String[]> rowData = new ArrayList<>();
     String[] columnNames = {"Class ID", "Class Name", "Section", "Passcode", "Created At", "Expires At"};
     
