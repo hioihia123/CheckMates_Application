@@ -10,7 +10,7 @@ public class FancyLogoPanel extends JPanel {
     private BufferedImage logoImage;
     
     // Desired display width for the logo (the height will be scaled proportionally)
-    private static final int DESIRED_WIDTH = 100;
+    private static final int DESIRED_WIDTH = 160;
     // Drop shadow offset (adjust or remove if you don't want a shadow)
     private static final int SHADOW_OFFSET = 1;
 

@@ -1,7 +1,9 @@
 package form;
 
 import javax.swing.*;
+import javax.swing.table.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -15,6 +17,8 @@ import org.json.JSONObject;
 public class AttendanceDashboard extends JFrame {
     private int classId;
     private JTable recordsTable;
+    private JTextField searchField;
+    private TableRowSorter<TableModel> rowSorter;
 
     // Constructor that uses class_id to retrieve attendance records for that specific class
     public AttendanceDashboard(int classId) {
@@ -36,6 +40,13 @@ public class AttendanceDashboard extends JFrame {
         headerLabel.setForeground(new Color(50, 50, 50));
         mainPanel.add(headerLabel, BorderLayout.NORTH);
 
+        // Create a search panel with a label and a text field
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        searchPanel.add(new JLabel("Search: "));
+        searchField = new JTextField(20);
+        searchPanel.add(searchField);
+        mainPanel.add(searchPanel, BorderLayout.SOUTH);
+
         recordsTable = new JTable();
         recordsTable.setFont(new Font("Helvetica Neue", Font.PLAIN, 16));
         recordsTable.setRowHeight(25);
@@ -43,6 +54,36 @@ public class AttendanceDashboard extends JFrame {
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
         getContentPane().add(mainPanel);
+
+        // Add a listener to the search field to filter table data
+        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                updateFilter();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                updateFilter();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                updateFilter();
+            }
+        });
+    }
+
+    private void updateFilter() {
+        String text = searchField.getText();
+        if (rowSorter != null) {
+            if (text.trim().length() == 0) {
+                rowSorter.setRowFilter(null);
+            } else {
+                // Filter to match the text in any column (case-insensitive)
+                rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 0));
+            }
+        }
     }
 
     private void loadAttendanceRecordsByClass() {
@@ -77,7 +118,12 @@ public class AttendanceDashboard extends JFrame {
                     rowData.add(new String[]{studentId, name, date, time});
                 }
                 String[][] data = rowData.toArray(new String[0][]);
-                recordsTable.setModel(new javax.swing.table.DefaultTableModel(data, columnNames));
+                DefaultTableModel model = new DefaultTableModel(data, columnNames);
+                recordsTable.setModel(model);
+                
+                // Initialize the row sorter and associate it with the table model
+                rowSorter = new TableRowSorter<>(model);
+                recordsTable.setRowSorter(rowSorter);
             } else {
                 JOptionPane.showMessageDialog(this, "Error: " + json.optString("message"),
                         "Error", JOptionPane.ERROR_MESSAGE);
@@ -96,3 +142,4 @@ public class AttendanceDashboard extends JFrame {
         SwingUtilities.invokeLater(() -> new AttendanceDashboard(1).setVisible(true));
     }
 }
+
