@@ -72,60 +72,71 @@ public class ClassSelectionDashboard extends JFrame {
         getContentPane().add(mainPanel);
     }
 
-    private void loadClassesForProfessor() {
-        // Build the URL to get classes for this professor
-        String urlString = "";
-        try {
-            urlString = "http://cm8tes.com/getClasses.php?professor_id=" +
-                        URLEncoder.encode(professor.getProfessorID(), StandardCharsets.UTF_8.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        java.util.List<String[]> rowData = new ArrayList<>();
-        String[] columnNames = {"Class ID", "Class Name", "Section", "Passcode", "Created At", "Expires At"};
-        
-        try {
-            URL url = new URL(urlString);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-            while((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            
-            JSONObject json = new JSONObject(response.toString());
-            if ("success".equalsIgnoreCase(json.optString("status"))) {
-                JSONArray classesArray = json.getJSONArray("classes");
-                for (int i = 0; i < classesArray.length(); i++) {
-                    JSONObject obj = classesArray.getJSONObject(i);
-                    String classId = String.valueOf(obj.optInt("class_id"));
-                    String className = obj.optString("className");
-                    String section = obj.optString("section");
-                    String passcode = String.valueOf(obj.optInt("passcode"));
-                    String createdAt = obj.optString("created_at");
-                    String expiresAt = obj.optString("passcode_expires");
-                    rowData.add(new String[] {classId, className, section, passcode, createdAt, expiresAt});
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Error: " + json.optString("message"),
-                                              "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-        
-        // Convert rowData to 2D array
-        String[][] data = rowData.toArray(new String[0][]);
-        javax.swing.table.DefaultTableModel model =
-                new javax.swing.table.DefaultTableModel(data, columnNames);
-        classesTable.setModel(model);
+   private void loadClassesForProfessor() {
+    // Build the URL to get classes for this professor
+    String urlString = "";
+    try {
+        urlString = "http://cm8tes.com/getClasses.php?professor_id=" +
+                    URLEncoder.encode(professor.getProfessorID(), StandardCharsets.UTF_8.toString());
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+
+    ArrayList<String[]> rowData = new ArrayList<>();
+    // Define column names. The first column "No." is our sequential number.
+    String[] columnNames = {"No.", "Class ID", "Class Name", "Section", "Passcode", "Created At", "Expires At"};
+    
+    try {
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+        StringBuilder response = new StringBuilder();
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+        
+        JSONObject json = new JSONObject(response.toString());
+        if ("success".equalsIgnoreCase(json.optString("status"))) {
+            JSONArray classesArray = json.getJSONArray("classes");
+            for (int i = 0; i < classesArray.length(); i++) {
+                JSONObject obj = classesArray.getJSONObject(i);
+                // Get the actual class ID from the DB
+                String classId = String.valueOf(obj.optInt("class_id"));
+                String className = obj.optString("className");
+                String section = obj.optString("section");
+                String passcode = String.valueOf(obj.optInt("passcode"));
+                String createdAt = obj.optString("created_at");
+                String expiresAt = obj.optString("passcode_expires");
+                // Create a display number based on the order (i+1)
+                String displayNo = String.valueOf(i + 1);
+                // Add a new row where the first column is the sequential number
+                rowData.add(new String[] {displayNo, classId, className, section, passcode, createdAt, expiresAt});
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Error: " + json.optString("message"),
+                                          "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(),
+                                      "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    
+    // Convert rowData to a 2D array
+    String[][] data = rowData.toArray(new String[0][]);
+    javax.swing.table.DefaultTableModel model =
+            new javax.swing.table.DefaultTableModel(data, columnNames);
+    
+        classesTable.setModel(model);
+        
+        // Hide the "Class ID" column (the second column, index 1) so that only sequential numbers show.
+        classesTable.removeColumn(classesTable.getColumnModel().getColumn(1));
+}
+
 
     private void viewAttendanceForSelectedClass() {
     int selectedRow = classesTable.getSelectedRow();
@@ -133,8 +144,9 @@ public class ClassSelectionDashboard extends JFrame {
         JOptionPane.showMessageDialog(this, "Please select a class from the table.", "No Selection", JOptionPane.WARNING_MESSAGE);
         return;
     }
-    // Assume the first column is class_id
-    int classId = Integer.parseInt(classesTable.getValueAt(selectedRow, 0).toString());
+    // Directly access the hidden column from the model (column index 1)
+        int classId = Integer.parseInt(((javax.swing.table.DefaultTableModel)classesTable.getModel())
+                            .getValueAt(selectedRow, 1).toString());
     // Open the AttendanceDashboard for the selected class
     AttendanceDashboard attDash = new AttendanceDashboard(classId);
     attDash.setVisible(true);
