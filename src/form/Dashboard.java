@@ -76,7 +76,7 @@ public class Dashboard extends javax.swing.JFrame {
    private void initializeUI() {
     // Create the fancy logo panel (adjust the image path as needed)
     FancyLogoPanel fancyLogo = new FancyLogoPanel(
-        "https://raw.githubusercontent.com/hioihia123/CheckMates_Application/refs/heads/master/innerground.png"
+        "https://raw.githubusercontent.com/hioihia123/CheckMates_Application/refs/heads/master/inner-ground2.png"
     );
 
     // --- Existing header labels ---
