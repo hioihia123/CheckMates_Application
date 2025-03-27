@@ -293,7 +293,7 @@ public void paint(Graphics g) {
                                                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addGroup(layout.createSequentialGroup()
                                                 .addGap(181, 181, 181)
-                                                .addComponent(jUserName, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                .addComponent(jUserName, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addComponent(app_exit, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(41, 41, 41)
                                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -459,6 +459,7 @@ public void paint(Graphics g) {
         PasswordField.setBackground(Color.WHITE);
         PasswordField.setForeground(Color.BLACK);
         PasswordField.setMinimumSize(new Dimension(8, 26));
+        PasswordField.setFont(new Font("Arial", Font.PLAIN, 16));
 
 
 
@@ -505,7 +506,7 @@ public void paint(Graphics g) {
 
         // 6) Position the parent panel in  frame (null layout).
         getContentPane().setLayout(null);
-        PasswordPanel.setBounds(195, 250, 300,70);  // Adjust as needed
+        PasswordPanel.setBounds(195, 250, 278,65);  // Adjust as needed
         getContentPane().add(PasswordPanel);
 
     }
@@ -573,7 +574,6 @@ public void paint(Graphics g) {
             }
         });
     }
-    //kjkjlk
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton app_exit;
