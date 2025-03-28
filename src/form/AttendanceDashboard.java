@@ -80,7 +80,7 @@ public class AttendanceDashboard extends JFrame {
             if (text.trim().length() == 0) {
                 rowSorter.setRowFilter(null);
             } else {
-                // Filter to match the text in any column (case-insensitive)
+                // Filter to match the text in any column 
                 rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 0));
             }
         }

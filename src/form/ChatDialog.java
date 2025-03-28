@@ -63,7 +63,7 @@ public class ChatDialog extends JDialog {
         });
     }
 
-    // Load professor classes from your backend (similar to your ClassSelectionDashboard)
+    // Load professor classes from backend 
     private void loadProfessorClasses() {
         try {
             String urlString = "http://cm8tes.com/getClasses.php?professor_id=" +
