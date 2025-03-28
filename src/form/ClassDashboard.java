@@ -94,7 +94,7 @@ public class ClassDashboard extends JFrame {
                    URLEncoder.encode(professor.getProfessorID(), StandardCharsets.UTF_8);
 
     java.util.List<String[]> rowData = new ArrayList<>();
-    String[] columnNames = {"Class ID", "Class Name", "Section", "Passcode", "Created At", "Expires At"};
+    String[] columnNames = {"No.", "Class ID", "Class Name", "Section", "Passcode", "Created At", "Expires At"};
     
     try {
         URL url = new URL(urlString);
@@ -114,6 +114,7 @@ public class ClassDashboard extends JFrame {
             // Get the classes array
             org.json.JSONArray classesArray = json.getJSONArray("classes");
             for (int i = 0; i < classesArray.length(); i++) {
+                String displayNo = String.valueOf(i+1);
                 JSONObject obj = classesArray.getJSONObject(i);
                 String classId = String.valueOf(obj.optInt("class_id"));
                 String className = obj.optString("className");
@@ -121,7 +122,7 @@ public class ClassDashboard extends JFrame {
                 String passcode = String.valueOf(obj.optInt("passcode"));
                 String createdAt = obj.optString("created_at");
                 String expiresAt = obj.optString("passcode_expires");
-                rowData.add(new String[] {classId, className, section, passcode, createdAt, expiresAt});
+                rowData.add(new String[] {displayNo,classId, className, section, passcode, createdAt, expiresAt});
             }
         } else {
             JOptionPane.showMessageDialog(this, "Error: " + json.optString("message"), "Error", JOptionPane.ERROR_MESSAGE);
@@ -135,6 +136,8 @@ public class ClassDashboard extends JFrame {
     String[][] rowArray = rowData.toArray(new String[0][]);
     javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(rowArray, columnNames);
     classesTable.setModel(model);
+    
+    classesTable.removeColumn(classesTable.getColumnModel().getColumn(1));
 }
 
 

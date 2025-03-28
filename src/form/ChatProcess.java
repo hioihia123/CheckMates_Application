@@ -29,8 +29,16 @@ public class ChatProcess {
         // Relaxed condition: if user mentions "attendance" or mentions both "checked" and "student"
         if (lowerMsg.contains("attendance") || lowerMsg.contains("name") || lowerMsg.contains("date")
                 || lowerMsg.contains("student name") 
-                || lowerMsg.contains("checked in date")|| lowerMsg.contains("checked in date")||
-           (lowerMsg.contains("checked") && lowerMsg.contains("student"))) {
+                || lowerMsg.contains("checked in date")
+                || lowerMsg.contains("checked in date")
+                || lowerMsg.contains("total checked in for this class") 
+                || lowerMsg.contains("total students with date and time") 
+                || lowerMsg.contains("checked in students with name, date, student id, time")
+                || lowerMsg.contains("Did this student attended this class or not?")
+                || lowerMsg.contains("List all the checked in students in this class at this time")
+                ||
+           (lowerMsg.contains("checked") && lowerMsg.contains("student")
+                &&lowerMsg.contains("time") && lowerMsg.contains("student ID"))) {
             
             // Automatically retrieve the attendance summary from getAttendanceSummary.php endpoint
             String attendanceData = getAttendanceSummary(class_id);
@@ -130,7 +138,7 @@ public class ChatProcess {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer API KEY")
+                .header("Authorization", "Bearer API")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                 .build();
 
