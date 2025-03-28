@@ -183,10 +183,16 @@ public class Dashboard extends javax.swing.JFrame {
      viewAttendanceButton.addActionListener(e -> {
        ClassSelectionDashboard csd = new ClassSelectionDashboard(professor);
        csd.setVisible(true);
-  });
-
-
-
+});
+     //create a "Saki" button for Saki AI Agent
+     FancyHoverButton AIbutton = new FancyHoverButton("Saki");
+     AIbutton.setFont(new Font ("Helvetica Neueu", Font.BOLD, 24));
+     AIbutton.setPreferredSize(new Dimension(180,50));
+     AIbutton.setMaximumSize(new Dimension(180,50));
+     AIbutton.addActionListener(e -> {
+        ChatDialog chatDialog = new ChatDialog(Dashboard.this, professor);
+        chatDialog.setVisible(true);
+}); 
 
 
      // Add spacing before adding the additional button
@@ -194,6 +200,9 @@ public class Dashboard extends javax.swing.JFrame {
      additionalButtonsPanel.add(viewClassButton);
      additionalButtonsPanel.add(Box.createHorizontalStrut(20));
      additionalButtonsPanel.add(viewAttendanceButton);
+     additionalButtonsPanel.add(Box.createHorizontalStrut(20));
+     additionalButtonsPanel.add(AIbutton);
+     
      
      // Then, add the additionalButtonsPanel to the main button panel that already contains the Create Class button.
      buttonPanel.add(additionalButtonsPanel);
@@ -267,10 +276,10 @@ public class Dashboard extends javax.swing.JFrame {
             // Generate a random 4-digit passcode
             int passcode = (int) (Math.random() * 9000) + 1000;
             
-            // Build the check-in URL (you may want to include class info or an ID)
+            // Build the check-in URL
             String checkInUrl = "http://www.student-check-in.cm8tes.com";
             
-            //Save the class information to your database with professor.getProfessorID()
+            //Save the class information to the database with professor.getProfessorID()
             saveClassToDatabase(professor.getProfessorID(), className, section, passcode, expirationMinutes);
             
             // Generate the QR code image
@@ -278,10 +287,7 @@ public class Dashboard extends javax.swing.JFrame {
             // Show the QR code dialog along with passcode and expiration info
             showQRCodeDialog(qrImage, checkInUrl, passcode, expirationMinutes);
             
-            
-
-            // e.g., saveClass(professor.getProfessorID(), className, section, passcode, expirationMinutes);
-            
+                       
             dialog.dispose();
         }
     });
