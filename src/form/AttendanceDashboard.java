@@ -81,7 +81,7 @@ public class AttendanceDashboard extends JFrame {
                 rowSorter.setRowFilter(null);
             } else {
                 // Filter to match the text in any column 
-                rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 0));
+                rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
             }
         }
     }

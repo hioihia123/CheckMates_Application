@@ -14,6 +14,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -22,6 +24,9 @@ public class ClassSelectionDashboard extends JFrame {
     private Professor professor;       // Professor object passed in
     private JTable classesTable;       // Table to display classes
     private JButton viewAttendanceBtn; // Button to view attendance for selected class
+    private JTextField searchField;
+    private TableRowSorter<TableModel> rowSorter;
+
 
     public ClassSelectionDashboard(Professor professor) {
         this.professor = professor;
@@ -40,6 +45,8 @@ public class ClassSelectionDashboard extends JFrame {
         JLabel headerLabel = new JLabel("Select a Class to View Attendance");
         headerLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
         headerPanel.add(headerLabel);
+        
+     
 
         // Table to list classes
         classesTable = new JTable();
@@ -68,8 +75,45 @@ public class ClassSelectionDashboard extends JFrame {
         mainPanel.add(headerPanel, BorderLayout.NORTH);
         mainPanel.add(tableScrollPane, BorderLayout.CENTER);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+        
+         // Create a search panel with a label and a text field
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        searchPanel.add(new JLabel("Search: "));
+        searchField = new JTextField(20);
+        searchPanel.add(searchField);
+        mainPanel.add(searchPanel, BorderLayout.SOUTH);
+        
+        // Add a listener to the search field to filter table data
+        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                updateFilter();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                updateFilter();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                updateFilter();
+            }
+        });
 
         getContentPane().add(mainPanel);
+    }
+    
+    private void updateFilter() {
+        String text = searchField.getText();
+        if (rowSorter != null) {
+            if (text.trim().length() == 0) {
+                rowSorter.setRowFilter(null);
+            } else {
+                // Filter to match the text in any column 
+                rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+            }
+        }
     }
 
    private void loadClassesForProfessor() {
@@ -83,7 +127,7 @@ public class ClassSelectionDashboard extends JFrame {
     }
 
     ArrayList<String[]> rowData = new ArrayList<>();
-    // Define column names. The first column "No." is our sequential number.
+    // Define column names. The first column "No." is  sequential number.
     String[] columnNames = {"No.", "Class ID", "Class Name", "Section", "Passcode", "Created At", "Expires At"};
     
     try {
@@ -132,6 +176,10 @@ public class ClassSelectionDashboard extends JFrame {
             new javax.swing.table.DefaultTableModel(data, columnNames);
     
         classesTable.setModel(model);
+        
+        rowSorter = new TableRowSorter<>(classesTable.getModel());
+        classesTable.setRowSorter(rowSorter);
+
         
         // Hide the "Class ID" column (the second column, index 1) so that only sequential numbers show.
         classesTable.removeColumn(classesTable.getColumnModel().getColumn(1));
