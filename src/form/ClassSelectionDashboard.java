@@ -28,7 +28,7 @@ public class ClassSelectionDashboard extends JFrame {
 
     private Professor professor;       // Professor object passed in
     private JTable classesTable;       // Table to display classes
-    private JButton viewAttendanceBtn; // Button to view attendance for selected class
+    private FancyHoverButton viewAttendanceBtn; // Button to view attendance for selected class
     private JTextField searchField;
     private TableRowSorter<TableModel> rowSorter;
     private int hoveredHeaderColumn = -1;
@@ -108,10 +108,8 @@ public class ClassSelectionDashboard extends JFrame {
 
 
         // Button to view attendance for selected class with modern styling
-        viewAttendanceBtn = new JButton("View Attendance");
+        viewAttendanceBtn = new FancyHoverButton("View Attendance");
         viewAttendanceBtn.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        viewAttendanceBtn.setBackground(new Color(66, 133, 244));
-        viewAttendanceBtn.setForeground(Color.WHITE);
         viewAttendanceBtn.setFocusPainted(false);
         viewAttendanceBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         viewAttendanceBtn.addActionListener(new ActionListener() {

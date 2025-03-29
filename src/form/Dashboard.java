@@ -301,8 +301,7 @@ public class Dashboard extends javax.swing.JFrame {
     // Row 3: Create button (spanning two columns)
     FancyHoverButton createButton = new FancyHoverButton("Create");
     createButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
-    createButton.setBackground(new Color(66, 133, 244));  // modern blue
-    createButton.setForeground(Color.WHITE);
+    createButton.setBackground(new Color(0, 100, 0));  // modern blue
     createButton.setFocusPainted(false);
     createButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
     
