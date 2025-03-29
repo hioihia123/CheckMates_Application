@@ -3,6 +3,7 @@ package form;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -24,28 +25,55 @@ public class ChatDialog extends JDialog {
     public ChatDialog(JFrame parent, Professor professor) {
         super(parent, "Saki Chat", true);
         this.professor = professor;
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 10));
         setSize(600, 500);
         setLocationRelativeTo(parent);
+        
+        // Apply padding around the dialog content
+        ((JComponent) getContentPane()).setBorder(new EmptyBorder(10, 10, 10, 10));
 
         // Top panel for class selection
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(new JLabel("Select Class:"));
+        topPanel.setOpaque(false);
+        JLabel classLabel = new JLabel("Select Class:");
+        classLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        topPanel.add(classLabel);
+        
         classComboBox = new JComboBox<>();
+        classComboBox.setFont(new Font("SansSerif", Font.PLAIN, 14));
         topPanel.add(classComboBox);
         add(topPanel, BorderLayout.NORTH);
         loadProfessorClasses();
 
-        // Chat area
+        // Chat area with modern styling
         chatArea = new JTextArea();
         chatArea.setEditable(false);
+        chatArea.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        chatArea.setLineWrap(true);
+        chatArea.setWrapStyleWord(true);
+        chatArea.setBackground(new Color(245, 245, 245));
+        chatArea.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220)),
+                new EmptyBorder(10, 10, 10, 10)
+        ));
         JScrollPane scrollPane = new JScrollPane(chatArea);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
         add(scrollPane, BorderLayout.CENTER);
 
         // Input panel with text field and send button
-        JPanel inputPanel = new JPanel(new BorderLayout());
+        JPanel inputPanel = new JPanel(new BorderLayout(5, 5));
         inputField = new JTextField();
+        inputField.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        inputField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                new EmptyBorder(5, 10, 5, 10)
+        ));
         sendButton = new JButton("Send");
+        sendButton.setFont(new Font("SansSerif", Font.BOLD, 14));
+        sendButton.setBackground(new Color(66, 133, 244));
+        sendButton.setForeground(Color.WHITE);
+        sendButton.setFocusPainted(false);
+        sendButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
         inputPanel.add(inputField, BorderLayout.CENTER);
         inputPanel.add(sendButton, BorderLayout.EAST);
         add(inputPanel, BorderLayout.SOUTH);
@@ -117,7 +145,9 @@ public class ChatDialog extends JDialog {
     }
 
     public void appendChat(String message) {
-        chatArea.append(message + "\n");
+        chatArea.append(message + "\n\n");
+        // Auto-scroll to the bottom
+        chatArea.setCaretPosition(chatArea.getDocument().getLength());
     }
 
     // Inner class to hold class details for the combo box
@@ -135,4 +165,5 @@ public class ChatDialog extends JDialog {
             return display;
         }
     }
+
 }
