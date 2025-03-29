@@ -162,7 +162,7 @@ public class ChatProcess {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer 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")
+                .header("Authorization", "Bearer API")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                 .build();
 
