@@ -121,7 +121,7 @@ public class Dashboard extends javax.swing.JFrame {
     topBar.add(rightPanel, BorderLayout.EAST);
 
     // "What's on your mind?" label
-    JLabel questionHeader = new JLabel("What's on your mind?");
+    JLabel questionHeader = new JLabel("What's on your mind, " + professor.getProfessorName() +"?");
     questionHeader.setFont(new Font("Helvetica Neue", Font.BOLD, 36));
     questionHeader.setForeground(new Color(50, 50, 50));
      // Remove the forced LEFT alignment so we can center it
