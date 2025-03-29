@@ -43,9 +43,26 @@ public class ChatProcess {
                 || lowerMsg.contains("did this student check in at this time on this date of this class")
                 || lowerMsg.contains("list all dates and time that this student checked in")
                 || lowerMsg.contains("list details about this checked in students")
+                || lowerMsg.contains("did this student attend this class")
+                || lowerMsg.contains("check attendance of this student in this class")
+                || lowerMsg.contains("analyze the attendance data of this class")
+                || lowerMsg.contains("summarize the attendance data")
+                || lowerMsg.contains("analyze")
+                || lowerMsg.contains("Does this student attended this class today?") 
+                || lowerMsg.contains("tell this student attendance of this class")
+                || lowerMsg.contains("What time did this student check in")
+                || lowerMsg.contains("give detail analyze attendance details of this student name")
+                || lowerMsg.contains("attendance data")
+                || lowerMsg.contains("analyze the attendance")
+                || lowerMsg.contains("did/does [student name] check in for this class")
+                || lowerMsg.contains("show me this student's check in data")
+                || lowerMsg.contains("detail analysis")
+                || lowerMsg.contains("did/does this students attend this class")
+                || lowerMsg.contains("show all the attendance data of this student in this class")
+                || lowerMsg.contains("show all the attendance data of this student")
                 ||
            (lowerMsg.contains("checked") && lowerMsg.contains("student")
-                &&lowerMsg.contains("time") && lowerMsg.contains("student ID"))) {
+                &&lowerMsg.contains("time") && lowerMsg.contains("student ID") && lowerMsg.contains("analyze") && lowerMsg.contains("attendance data"))) {
             
             // Automatically retrieve the attendance summary from getAttendanceSummary.php endpoint
             String attendanceData = getAttendanceSummary(class_id);
@@ -145,7 +162,7 @@ public class ChatProcess {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer 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")
+                .header("Authorization", "Bearer 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")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                 .build();
 
