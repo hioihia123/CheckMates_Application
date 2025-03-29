@@ -7,6 +7,10 @@ package form;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import com.formdev.flatlaf.FlatLightLaf;
+import javax.swing.table.DefaultTableCellRenderer;
+
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -39,24 +43,44 @@ public class ClassSelectionDashboard extends JFrame {
     }
 
     private void initComponents() {
-        // Create a header panel
+        // Create a header panel with enhanced styling
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        headerPanel.setBackground(Color.WHITE);
+        headerPanel.setBackground(new Color(245, 245, 245));
         JLabel headerLabel = new JLabel("Select a Class to View Attendance");
-        headerLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
+        headerLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        headerLabel.setForeground(new Color(50, 50, 50));
         headerPanel.add(headerLabel);
-        
-     
 
-        // Table to list classes
+        // Table to list classes with modern font
         classesTable = new JTable();
-        classesTable.setFont(new Font("Helvetica Neue", Font.PLAIN, 16));
-        classesTable.setRowHeight(25);
+        classesTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        classesTable.setRowHeight(30);
         JScrollPane tableScrollPane = new JScrollPane(classesTable);
+        
+     // Set the custom header renderer for a modern flat look
+    classesTable.getTableHeader().setDefaultRenderer(new DefaultTableCellRenderer() {
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+        JLabel header = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        header.setHorizontalAlignment(JLabel.CENTER);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(new Color(66, 133, 244));
+        header.setForeground(Color.WHITE);
+        header.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        return header;
+    }
+});
 
-        // Button to view attendance for selected class
+
+
+        // Button to view attendance for selected class with modern styling
         viewAttendanceBtn = new JButton("View Attendance");
-        viewAttendanceBtn.setFont(new Font("Helvetica Neue", Font.BOLD, 18));
+        viewAttendanceBtn.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        viewAttendanceBtn.setBackground(new Color(66, 133, 244));
+        viewAttendanceBtn.setForeground(Color.WHITE);
+        viewAttendanceBtn.setFocusPainted(false);
+        viewAttendanceBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         viewAttendanceBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -64,24 +88,21 @@ public class ClassSelectionDashboard extends JFrame {
             }
         });
 
-        // Bottom panel for the button
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        bottomPanel.setBackground(Color.WHITE);
-        bottomPanel.add(viewAttendanceBtn);
+        // Panel for the attendance button with spacing
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBackground(new Color(245, 245, 245));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        buttonPanel.add(viewAttendanceBtn);
 
-        // Main panel layout
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(Color.WHITE);
-        mainPanel.add(headerPanel, BorderLayout.NORTH);
-        mainPanel.add(tableScrollPane, BorderLayout.CENTER);
-        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
-        
-         // Create a search panel with a label and a text field
+        // Create a search panel with enhanced styling
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        searchPanel.add(new JLabel("Search: "));
+        searchPanel.setBackground(new Color(245, 245, 245));
+        JLabel searchLabel = new JLabel("Search: ");
+        searchLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        searchPanel.add(searchLabel);
         searchField = new JTextField(20);
+        searchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         searchPanel.add(searchField);
-        mainPanel.add(searchPanel, BorderLayout.SOUTH);
         
         // Add a listener to the search field to filter table data
         searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
@@ -89,28 +110,40 @@ public class ClassSelectionDashboard extends JFrame {
             public void insertUpdate(javax.swing.event.DocumentEvent e) {
                 updateFilter();
             }
-
             @Override
             public void removeUpdate(javax.swing.event.DocumentEvent e) {
                 updateFilter();
             }
-
             @Override
             public void changedUpdate(javax.swing.event.DocumentEvent e) {
                 updateFilter();
             }
         });
 
+        // Combine searchPanel and buttonPanel into one panel using BoxLayout (vertical)
+        JPanel bottomCombinedPanel = new JPanel();
+        bottomCombinedPanel.setLayout(new BoxLayout(bottomCombinedPanel, BoxLayout.Y_AXIS));
+        bottomCombinedPanel.setBackground(new Color(245, 245, 245));
+        bottomCombinedPanel.add(searchPanel);
+        bottomCombinedPanel.add(buttonPanel);
+
+        // Main panel layout with consistent background and spacing
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(tableScrollPane, BorderLayout.CENTER);
+        mainPanel.add(bottomCombinedPanel, BorderLayout.SOUTH);
+
         getContentPane().add(mainPanel);
     }
-    
+
     private void updateFilter() {
         String text = searchField.getText();
         if (rowSorter != null) {
             if (text.trim().length() == 0) {
                 rowSorter.setRowFilter(null);
             } else {
-                // Filter to match the text in any column 
                 rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
             }
         }
@@ -183,6 +216,7 @@ public class ClassSelectionDashboard extends JFrame {
         
         // Hide the "Class ID" column (the second column, index 1) so that only sequential numbers show.
         classesTable.removeColumn(classesTable.getColumnModel().getColumn(1));
+        
 }
 
 
@@ -204,8 +238,14 @@ public class ClassSelectionDashboard extends JFrame {
     
     // For testing purposes
     public static void main(String[] args) {
-        // Dummy professor for testing
-        Professor dummyProf = new Professor("Dr. Smith", "drsmith@example.com", "DR12345");
-        SwingUtilities.invokeLater(() -> new ClassSelectionDashboard(dummyProf).setVisible(true));
+    try {
+        UIManager.setLookAndFeel(new FlatLightLaf());
+    } catch (Exception ex) {
+        System.err.println("Failed to initialize LaF");
     }
+    // Launch your dashboard
+    Professor dummyProf = new Professor("Dr. Smith", "drsmith@example.com", "DR12345");
+    SwingUtilities.invokeLater(() -> new ClassSelectionDashboard(dummyProf).setVisible(true));
+}
+
 }
