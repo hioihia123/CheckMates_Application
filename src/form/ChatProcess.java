@@ -36,6 +36,13 @@ public class ChatProcess {
                 || lowerMsg.contains("checked in students with name, date, student id, time")
                 || lowerMsg.contains("Did this student attended this class or not?")
                 || lowerMsg.contains("List all the checked in students in this class at this time")
+                || lowerMsg.contains("list all checked in students") 
+                || lowerMsg.contains("list all students")
+                || lowerMsg.contains("list all students with their names, student id, date and time")
+                || lowerMsg.contains("did this student check in at this date")
+                || lowerMsg.contains("did this student check in at this time on this date of this class")
+                || lowerMsg.contains("list all dates and time that this student checked in")
+                || lowerMsg.contains("list details about this checked in students")
                 ||
            (lowerMsg.contains("checked") && lowerMsg.contains("student")
                 &&lowerMsg.contains("time") && lowerMsg.contains("student ID"))) {
@@ -138,7 +145,7 @@ public class ChatProcess {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer API")
+                .header("Authorization", "Bearer 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")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                 .build();
 
