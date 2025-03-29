@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.event.*;
 import com.formdev.flatlaf.FlatLightLaf;
 import javax.swing.table.DefaultTableCellRenderer;
-
+import javax.swing.table.JTableHeader;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -23,6 +23,7 @@ import javax.swing.table.TableRowSorter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+
 public class ClassSelectionDashboard extends JFrame {
 
     private Professor professor;       // Professor object passed in
@@ -30,6 +31,8 @@ public class ClassSelectionDashboard extends JFrame {
     private JButton viewAttendanceBtn; // Button to view attendance for selected class
     private JTextField searchField;
     private TableRowSorter<TableModel> rowSorter;
+    private int hoveredHeaderColumn = -1;
+
 
 
     public ClassSelectionDashboard(Professor professor) {
@@ -41,6 +44,29 @@ public class ClassSelectionDashboard extends JFrame {
         initComponents();
         loadClassesForProfessor();
     }
+    
+    private void addHeaderHoverEffect() {
+    JTableHeader header = classesTable.getTableHeader();
+    header.addMouseMotionListener(new MouseMotionAdapter() {
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            int col = header.columnAtPoint(e.getPoint());
+            if (col != hoveredHeaderColumn) {
+                hoveredHeaderColumn = col;
+                header.repaint();
+            }
+        }
+    });
+
+    header.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseExited(MouseEvent e) {
+            hoveredHeaderColumn = -1;
+            header.repaint();
+        }
+    });
+}
+
 
     private void initComponents() {
         // Create a header panel with enhanced styling
@@ -65,12 +91,19 @@ public class ClassSelectionDashboard extends JFrame {
         JLabel header = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         header.setHorizontalAlignment(JLabel.CENTER);
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(new Color(66, 133, 244));
-        header.setForeground(Color.WHITE);
+
+        // Check if this column header is being hovered
+        if (column == hoveredHeaderColumn) {
+            header.setBackground(new Color(144, 238, 144)); // Hover color
+        } else {
+            header.setBackground(Color.WHITE); // Normal header color
+        }
+        header.setForeground(Color.BLACK);
         header.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         return header;
     }
 });
+    addHeaderHoverEffect();
 
 
 
