@@ -11,75 +11,68 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class ChatProcess {
     
-    // Store class_id
+    // Store class_id and conversation history for contextual memory
     private static int class_id; 
+    private static List<String> conversationHistory = new ArrayList<>();
 
     /**
-     * Processes the user message. If the message is an attendance query,
-     * it retrieves data from the database (via a PHP endpoint) and appends
-     * a summary to the prompt.
+     * Processes the user message.  
+     * If the message is detected as an attendance query, it retrieves data from the database (via a PHP endpoint) 
+     * and appends a summary to the prompt.
      */
     public static String processUserMessage(String message, int class_id) {
-        String lowerMsg = message.toLowerCase();
-        // Relaxed condition: if user mentions "attendance" or mentions both "checked" and "student"
-        if (lowerMsg.contains("attendance") || lowerMsg.contains("name") || lowerMsg.contains("date")
-                || lowerMsg.contains("student name") 
-                || lowerMsg.contains("checked in date")
-                || lowerMsg.contains("checked in date")
-                || lowerMsg.contains("total checked in for this class") 
-                || lowerMsg.contains("total students with date and time") 
-                || lowerMsg.contains("checked in students with name, date, student id, time")
-                || lowerMsg.contains("Did this student attended this class or not?")
-                || lowerMsg.contains("List all the checked in students in this class at this time")
-                || lowerMsg.contains("list all checked in students") 
-                || lowerMsg.contains("list all students")
-                || lowerMsg.contains("list all students with their names, student id, date and time")
-                || lowerMsg.contains("did this student check in at this date")
-                || lowerMsg.contains("did this student check in at this time on this date of this class")
-                || lowerMsg.contains("list all dates and time that this student checked in")
-                || lowerMsg.contains("list details about this checked in students")
-                || lowerMsg.contains("did this student attend this class")
-                || lowerMsg.contains("check attendance of this student in this class")
-                || lowerMsg.contains("analyze the attendance data of this class")
-                || lowerMsg.contains("summarize the attendance data")
-                || lowerMsg.contains("analyze")
-                || lowerMsg.contains("Does this student attended this class today?") 
-                || lowerMsg.contains("tell this student attendance of this class")
-                || lowerMsg.contains("What time did this student check in")
-                || lowerMsg.contains("give detail analyze attendance details of this student name")
-                || lowerMsg.contains("attendance data")
-                || lowerMsg.contains("analyze the attendance")
-                || lowerMsg.contains("did/does [student name] check in for this class")
-                || lowerMsg.contains("show me this student's check in data")
-                || lowerMsg.contains("detail analysis")
-                || lowerMsg.contains("did/does this students attend this class")
-                || lowerMsg.contains("show all the attendance data of this student in this class")
-                || lowerMsg.contains("show all the attendance data of this student")
-                ||
-           (lowerMsg.contains("checked") && lowerMsg.contains("student")
-                &&lowerMsg.contains("time") && lowerMsg.contains("student ID") && lowerMsg.contains("analyze") && lowerMsg.contains("attendance data"))) {
-            
-            // Automatically retrieve the attendance summary from getAttendanceSummary.php endpoint
+        // Save conversation history (for adaptive learning)
+        conversationHistory.add("User: " + message);
+
+        if (isAttendanceQuery(message)) {
             String attendanceData = getAttendanceSummary(class_id);
-            
-            // Construct the prompt by injecting the retrieved data
             String prompt = "For the selected class, here is the attendance data:\n" 
                             + attendanceData +
                             "\nNow answer the following question: " + message;
-            return getChatGPTResponse(prompt);
+            String response = getChatGPTResponse(prompt);
+            conversationHistory.add("Saki: " + response);
+            return response;
         } else {
-            return getChatGPTResponse(message);
+            String response = getChatGPTResponse(message);
+            conversationHistory.add("Saki: " + response);
+            return response;
         }
     }
 
     /**
+     * Uses regex to determine if the user's message is related to attendance.
+     */
+    private static boolean isAttendanceQuery(String message) {
+        // Define a few key patterns related to attendance queries
+        String[] patterns = {
+            "(?i)attendance",                   // case-insensitive 'attendance'
+            "(?i)checked\\s*in",                // 'checked in' with optional spaces
+            "(?i)student.*(name|id)",            // mentions student with name or id
+            "(?i)date.*(check|attend)",          // mentions date and check/attend
+            "(?i)total.*(checked|attendance)"    // total checked in or attendance
+        };
+
+        for (String regex : patterns) {
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(message);
+            if (matcher.find()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Retrieves a summary of attendance for a given class by calling a PHP endpoint.
-     * This version parses student IDs, names, and check-in times.
      */
     private static String getAttendanceSummary(int classId) {
         try {
@@ -114,7 +107,7 @@ public class ChatProcess {
                         recordsBuilder.append("- Student ").append(studentId)
                                       .append(" (").append(name)
                                       .append(") checked in at ").append(time)
-                                      .append("on ").append(date)
+                                      .append(" on ").append(date)
                                       .append("\n");
                     }
                 }
@@ -133,62 +126,84 @@ public class ChatProcess {
      * Replace the authorization token with your own.
      */
     private static String getChatGPTResponse(String prompt) {
-    try {
-        HttpClient client = HttpClient.newHttpClient();
-        
-        // Build the JSON payload using org.json
-        JSONObject payload = new JSONObject();
-        payload.put("model", "gpt-3.5-turbo");
-        
-        JSONArray messages = new JSONArray();
-        
-        // System message
-        JSONObject systemMessage = new JSONObject();
-        systemMessage.put("role", "system");
-        systemMessage.put("content", "Your name is Saki. You are an AI assistant that answers questions about class attendance for the specific class stored in the database.");
-        messages.put(systemMessage);
-        
-        // User message
-        JSONObject userMessage = new JSONObject();
-        userMessage.put("role", "user");
-        userMessage.put("content", prompt);
-        messages.put(userMessage);
-        
-        payload.put("messages", messages);
-        payload.put("temperature", 0.7);
-        
-        String jsonPayload = payload.toString();
-        
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.openai.com/v1/chat/completions"))
-                .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer API")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
-                .build();
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            
+            // Build the JSON payload using org.json
+            JSONObject payload = new JSONObject();
+            payload.put("model", "gpt-3.5-turbo");
+            
+            JSONArray messages = new JSONArray();
+            
+            // System message
+            JSONObject systemMessage = new JSONObject();
+            systemMessage.put("role", "system");
+            systemMessage.put("content", "Your name is Saki. You are an AI assistant that answers questions about class attendance for the specific class stored in the database. Maintain context from previous interactions when possible.");
+            messages.put(systemMessage);
+            
+            // Add previous conversation history as context (if available)
+            if (!conversationHistory.isEmpty()) {
+                StringBuilder history = new StringBuilder();
+                for (String line : conversationHistory) {
+                    history.append(line).append("\n");
+                }
+                JSONObject historyMessage = new JSONObject();
+                historyMessage.put("role", "system");
+                historyMessage.put("content", "Conversation history:\n" + history.toString());
+                messages.put(historyMessage);
+            }
+            
+            // User message
+            JSONObject userMessage = new JSONObject();
+            userMessage.put("role", "user");
+            userMessage.put("content", prompt);
+            messages.put(userMessage);
+            
+            payload.put("messages", messages);
+            payload.put("temperature", 0.7);
+            
+            String jsonPayload = payload.toString();
+            
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.openai.com/v1/chat/completions"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer API KEY")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .build();
 
-        HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-        JSONObject jsonResponse = new JSONObject(response.body());
+            HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+            JSONObject jsonResponse = new JSONObject(response.body());
 
-        if (jsonResponse.has("error")) {
-            JSONObject errorObj = jsonResponse.getJSONObject("error");
-            return "API Error: " + errorObj.getString("message");
+            if (jsonResponse.has("error")) {
+                JSONObject errorObj = jsonResponse.getJSONObject("error");
+                return "API Error: " + errorObj.getString("message");
+            }
+
+            if (!jsonResponse.has("choices")) {
+                return "Error: API response did not contain choices.";
+            }
+
+            String reply = jsonResponse.getJSONArray("choices")
+                                        .getJSONObject(0)
+                                        .getJSONObject("message")
+                                        .getString("content");
+            return reply;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error retrieving response.";
         }
-
-        if (!jsonResponse.has("choices")) {
-            return "Error: API response did not contain choices.";
-        }
-
-        String reply = jsonResponse.getJSONArray("choices")
-                                    .getJSONObject(0)
-                                    .getJSONObject("message")
-                                    .getString("content");
-        return reply;
-    } catch (Exception e) {
-        e.printStackTrace();
-        return "Error retrieving response.";
     }
-}
 
+    /**
+     * Logs user feedback for adaptive learning.
+     * In a real application, this might store feedback in a database or file.
+     */
+    public static void logUserFeedback(String feedback) {
+        // For demonstration, we're just printing feedback. This could be extended to persist the data.
+        System.out.println("User Feedback: " + feedback);
+        // Optionally add the feedback to conversation history for context.
+        conversationHistory.add("Feedback: " + feedback);
+    }
 
     // For testing purposes
     public static void main(String[] args) {
@@ -196,5 +211,9 @@ public class ChatProcess {
         String userQuery = "What is the attendance for this class? How many students have checked in?";
         String response = processUserMessage(userQuery, class_id);
         System.out.println("ChatGPT Response: " + response);
+
+        // Simulate collecting user feedback after the response
+        String feedback = "The response was helpful but could include more detailed statistics.";
+        logUserFeedback(feedback);
     }
 }
