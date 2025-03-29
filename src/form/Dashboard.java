@@ -7,6 +7,10 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import com.formdev.flatlaf.FlatLightLaf;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -121,7 +125,7 @@ public class Dashboard extends javax.swing.JFrame {
     topBar.add(rightPanel, BorderLayout.EAST);
 
     // "What's on your mind?" label
-    JLabel questionHeader = new JLabel("What's on your mind?");
+    JLabel questionHeader = new JLabel("What's on your mind, " + professor.getProfessorName() +"?");
     questionHeader.setFont(new Font("Helvetica Neue", Font.BOLD, 36));
     questionHeader.setForeground(new Color(50, 50, 50));
      // Remove the forced LEFT alignment so we can center it
@@ -234,23 +238,73 @@ public class Dashboard extends javax.swing.JFrame {
     repaint();
 }
    private void openCreateClassDialog() {
-
     JDialog dialog = new JDialog(this, "Create New Class", true);
-    dialog.setLayout(new GridLayout(4, 2, 10, 10));
     dialog.setSize(400, 250);
     dialog.setLocationRelativeTo(this);
-
-    JLabel nameLabel = new JLabel("Class Name:");
-    JTextField classNameField = new JTextField();
-
-    JLabel sectionLabel = new JLabel("Section:");
-    JTextField sectionField = new JTextField();
-
-    JLabel expirationLabel = new JLabel("Expiration (minutes):");
-    JTextField expirationField = new JTextField();
     
-    // Create button panel (or use an empty cell for spacing)
-    JButton createButton = new JButton("Create");
+    // Use GridBagLayout for more control
+    JPanel contentPanel = new JPanel(new GridBagLayout());
+    contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    contentPanel.setBackground(Color.WHITE);
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(8, 8, 8, 8);  // spacing between components
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    
+    // Row 0: Class Name
+    JLabel nameLabel = new JLabel("Class Name:");
+    nameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbc.weightx = 0; // label takes minimal width
+    contentPanel.add(nameLabel, gbc);
+    
+    JTextField classNameField = new JTextField();
+    classNameField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    classNameField.setEditable(true);
+    gbc.gridx = 1;
+    gbc.gridy = 0;
+    gbc.weightx = 1.0;  // text field expands
+    contentPanel.add(classNameField, gbc);
+    
+    // Row 1: Section
+    JLabel sectionLabel = new JLabel("Section:");
+    sectionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    gbc.gridx = 0;
+    gbc.gridy = 1;
+    gbc.weightx = 0;
+    contentPanel.add(sectionLabel, gbc);
+    
+    JTextField sectionField = new JTextField();
+    sectionField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    sectionField.setEditable(true);
+    gbc.gridx = 1;
+    gbc.gridy = 1;
+    gbc.weightx = 1.0;
+    contentPanel.add(sectionField, gbc);
+    
+    // Row 2: Expiration (minutes)
+    JLabel expirationLabel = new JLabel("Expiration (minutes):");
+    expirationLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    gbc.gridx = 0;
+    gbc.gridy = 2;
+    gbc.weightx = 0;
+    contentPanel.add(expirationLabel, gbc);
+    
+    JTextField expirationField = new JTextField();
+    expirationField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    expirationField.setEditable(true);
+    gbc.gridx = 1;
+    gbc.gridy = 2;
+    gbc.weightx = 1.0;
+    contentPanel.add(expirationField, gbc);
+    
+    // Row 3: Create button (spanning two columns)
+    FancyHoverButton createButton = new FancyHoverButton("Create");
+    createButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+    createButton.setBackground(new Color(0, 100, 0));  // modern blue
+    createButton.setFocusPainted(false);
+    createButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+    
     createButton.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -263,7 +317,7 @@ public class Dashboard extends javax.swing.JFrame {
                 return;
             }
             
-            // If expiration is empty or invalid, default to 60 minutes
+            // Default expiration minutes
             int expirationMinutes = 60;
             try {
                 if (!expirationText.isEmpty()) {
@@ -277,33 +331,28 @@ public class Dashboard extends javax.swing.JFrame {
             int passcode = (int) (Math.random() * 9000) + 1000;
             
             // Build the check-in URL
-            String checkInUrl = "http://www.student-check-in.cm8tes.com";
+            String checkInUrl = "tinyurl.com/02221732";
             
-            //Save the class information to the database with professor.getProfessorID()
+            // Save the class information and generate QR code
             saveClassToDatabase(professor.getProfessorID(), className, section, passcode, expirationMinutes);
-            
-            // Generate the QR code image
             Image qrImage = generateQRCodeImage(checkInUrl, 200, 200);
-            // Show the QR code dialog along with passcode and expiration info
             showQRCodeDialog(qrImage, checkInUrl, passcode, expirationMinutes);
             
-                       
             dialog.dispose();
         }
     });
     
-    // Add components to the dialog in order:
-    dialog.add(nameLabel);
-    dialog.add(classNameField);
-    dialog.add(sectionLabel);
-    dialog.add(sectionField);
-    dialog.add(expirationLabel);
-    dialog.add(expirationField);
-    dialog.add(new JLabel()); // Empty cell for spacing
-    dialog.add(createButton);
+    gbc.gridx = 0;
+    gbc.gridy = 3;
+    gbc.gridwidth = 2;
+    gbc.weightx = 0;
+    gbc.anchor = GridBagConstraints.CENTER;
+    contentPanel.add(createButton, gbc);
     
+    dialog.add(contentPanel);
     dialog.setVisible(true);
 }
+
 
 
     // Method to generate a QR code image using ZXing
@@ -321,24 +370,31 @@ public class Dashboard extends javax.swing.JFrame {
     // Method to show a dialog with the generated QR code
     private void showQRCodeDialog(Image qrImage, String url, int passcode, int expirationMinutes) {
     JDialog qrDialog = new JDialog(this, "Class Check-In QR Code", true);
-    qrDialog.setLayout(new BorderLayout());
-    qrDialog.setSize(300, 450);
+    qrDialog.setSize(320, 480);
     qrDialog.setLocationRelativeTo(this);
+    
+    JPanel contentPanel = new JPanel(new BorderLayout());
+    contentPanel.setBackground(Color.WHITE);
+    contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
     
     JLabel qrLabel = new JLabel(new ImageIcon(qrImage));
     qrLabel.setHorizontalAlignment(SwingConstants.CENTER);
     
-    // Include passcode, URL, and expiration information in the info label
+     // Include passcode, URL, and expiration information in the info label
     JLabel infoLabel = new JLabel("<html>Passcode: " + passcode + "<br>" +
                                   "URL: " + url + "<br>" +
                                   "Expires in: " + expirationMinutes + " minute(s)</html>");
     infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    infoLabel.setForeground(new Color(50, 50, 50));
     
-    qrDialog.add(qrLabel, BorderLayout.CENTER);
-    qrDialog.add(infoLabel, BorderLayout.SOUTH);
+    contentPanel.add(qrLabel, BorderLayout.CENTER);
+    contentPanel.add(infoLabel, BorderLayout.SOUTH);
     
+    qrDialog.add(contentPanel);
     qrDialog.setVisible(true);
 }
+
 
 private void saveClassToDatabase(String professorId, String className, String section, int passcode, int expirationMinutes) {
     new Thread(() -> {
@@ -450,7 +506,12 @@ private void saveClassToDatabase(String professorId, String className, String se
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        try {
+         UIManager.setLookAndFeel(new FlatLightLaf());
+        } catch (Exception ex) {
+          System.err.println("Failed to initialize LaF");
+        }
+//<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
@@ -479,7 +540,7 @@ private void saveClassToDatabase(String professorId, String className, String se
             new Dashboard(prof).setVisible(true);
         }
     });
-    }
+   }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel greetingLabel;
