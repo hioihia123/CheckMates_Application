@@ -9,6 +9,12 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ *
+ * @author Vinyukov
+ */
+
+
 class LoginTest {
     private Login loginForm;
 
