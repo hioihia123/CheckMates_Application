@@ -56,530 +56,304 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 public class Dashboard extends javax.swing.JFrame {
 
     private Professor professor;  // Store professor-specific info
-    private Color typewriterInk = new Color(50, 40, 30);
-    private Font typewriterFont = new Font("Courier New", Font.BOLD, 14);
-    private Font titleFont = new Font("Courier New", Font.BOLD, 24);
-    private Image backgroundImage;
-    private Color parchmentColor = new Color(253, 245, 230, 200);
-    private boolean oldTimeyMode = false; // Track current style mode
-    private JButton styleToggleButton; // Button to toggle styles
 
     /**
      * Creates new form Dashboard with a Professor object.
      */
     public Dashboard(Professor professor) {
-        this.professor = professor;
-        initComponents();
-        initializeUI();
-        setSize(1200, 800);
-        setLocationRelativeTo(null);
-    }
+    this.professor = professor;
+    setBackground(Color.WHITE);
+    initComponents(); 
+    initializeUI();
+    
+    // Explicitly set the size of the JFrame
+    setSize(1200, 1000); 
+    // (Optional) Center the window on the screen
+    setLocationRelativeTo(null);
+}
 
-    private void initializeUI() {
-        // Create the style toggle button
-        styleToggleButton = new JButton("Old-Timey Style");
-        styleToggleButton.setFont(new Font("Arial", Font.PLAIN, 12));
-        styleToggleButton.addActionListener(e -> toggleStyle());
 
-        // Load background image for old-timey mode
-        try {
-            backgroundImage = ImageIO.read(getClass().getResource("parchmentColor.jpg"));
-        } catch (IOException | IllegalArgumentException e) {
-            backgroundImage = null;
+
+    /**
+     * This method is used to add custom components to the Dashboard.
+     */
+   private void initializeUI() {
+    // Create the fancy logo panel (adjust the image path as needed)
+    FancyLogoPanel fancyLogo = new FancyLogoPanel(
+        "https://raw.githubusercontent.com/hioihia123/CheckMates_Application/refs/heads/master/inner-ground2.png"
+    );
+
+    // --- Existing header labels ---
+    JLabel greetingLabel = new JLabel("Hello, " + professor.getProfessorName() + "!");
+    greetingLabel.setFont(new Font("Roboto", Font.BOLD, 24));
+    greetingLabel.setForeground(new Color(50, 50, 50));
+    greetingLabel.setHorizontalAlignment(SwingConstants.LEFT);
+    
+    JLabel professorIDLabel = new JLabel("Professor ID: " + professor.getProfessorID());
+    professorIDLabel.setFont(new Font("Roboto", Font.PLAIN, 18));
+    professorIDLabel.setForeground(new Color(80, 80, 80));
+    professorIDLabel.setHorizontalAlignment(SwingConstants.LEFT);
+    
+    // Create a header panel for the greeting and professor ID, stacked vertically
+    JPanel headerPanel = new JPanel(new GridLayout(2, 1));
+    headerPanel.setOpaque(false);
+    headerPanel.add(greetingLabel);
+    headerPanel.add(professorIDLabel);
+
+    // --- Top bar: left side (logo & header) and right side (log off button) ---
+    JPanel topBar = new JPanel(new BorderLayout());
+    topBar.setOpaque(false);
+
+    // Left side: logo and header panel
+    JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    leftPanel.setOpaque(false);
+    leftPanel.add(fancyLogo);
+    leftPanel.add(Box.createHorizontalStrut(20)); // spacing
+    leftPanel.add(headerPanel);
+
+    // Right side: modern log off button
+    ModernButton logOffButton = new ModernButton("Log Off");
+    logOffButton.addActionListener(e -> {
+        Dashboard.this.dispose();
+        new Login().setVisible(true);
+    });
+    JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    rightPanel.setOpaque(false);
+    rightPanel.add(logOffButton);
+
+    topBar.add(leftPanel, BorderLayout.WEST);
+    topBar.add(rightPanel, BorderLayout.EAST);
+
+    // "What's on your mind?" label
+    JLabel questionHeader = new JLabel("What's on your mind, " + professor.getProfessorName() +"?");
+    questionHeader.setFont(new Font("Helvetica Neue", Font.BOLD, 36));
+    questionHeader.setForeground(new Color(50, 50, 50));
+     // Remove the forced LEFT alignment so we can center it
+     // questionHeader.setHorizontalAlignment(SwingConstants.LEFT);
+
+     // Wrap questionHeader in a center-aligned panel
+     JPanel questionHeaderPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+     questionHeaderPanel.setOpaque(false);
+     questionHeaderPanel.add(questionHeader);
+
+     // Create the fancy hover button
+     FancyHoverButton fancyButton = new FancyHoverButton("Create Class");
+     fancyButton.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
+     fancyButton.setPreferredSize(new Dimension(180, 50)); // size as needed
+     // Add an action listener to open the create class dialog
+     fancyButton.addActionListener(e -> openCreateClassDialog());
+     
+    
+      // place this button in the same topSection panel, below the question header
+     JPanel topSection = new JPanel();
+     topSection.setLayout(new BoxLayout(topSection, BoxLayout.Y_AXIS));
+     topSection.setOpaque(false);
+
+     topSection.add(topBar);
+
+      // Add the questionHeaderPanel (which centers the text)
+     topSection.add(questionHeaderPanel);
+
+     // Add some vertical spacing so the button doesn't overlap the label
+     topSection.add(javax.swing.Box.createVerticalStrut(60));
+
+     // Put the button in a small panel (FlowLayout) if you want it left-aligned
+     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,0, 0));
+     buttonPanel.setOpaque(false);
+     buttonPanel.add(fancyButton);
+     topSection.add(buttonPanel);
+     
+     // Create a panel for additional buttons with BoxLayout along the X axis
+     JPanel additionalButtonsPanel = new JPanel();
+     additionalButtonsPanel.setLayout(new BoxLayout(additionalButtonsPanel, BoxLayout.X_AXIS));
+     additionalButtonsPanel.setOpaque(false);
+
+     //create a "View Class" button
+     FancyHoverButton viewClassButton = new FancyHoverButton("View Class");
+     viewClassButton.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
+     viewClassButton.setPreferredSize(new Dimension(180, 50));
+     viewClassButton.setMaximumSize(new Dimension(180,50));
+     viewClassButton.addActionListener(e -> {
+     // Create a new ClassDashboard window and pass the same professor object
+     ClassDashboard classDash = new ClassDashboard(professor);
+     classDash.setVisible(true);
+     
+});
+     //create a "View Attendance" button
+     FancyHoverButton viewAttendanceButton = new FancyHoverButton("Records");
+     viewAttendanceButton.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
+     viewAttendanceButton.setPreferredSize(new Dimension(180, 50));
+     viewAttendanceButton.setMaximumSize(new Dimension(180,50));
+     viewAttendanceButton.addActionListener(e -> {
+       ClassSelectionDashboard csd = new ClassSelectionDashboard(professor);
+       csd.setVisible(true);
+});
+     //create a "Saki" button for Saki AI Agent
+     FancyHoverButton AIbutton = new FancyHoverButton("Saki");
+     AIbutton.setFont(new Font ("Helvetica Neueu", Font.BOLD, 24));
+     AIbutton.setPreferredSize(new Dimension(180,50));
+     AIbutton.setMaximumSize(new Dimension(180,50));
+     AIbutton.addActionListener(e -> {
+        ChatDialog chatDialog = new ChatDialog(Dashboard.this, professor);
+        chatDialog.setVisible(true);
+}); 
+
+
+     // Add spacing before adding the additional button
+     additionalButtonsPanel.add(Box.createHorizontalStrut(20)); // 20-pixel space
+     additionalButtonsPanel.add(viewClassButton);
+     additionalButtonsPanel.add(Box.createHorizontalStrut(20));
+     additionalButtonsPanel.add(viewAttendanceButton);
+     additionalButtonsPanel.add(Box.createHorizontalStrut(20));
+     additionalButtonsPanel.add(AIbutton);
+     
+     
+     // Then, add the additionalButtonsPanel to the main button panel that already contains the Create Class button.
+     buttonPanel.add(additionalButtonsPanel);
+
+    // --- Main panel setup ---
+    GradientPanel panel = new GradientPanel();
+    panel.setLayout(new BorderLayout());
+    panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    
+    // Place the top section (top bar + question header) at the top
+    panel.add(topSection, BorderLayout.NORTH);
+    
+    // --- Bottom: Create the text version label ---
+    JLabel textLogoLabel = new JLabel("CheckMates Version 1.0");
+    textLogoLabel.setFont(new Font("Roboto", Font.PLAIN, 12));
+    textLogoLabel.setForeground(new Color(50, 50, 50));
+    JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    bottomPanel.setOpaque(false);
+    bottomPanel.add(textLogoLabel);
+    
+    panel.add(bottomPanel, BorderLayout.SOUTH);
+    panel.setPreferredSize(new Dimension(1200, 1000));
+    
+    getContentPane().removeAll();
+    getContentPane().setLayout(new BorderLayout());
+    getContentPane().add(panel, BorderLayout.CENTER);
+    getContentPane().setBackground(new Color(240, 240, 240));
+    validate();
+    repaint();
+}
+   private void openCreateClassDialog() {
+    JDialog dialog = new JDialog(this, "Create New Class", true);
+    dialog.setSize(400, 250);
+    dialog.setLocationRelativeTo(this);
+    
+    // Use GridBagLayout for more control
+    JPanel contentPanel = new JPanel(new GridBagLayout());
+    contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    contentPanel.setBackground(Color.WHITE);
+    GridBagConstraints gbc = new GridBagConstraints();
+    gbc.insets = new Insets(8, 8, 8, 8);  // spacing between components
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    
+    // Row 0: Class Name
+    JLabel nameLabel = new JLabel("Class Name:");
+    nameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    gbc.gridx = 0;
+    gbc.gridy = 0;
+    gbc.weightx = 0; // label takes minimal width
+    contentPanel.add(nameLabel, gbc);
+    
+    JTextField classNameField = new JTextField();
+    classNameField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    classNameField.setEditable(true);
+    gbc.gridx = 1;
+    gbc.gridy = 0;
+    gbc.weightx = 1.0;  // text field expands
+    contentPanel.add(classNameField, gbc);
+    
+    // Row 1: Section
+    JLabel sectionLabel = new JLabel("Section:");
+    sectionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    gbc.gridx = 0;
+    gbc.gridy = 1;
+    gbc.weightx = 0;
+    contentPanel.add(sectionLabel, gbc);
+    
+    JTextField sectionField = new JTextField();
+    sectionField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    sectionField.setEditable(true);
+    gbc.gridx = 1;
+    gbc.gridy = 1;
+    gbc.weightx = 1.0;
+    contentPanel.add(sectionField, gbc);
+    
+    // Row 2: Expiration (minutes)
+    JLabel expirationLabel = new JLabel("Expiration (minutes):");
+    expirationLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    gbc.gridx = 0;
+    gbc.gridy = 2;
+    gbc.weightx = 0;
+    contentPanel.add(expirationLabel, gbc);
+    
+    JTextField expirationField = new JTextField();
+    expirationField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    expirationField.setEditable(true);
+    gbc.gridx = 1;
+    gbc.gridy = 2;
+    gbc.weightx = 1.0;
+    contentPanel.add(expirationField, gbc);
+    
+    // Row 3: Create button (spanning two columns)
+    FancyHoverButton createButton = new FancyHoverButton("Create");
+    createButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+    createButton.setBackground(new Color(0, 100, 0));  // modern blue
+    createButton.setFocusPainted(false);
+    createButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+    
+    createButton.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String className = classNameField.getText().trim();
+            String section = sectionField.getText().trim();
+            String expirationText = expirationField.getText().trim();
+            
+            if (className.isEmpty() || section.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog, "Please fill in both Class Name and Section.", "Incomplete Form", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Default expiration minutes
+            int expirationMinutes = 60;
+            try {
+                if (!expirationText.isEmpty()) {
+                    expirationMinutes = Integer.parseInt(expirationText);
+                }
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(dialog, "Expiration must be a number (minutes). Using default of 60 minutes.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+            }
+            
+            // Generate a random 4-digit passcode
+            int passcode = (int) (Math.random() * 9000) + 1000;
+            
+            // Build the check-in URL
+            String checkInUrl = "tinyurl.com/02221732";
+            
+            // Save the class information and generate QR code
+            saveClassToDatabase(professor.getProfessorID(), className, section, passcode, expirationMinutes);
+            Image qrImage = generateQRCodeImage(checkInUrl, 200, 200);
+            showQRCodeDialog(qrImage, checkInUrl, passcode, expirationMinutes);
+            
+            dialog.dispose();
         }
+    });
+    
+    gbc.gridx = 0;
+    gbc.gridy = 3;
+    gbc.gridwidth = 2;
+    gbc.weightx = 0;
+    gbc.anchor = GridBagConstraints.CENTER;
+    contentPanel.add(createButton, gbc);
+    
+    dialog.add(contentPanel);
+    dialog.setVisible(true);
+}
 
-        // Initial UI setup
-        updateUI();
-    }
 
-    private void toggleStyle() {
-        oldTimeyMode = !oldTimeyMode;
-        styleToggleButton.setText(oldTimeyMode ? "Modern Style" : "Old-Timey Style");
-        updateUI();
-    }
-
-    private void updateUI() {
-        if (oldTimeyMode) {
-            setupOldTimeyUI();
-        } else {
-            setupModernUI();
-        }
-    }
-
-    private void setupOldTimeyUI() {
-        setupLookAndFeel(true);
-
-        // Main panel with background
-        JPanel mainPanel = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (backgroundImage != null) {
-                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-                } else {
-                    g.setColor(parchmentColor);
-                    g.fillRect(0, 0, getWidth(), getHeight());
-                }
-            }
-        };
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        // Top bar with greeting and buttons
-        JPanel topBar = createOldTimeyTopBar();
-        JPanel contentPanel = createOldTimeyContent();
-        JPanel footerPanel = createOldTimeyFooter();
-
-        // Assemble main panel
-        mainPanel.add(topBar, BorderLayout.NORTH);
-        mainPanel.add(contentPanel, BorderLayout.CENTER);
-        mainPanel.add(footerPanel, BorderLayout.SOUTH);
-
-        updateContentPane(mainPanel);
-    }
-
-    private JPanel createOldTimeyTopBar() {
-        JPanel topBar = new JPanel(new BorderLayout());
-        topBar.setOpaque(false);
-        topBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, typewriterInk));
-
-        // Greeting labels
-        JLabel greetingLabel = new JLabel("Hello, " + professor.getProfessorName() + "!");
-        greetingLabel.setFont(titleFont);
-        greetingLabel.setForeground(typewriterInk);
-
-        JLabel professorIDLabel = new JLabel("Professor ID: " + professor.getProfessorID());
-        professorIDLabel.setFont(typewriterFont);
-        professorIDLabel.setForeground(typewriterInk);
-
-        // Header panel
-        JPanel headerPanel = new JPanel(new GridLayout(2, 1));
-        headerPanel.setOpaque(false);
-        headerPanel.add(greetingLabel);
-        headerPanel.add(professorIDLabel);
-
-        // Left side: header panel
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        leftPanel.setOpaque(false);
-        leftPanel.add(headerPanel);
-
-        // Right side: buttons
-        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        rightPanel.setOpaque(false);
-
-        // Add style toggle button
-        JButton toggleBtn = createTypewriterButton(oldTimeyMode ? "Modern Style" : "Old-Timey Style");
-        toggleBtn.addActionListener(e -> toggleStyle());
-        rightPanel.add(toggleBtn);
-
-        // Add log off button
-        JButton logOffButton = createTypewriterButton("Log Off");
-        logOffButton.addActionListener(e -> {
-            this.dispose();
-            new Login().setVisible(true);
-        });
-        rightPanel.add(logOffButton);
-
-        topBar.add(leftPanel, BorderLayout.WEST);
-        topBar.add(rightPanel, BorderLayout.EAST);
-
-        return topBar;
-    }
-
-    private JPanel createOldTimeyContent() {
-        JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        contentPanel.setOpaque(false);
-
-        // Question header
-        JLabel questionHeader = new JLabel("What's on your mind, " + professor.getProfessorName() + "?");
-        questionHeader.setFont(titleFont);
-        questionHeader.setForeground(typewriterInk);
-        questionHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Button panel
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-        buttonPanel.setOpaque(false);
-        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Create buttons
-        JButton createClassButton = createTypewriterButton("Create Class");
-        createClassButton.setFont(new Font("Courier New", Font.BOLD, 18));
-        createClassButton.addActionListener(e -> openCreateClassDialog());
-
-        JButton viewClassButton = createTypewriterButton("View Class");
-        viewClassButton.setFont(new Font("Courier New", Font.BOLD, 18));
-        viewClassButton.addActionListener(e -> {
-            ClassDashboard classDash = new ClassDashboard(professor, oldTimeyMode); // Pass oldTimeyMode
-            classDash.setVisible(true);
-        });
-
-        JButton viewAttendanceButton = createTypewriterButton("Records");
-        viewAttendanceButton.setFont(new Font("Courier New", Font.BOLD, 18));
-        viewAttendanceButton.addActionListener(e -> {
-            ClassSelectionDashboard csd = new ClassSelectionDashboard(professor);
-            csd.setVisible(true);
-        });
-
-        JButton AIbutton = createTypewriterButton("Saki");
-        AIbutton.setFont(new Font("Courier New", Font.BOLD, 18));
-        AIbutton.addActionListener(e -> {
-            ChatDialog chatDialog = new ChatDialog(Dashboard.this, professor);
-            chatDialog.setVisible(true);
-        });
-
-        // Add buttons with spacing
-        buttonPanel.add(Box.createHorizontalStrut(20));
-        buttonPanel.add(createClassButton);
-        buttonPanel.add(Box.createHorizontalStrut(20));
-        buttonPanel.add(viewClassButton);
-        buttonPanel.add(Box.createHorizontalStrut(20));
-        buttonPanel.add(viewAttendanceButton);
-        buttonPanel.add(Box.createHorizontalStrut(20));
-        buttonPanel.add(AIbutton);
-
-        // Add components to content panel
-        contentPanel.add(Box.createVerticalStrut(40));
-        contentPanel.add(questionHeader);
-        contentPanel.add(Box.createVerticalStrut(40));
-        contentPanel.add(buttonPanel);
-
-        return contentPanel;
-    }
-
-    private JPanel createOldTimeyFooter() {
-        JLabel versionLabel = new JLabel("CheckMates Version 1.0");
-        versionLabel.setFont(typewriterFont);
-        versionLabel.setForeground(typewriterInk);
-        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        footerPanel.setOpaque(false);
-        footerPanel.add(versionLabel);
-        return footerPanel;
-    }
-
-    private void setupModernUI() {
-        setupLookAndFeel(false);
-
-        // Create modern UI components
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(Color.WHITE);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        // Top bar with greeting and buttons
-        JPanel topBar = createModernTopBar();
-        JPanel contentPanel = createModernContent();
-        JPanel footerPanel = createModernFooter();
-
-        // Assemble main panel
-        mainPanel.add(topBar, BorderLayout.NORTH);
-        mainPanel.add(contentPanel, BorderLayout.CENTER);
-        mainPanel.add(footerPanel, BorderLayout.SOUTH);
-
-        updateContentPane(mainPanel);
-    }
-
-    private JPanel createModernTopBar() {
-        JPanel topBar = new JPanel(new BorderLayout());
-        topBar.setBackground(new Color(240, 240, 240));
-        topBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
-
-        // Greeting labels
-        JLabel greetingLabel = new JLabel("Hello, " + professor.getProfessorName() + "!");
-        greetingLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        greetingLabel.setForeground(Color.BLACK);
-
-        JLabel professorIDLabel = new JLabel("Professor ID: " + professor.getProfessorID());
-        professorIDLabel.setFont(new Font("Arial", Font.PLAIN, 18));
-        professorIDLabel.setForeground(Color.DARK_GRAY);
-
-        // Header panel
-        JPanel headerPanel = new JPanel(new GridLayout(2, 1));
-        headerPanel.setOpaque(false);
-        headerPanel.add(greetingLabel);
-        headerPanel.add(professorIDLabel);
-
-        // Left side: header panel
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        leftPanel.setOpaque(false);
-        leftPanel.add(headerPanel);
-
-        // Right side: buttons
-        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        rightPanel.setOpaque(false);
-
-        // Add style toggle button
-        JButton toggleBtn = new JButton("Old-Timey Style");
-        toggleBtn.setFont(new Font("Arial", Font.PLAIN, 12));
-        toggleBtn.addActionListener(e -> toggleStyle());
-        rightPanel.add(toggleBtn);
-
-        // Add log off button
-        JButton logOffButton = new JButton("Log Off");
-        logOffButton.addActionListener(e -> {
-            this.dispose();
-            new Login().setVisible(true);
-        });
-        rightPanel.add(logOffButton);
-
-        topBar.add(leftPanel, BorderLayout.WEST);
-        topBar.add(rightPanel, BorderLayout.EAST);
-
-        return topBar;
-    }
-
-    private JPanel createModernContent() {
-        JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        contentPanel.setOpaque(false);
-
-        // Question header
-        JLabel questionHeader = new JLabel("What's on your mind, " + professor.getProfessorName() + "?");
-        questionHeader.setFont(new Font("Arial", Font.BOLD, 36));
-        questionHeader.setForeground(Color.BLACK);
-        questionHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Button panel
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-        buttonPanel.setOpaque(false);
-        buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        // Create buttons
-        JButton createClassButton = new JButton("Create Class");
-        createClassButton.setFont(new Font("Arial", Font.BOLD, 18));
-        createClassButton.addActionListener(e -> openCreateClassDialog());
-
-        JButton viewClassButton = new JButton("View Class");
-        viewClassButton.setFont(new Font("Arial", Font.BOLD, 18));
-        viewClassButton.addActionListener(e -> {
-            ClassDashboard classDash = new ClassDashboard(professor, oldTimeyMode); // Pass oldTimeyMode
-            classDash.setVisible(true);
-        });
-
-        JButton viewAttendanceButton = new JButton("Records");
-        viewAttendanceButton.setFont(new Font("Arial", Font.BOLD, 18));
-        viewAttendanceButton.addActionListener(e -> {
-            ClassSelectionDashboard csd = new ClassSelectionDashboard(professor);
-            csd.setVisible(true);
-        });
-
-        JButton AIbutton = new JButton("Saki");
-        AIbutton.setFont(new Font("Arial", Font.BOLD, 18));
-        AIbutton.addActionListener(e -> {
-            ChatDialog chatDialog = new ChatDialog(Dashboard.this, professor);
-            chatDialog.setVisible(true);
-        });
-
-        // Add buttons with spacing
-        buttonPanel.add(Box.createHorizontalStrut(20));
-        buttonPanel.add(createClassButton);
-        buttonPanel.add(Box.createHorizontalStrut(20));
-        buttonPanel.add(viewClassButton);
-        buttonPanel.add(Box.createHorizontalStrut(20));
-        buttonPanel.add(viewAttendanceButton);
-        buttonPanel.add(Box.createHorizontalStrut(20));
-        buttonPanel.add(AIbutton);
-
-        // Add components to content panel
-        contentPanel.add(Box.createVerticalStrut(40));
-        contentPanel.add(questionHeader);
-        contentPanel.add(Box.createVerticalStrut(40));
-        contentPanel.add(buttonPanel);
-
-        return contentPanel;
-    }
-
-    private JPanel createModernFooter() {
-        JLabel versionLabel = new JLabel("CheckMates Version 1.0");
-        versionLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        versionLabel.setForeground(Color.DARK_GRAY);
-        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        footerPanel.setOpaque(false);
-        footerPanel.add(versionLabel);
-        return footerPanel;
-    }
-
-    private void setupLookAndFeel(boolean oldTimey) {
-        try {
-            if (oldTimey) {
-                UIManager.put("OptionPane.background", new Color(253, 245, 230, 220));
-                UIManager.put("OptionPane.messageFont", typewriterFont);
-                UIManager.put("OptionPane.messageForeground", typewriterInk);
-                UIManager.put("TextField.background", parchmentColor);
-                UIManager.put("TextField.font", typewriterFont);
-                UIManager.put("TextField.foreground", typewriterInk);
-                UIManager.put("TextField.border", BorderFactory.createLineBorder(typewriterInk));
-                UIManager.put("Label.font", typewriterFont);
-                UIManager.put("Label.foreground", typewriterInk);
-            } else {
-                // Reset to default look and feel
-                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void updateContentPane(JPanel newPanel) {
-        getContentPane().removeAll();
-        getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(newPanel, BorderLayout.CENTER);
-        validate();
-        repaint();
-    }
-
-    private JButton createTypewriterButton(String text) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                if (getModel().isPressed()) {
-                    g.setColor(new Color(220, 200, 180));
-                } else if (getModel().isRollover()) {
-                    g.setColor(new Color(240, 230, 210));
-                } else {
-                    g.setColor(parchmentColor);
-                }
-                g.fillRect(0, 0, getWidth(), getHeight());
-                super.paintComponent(g);
-            }
-        };
-        button.setFont(typewriterFont);
-        button.setForeground(typewriterInk);
-        button.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(typewriterInk),
-                BorderFactory.createEmptyBorder(10, 20, 10, 20)
-        ));
-        button.setContentAreaFilled(false);
-        button.setFocusPainted(false);
-        return button;
-    }
-
-    private void openCreateClassDialog() {
-        JDialog dialog = new JDialog(this, "Create New Class", true);
-        dialog.setSize(400, 250);
-        dialog.setLocationRelativeTo(this);
-        dialog.getContentPane().setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
-
-        // Use GridBagLayout for more control
-        JPanel contentPanel = new JPanel(new GridBagLayout());
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        contentPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);  // spacing between components
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        // Row 0: Class Name
-        JLabel nameLabel = new JLabel("Class Name:");
-        nameLabel.setFont(oldTimeyMode ? typewriterFont : new Font("Arial", Font.PLAIN, 14));
-        nameLabel.setForeground(oldTimeyMode ? typewriterInk : Color.BLACK);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 0; // label takes minimal width
-        contentPanel.add(nameLabel, gbc);
-
-        JTextField classNameField = new JTextField();
-        classNameField.setFont(oldTimeyMode ? typewriterFont : new Font("Arial", Font.PLAIN, 14));
-        classNameField.setForeground(oldTimeyMode ? typewriterInk : Color.BLACK);
-        classNameField.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
-        classNameField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : Color.GRAY));
-        classNameField.setEditable(true);
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;  // text field expands
-        contentPanel.add(classNameField, gbc);
-
-        // Row 1: Section
-        JLabel sectionLabel = new JLabel("Section:");
-        sectionLabel.setFont(oldTimeyMode ? typewriterFont : new Font("Arial", Font.PLAIN, 14));
-        sectionLabel.setForeground(oldTimeyMode ? typewriterInk : Color.BLACK);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weightx = 0;
-        contentPanel.add(sectionLabel, gbc);
-
-        JTextField sectionField = new JTextField();
-        sectionField.setFont(oldTimeyMode ? typewriterFont : new Font("Arial", Font.PLAIN, 14));
-        sectionField.setForeground(oldTimeyMode ? typewriterInk : Color.BLACK);
-        sectionField.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
-        sectionField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : Color.GRAY));
-        sectionField.setEditable(true);
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.weightx = 1.0;
-        contentPanel.add(sectionField, gbc);
-
-        // Row 2: Expiration (minutes)
-        JLabel expirationLabel = new JLabel("Expiration (minutes):");
-        expirationLabel.setFont(oldTimeyMode ? typewriterFont : new Font("Arial", Font.PLAIN, 14));
-        expirationLabel.setForeground(oldTimeyMode ? typewriterInk : Color.BLACK);
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.weightx = 0;
-        contentPanel.add(expirationLabel, gbc);
-
-        JTextField expirationField = new JTextField();
-        expirationField.setFont(oldTimeyMode ? typewriterFont : new Font("Arial", Font.PLAIN, 14));
-        expirationField.setForeground(oldTimeyMode ? typewriterInk : Color.BLACK);
-        expirationField.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
-        expirationField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : Color.GRAY));
-        expirationField.setEditable(true);
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.weightx = 1.0;
-        contentPanel.add(expirationField, gbc);
-
-        // Row 3: Create button (spanning two columns)
-        JButton createButton = oldTimeyMode ? createTypewriterButton("Create") : new JButton("Create");
-        createButton.setFont(new Font(oldTimeyMode ? "Courier New" : "Arial", Font.BOLD, 16));
-        createButton.setFocusPainted(false);
-
-        createButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String className = classNameField.getText().trim();
-                String section = sectionField.getText().trim();
-                String expirationText = expirationField.getText().trim();
-
-                if (className.isEmpty() || section.isEmpty()) {
-                    JOptionPane.showMessageDialog(dialog, "Please fill in both Class Name and Section.", "Incomplete Form", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                // Default expiration minutes
-                int expirationMinutes = 60;
-                try {
-                    if (!expirationText.isEmpty()) {
-                        expirationMinutes = Integer.parseInt(expirationText);
-                    }
-                } catch (NumberFormatException nfe) {
-                    JOptionPane.showMessageDialog(dialog, "Expiration must be a number (minutes). Using default of 60 minutes.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
-                }
-
-                // Generate a random 4-digit passcode
-                int passcode = (int) (Math.random() * 9000) + 1000;
-
-                // Build the check-in URL
-                String checkInUrl = "tinyurl.com/02221732";
-
-                // Save the class information and generate QR code
-                saveClassToDatabase(professor.getProfessorID(), className, section, passcode, expirationMinutes);
-                Image qrImage = generateQRCodeImage(checkInUrl, 200, 200);
-                showQRCodeDialog(qrImage, checkInUrl, passcode, expirationMinutes);
-
-                dialog.dispose();
-            }
-        });
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        gbc.weightx = 0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        contentPanel.add(createButton, gbc);
-
-        dialog.add(contentPanel);
-        dialog.setVisible(true);
-    }
 
     // Method to generate a QR code image using ZXing
     private Image generateQRCodeImage(String text, int width, int height) {
@@ -595,85 +369,89 @@ public class Dashboard extends javax.swing.JFrame {
 
     // Method to show a dialog with the generated QR code
     private void showQRCodeDialog(Image qrImage, String url, int passcode, int expirationMinutes) {
-        JDialog qrDialog = new JDialog(this, "Class Check-In QR Code", true);
-        qrDialog.setSize(320, 480);
-        qrDialog.setLocationRelativeTo(this);
-        qrDialog.getContentPane().setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+    JDialog qrDialog = new JDialog(this, "Class Check-In QR Code", true);
+    qrDialog.setSize(320, 480);
+    qrDialog.setLocationRelativeTo(this);
+    
+    JPanel contentPanel = new JPanel(new BorderLayout());
+    contentPanel.setBackground(Color.WHITE);
+    contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    
+    JLabel qrLabel = new JLabel(new ImageIcon(qrImage));
+    qrLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    
+     // Include passcode, URL, and expiration information in the info label
+    JLabel infoLabel = new JLabel("<html>Passcode: " + passcode + "<br>" +
+                                  "URL: " + url + "<br>" +
+                                  "Expires in: " + expirationMinutes + " minute(s)</html>");
+    infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    infoLabel.setForeground(new Color(50, 50, 50));
+    
+    contentPanel.add(qrLabel, BorderLayout.CENTER);
+    contentPanel.add(infoLabel, BorderLayout.SOUTH);
+    
+    qrDialog.add(contentPanel);
+    qrDialog.setVisible(true);
+}
 
-        JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel qrLabel = new JLabel(new ImageIcon(qrImage));
-        qrLabel.setHorizontalAlignment(SwingConstants.CENTER);
+private void saveClassToDatabase(String professorId, String className, String section, int passcode, int expirationMinutes) {
+    new Thread(() -> {
+        try {
+            String urlString = "http://cm8tes.com/createClass.php"; // Student check in php file
+            String urlParameters = "professor_id=" + URLEncoder.encode(professorId, "UTF-8") +
+                                   "&class=" + URLEncoder.encode(className, "UTF-8") +
+                                   "&section=" + URLEncoder.encode(section, "UTF-8") +
+                                   "&expiration=" + expirationMinutes +
+                                   "&passcode=" + passcode;
+            byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
 
-        // Include passcode, URL, and expiration information in the info label
-        JLabel infoLabel = new JLabel("<html>Passcode: " + passcode + "<br>" +
-                "URL: " + url + "<br>" +
-                "Expires in: " + expirationMinutes + " minute(s)</html>");
-        infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        infoLabel.setFont(oldTimeyMode ? typewriterFont : new Font("Arial", Font.PLAIN, 14));
-        infoLabel.setForeground(oldTimeyMode ? typewriterInk : Color.BLACK);
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setDoOutput(true);
 
-        contentPanel.add(qrLabel, BorderLayout.CENTER);
-        contentPanel.add(infoLabel, BorderLayout.SOUTH);
+            try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
+                out.write(postData);
+            }
 
-        qrDialog.add(contentPanel);
-        qrDialog.setVisible(true);
-    }
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
 
-    private void saveClassToDatabase(String professorId, String className, String section, int passcode, int expirationMinutes) {
-        new Thread(() -> {
-            try {
-                String urlString = "http://cm8tes.com/createClass.php"; // Student check in php file
-                String urlParameters = "professor_id=" + URLEncoder.encode(professorId, "UTF-8") +
-                        "&class=" + URLEncoder.encode(className, "UTF-8") +
-                        "&section=" + URLEncoder.encode(section, "UTF-8") +
-                        "&expiration=" + expirationMinutes +
-                        "&passcode=" + passcode;
-                byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
-
-                URL url = new URL(urlString);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                conn.setDoOutput(true);
-
-                try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
-                    out.write(postData);
-                }
-
-                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                JSONObject json = new JSONObject(response.toString());
-                if ("success".equalsIgnoreCase(json.optString("status"))) {
-                    SwingUtilities.invokeLater(() -> {
-                        JOptionPane.showMessageDialog(Dashboard.this,
-                                "Class created successfully!\nPasscode: " + json.optInt("passcode") +
-                                        "\nExpires: " + json.optString("passcode_expires"),
-                                "Success",
-                                JOptionPane.INFORMATION_MESSAGE);
-                    });
-                } else {
-                    String errMsg = json.optString("message", "Error creating class");
-                    SwingUtilities.invokeLater(() -> {
-                        JOptionPane.showMessageDialog(Dashboard.this, errMsg, "Error", JOptionPane.ERROR_MESSAGE);
-                    });
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            JSONObject json = new JSONObject(response.toString());
+            if ("success".equalsIgnoreCase(json.optString("status"))) {
                 SwingUtilities.invokeLater(() -> {
-                    JOptionPane.showMessageDialog(Dashboard.this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(Dashboard.this,
+                        "Class created successfully!\nPasscode: " + json.optInt("passcode") +
+                        "\nExpires: " + json.optString("passcode_expires"),
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+                });
+            } else {
+                String errMsg = json.optString("message", "Error creating class");
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(Dashboard.this, errMsg, "Error", JOptionPane.ERROR_MESSAGE);
                 });
             }
-        }).start();
-    }
+        } catch (Exception e) {
+            e.printStackTrace();
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(Dashboard.this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            });
+        }
+    }).start();
+}
+
+
+
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -699,25 +477,25 @@ public class Dashboard extends javax.swing.JFrame {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(layout.createSequentialGroup()
-                                                .addGap(365, 365, 365)
-                                                .addComponent(greetingLabel))
-                                        .addGroup(layout.createSequentialGroup()
-                                                .addGap(21, 21, 21)
-                                                .addComponent(questionHeader)))
-                                .addContainerGap(386, Short.MAX_VALUE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(365, 365, 365)
+                        .addComponent(greetingLabel))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(questionHeader)))
+                .addContainerGap(386, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                                .addGap(135, 135, 135)
-                                .addComponent(questionHeader)
-                                .addGap(134, 134, 134)
-                                .addComponent(greetingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(286, Short.MAX_VALUE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(135, 135, 135)
+                .addComponent(questionHeader)
+                .addGap(134, 134, 134)
+                .addComponent(greetingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(286, Short.MAX_VALUE))
         );
 
         pack();
@@ -729,13 +507,13 @@ public class Dashboard extends javax.swing.JFrame {
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         try {
-            UIManager.setLookAndFeel(new FlatLightLaf());
+         UIManager.setLookAndFeel(new FlatLightLaf());
         } catch (Exception ex) {
-            System.err.println("Failed to initialize LaF");
+          System.err.println("Failed to initialize LaF");
         }
 //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -756,13 +534,13 @@ public class Dashboard extends javax.swing.JFrame {
         //</editor-fold>
 
         // Create a Professors object
-        Professor prof = new Professor("Professor Name", "test@gmail.com", "it's not a game. I am not a robot AI challenging you");
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Dashboard(prof).setVisible(true);
-            }
-        });
-    }
+    Professor prof = new Professor("Professor Name", "test@gmail.com", "it's not a game. I am not a robot AI challenging you");
+    java.awt.EventQueue.invokeLater(new Runnable() {
+        public void run() {
+            new Dashboard(prof).setVisible(true);
+        }
+    });
+   }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel greetingLabel;
