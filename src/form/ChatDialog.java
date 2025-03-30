@@ -120,7 +120,8 @@ public class ChatDialog extends JDialog {
                     classComboBox.addItem(new ClassItem(id, display));
                 }
                 if (classComboBox.getItemCount() > 0) {
-                    classId = ((ClassItem) classComboBox.getItemAt(0)).id;
+                    ClassItem selected = (ClassItem) classComboBox.getItemAt(0);
+                    classId = selected.id;
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to load classes.");
@@ -131,15 +132,20 @@ public class ChatDialog extends JDialog {
         }
     }
 
-    // Process input text and send to ChatProcess along with the selected class_id
+    // Process input text and send to ChatProcess along with the selected class_id and its context string
     private void processInput() {
         String userText = inputField.getText().trim();
         if (userText.isEmpty()) return;
         appendChat("You: " + userText);
         inputField.setText("");
 
+        // Retrieve the selected class to get both ID and display text
+        ClassItem selected = (ClassItem) classComboBox.getSelectedItem();
+        int selectedClassId = selected != null ? selected.id : classId;
+        String classContext = selected != null ? selected.toString() : "Unknown Class";
+
         new Thread(() -> {
-            String response = ChatProcess.processUserMessage(userText, classId);
+            String response = ChatProcess.processUserMessage(userText, selectedClassId, classContext);
             SwingUtilities.invokeLater(() -> appendChat("Saki: " + response));
         }).start();
     }
@@ -165,5 +171,4 @@ public class ChatDialog extends JDialog {
             return display;
         }
     }
-
 }

@@ -20,22 +20,26 @@ import org.json.JSONObject;
 
 public class ChatProcess {
     
-    // Store class_id and conversation history for contextual memory
-    private static int class_id; 
+    // Store conversation history for contextual memory
     private static List<String> conversationHistory = new ArrayList<>();
 
     /**
      * Processes the user message.  
      * If the message is detected as an attendance query, it retrieves data from the database (via a PHP endpoint) 
      * and appends a summary to the prompt.
+     * 
+     * @param message The user message.
+     * @param class_id The selected class ID.
+     * @param classContext The string representation (name, section, etc.) of the class.
+     * @return The response from ChatGPT.
      */
-    public static String processUserMessage(String message, int class_id) {
+    public static String processUserMessage(String message, int class_id, String classContext) {
         // Save conversation history (for adaptive learning)
         conversationHistory.add("User: " + message);
 
         if (isAttendanceQuery(message)) {
             String attendanceData = getAttendanceSummary(class_id);
-            String prompt = "For the selected class, here is the attendance data:\n" 
+            String prompt = "For class " + classContext + ", here is the attendance data:\n" 
                             + attendanceData +
                             "\nNow answer the following question: " + message;
             String response = getChatGPTResponse(prompt);
@@ -123,7 +127,6 @@ public class ChatProcess {
 
     /**
      * Calls the ChatGPT API using the given prompt.
-     * Replace the authorization token with your own.
      */
     private static String getChatGPTResponse(String prompt) {
         try {
@@ -138,7 +141,7 @@ public class ChatProcess {
             // System message
             JSONObject systemMessage = new JSONObject();
             systemMessage.put("role", "system");
-            systemMessage.put("content", "Your name is Saki. You are an AI assistant that answers questions about class attendance for the specific class stored in the database. Maintain context from previous interactions when possible.");
+            systemMessage.put("content", "Your name is Saki. You are an AI assistant that answers questions about class attendance. Maintain context from previous interactions when possible.");
             messages.put(systemMessage);
             
             // Add previous conversation history as context (if available)
@@ -167,7 +170,7 @@ public class ChatProcess {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer API KEY")
+                    .header("Authorization", "Bearer API")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                     .build();
 
@@ -196,20 +199,18 @@ public class ChatProcess {
 
     /**
      * Logs user feedback for adaptive learning.
-     * In a real application, this might store feedback in a database or file.
      */
     public static void logUserFeedback(String feedback) {
-        // For demonstration, we're just printing feedback. This could be extended to persist the data.
         System.out.println("User Feedback: " + feedback);
-        // Optionally add the feedback to conversation history for context.
         conversationHistory.add("Feedback: " + feedback);
     }
 
     // For testing purposes
     public static void main(String[] args) {
-        class_id = 12;
+        int classId = 12;
+        String classContext = "Math 101 - A";
         String userQuery = "What is the attendance for this class? How many students have checked in?";
-        String response = processUserMessage(userQuery, class_id);
+        String response = processUserMessage(userQuery, classId, classContext);
         System.out.println("ChatGPT Response: " + response);
 
         // Simulate collecting user feedback after the response
