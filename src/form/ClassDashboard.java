@@ -1,12 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package form;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -42,6 +39,12 @@ import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
 
+// Import ZXing libraries for QR code generation
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+
 public class ClassDashboard extends JFrame {
 
     private Professor professor;  // The professor data passed in
@@ -50,7 +53,7 @@ public class ClassDashboard extends JFrame {
     public ClassDashboard(Professor professor) {
         this.professor = professor;
         setTitle("Class Dashboard for " + professor.getProfessorName());
-        setSize(900, 700);  // Increased size to accommodate buttons
+        setSize(1000, 800);  // Increased size to accommodate buttons
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -83,13 +86,19 @@ public class ClassDashboard extends JFrame {
         buttonPanel.setBackground(Color.WHITE);
 
         // Add Class button
-        FancyHoverButton addButton = new FancyHoverButton("Add");
+        FancyHoverButton addButton = new FancyHoverButton("Add Class");
         addButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         addButton.addActionListener(e -> addNewClass());
         buttonPanel.add(addButton);
 
+        // Edit Class button
+        FancyHoverButton editButton = new FancyHoverButton("Edit Selected");
+        editButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        editButton.addActionListener(e -> editSelectedClass());
+        buttonPanel.add(editButton);
+
         // Delete Class button
-        FancyHoverButton deleteButton = new FancyHoverButton("Delete");
+        FancyHoverButton deleteButton = new FancyHoverButton("Delete Selected");
         deleteButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         deleteButton.addActionListener(e -> deleteSelectedClass());
         buttonPanel.add(deleteButton);
@@ -111,66 +120,230 @@ public class ClassDashboard extends JFrame {
         loadClassesForProfessor();
     }
 
-    private void addNewClass() {
-        JDialog dialog = new JDialog(this, "Create New Class", true);
-        dialog.setSize(400, 300);
+    private void editSelectedClass() {
+        int selectedRow = classesTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Please select a class to edit",
+                    "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Get class data from the selected row
+        DefaultTableModel model = (DefaultTableModel) classesTable.getModel();
+        int classId = Integer.parseInt(model.getValueAt(selectedRow, 1).toString());
+        String className = model.getValueAt(selectedRow, 2).toString();
+        String section = model.getValueAt(selectedRow, 3).toString();
+        String expiresAt = model.getValueAt(selectedRow, 6).toString();
+
+        // Create and show edit dialog
+        showEditDialog(classId, className, section, expiresAt);
+    }
+
+    private void showEditDialog(int classId, String currentClassName, String currentSection, String expiresAt) {
+        JDialog dialog = new JDialog(this, "Edit Class", true);
+        dialog.setSize(600, 350);  // Increased size
         dialog.setLocationRelativeTo(this);
 
         JPanel contentPanel = new JPanel(new GridBagLayout());
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
         contentPanel.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Class Name
         JLabel nameLabel = new JLabel("Class Name:");
-        nameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        nameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.weightx = 0; // label takes minimal width
-
+        gbc.weightx = 0.3;
         contentPanel.add(nameLabel, gbc);
 
-        JTextField classNameField = new JTextField(20);
-        classNameField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JTextField classNameField = new JTextField(currentClassName, 40);
+        classNameField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        classNameField.setPreferredSize(new Dimension(350, 30));
         gbc.gridx = 1;
         gbc.gridy = 0;
-        gbc.weightx = 1.0;
+        gbc.weightx = 0.7;
         contentPanel.add(classNameField, gbc);
 
         // Section
         JLabel sectionLabel = new JLabel("Section:");
-        sectionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        sectionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.weightx = 0;
+        gbc.weightx = 0.3;
         contentPanel.add(sectionLabel, gbc);
 
-        JTextField sectionField = new JTextField(20);
-        sectionField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JTextField sectionField = new JTextField(currentSection, 40);
+        sectionField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        sectionField.setPreferredSize(new Dimension(350, 30));
         gbc.gridx = 1;
         gbc.gridy = 1;
-        gbc.weightx = 1.0;
+        gbc.weightx = 0.7;
         contentPanel.add(sectionField, gbc);
 
-        // Expiration
-        JLabel expirationLabel = new JLabel("Expiration (mins):");
-        expirationLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        // Expiration (display only)
+        JLabel expirationLabel = new JLabel("Current Expiration:");
+        expirationLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.weightx = 0;
+        gbc.weightx = 0.3;
         contentPanel.add(expirationLabel, gbc);
 
-        JTextField expirationField = new JTextField(20);
-        expirationField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JLabel expirationValueLabel = new JLabel(expiresAt);
+        expirationValueLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         gbc.gridx = 1;
         gbc.gridy = 2;
+        gbc.weightx = 0.7;
+        contentPanel.add(expirationValueLabel, gbc);
+
+        // Update button
+        FancyHoverButton updateButton = new FancyHoverButton("Update");
+        updateButton.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        updateButton.setPreferredSize(new Dimension(150, 40));
+        updateButton.addActionListener(e -> {
+            String newClassName = classNameField.getText().trim();
+            String newSection = sectionField.getText().trim();
+
+            if (newClassName.isEmpty() || newSection.isEmpty()) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Please fill in both Class Name and Section.",
+                        "Incomplete Form", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            updateClassInDatabase(classId, newClassName, newSection);
+            dialog.dispose();
+        });
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        contentPanel.add(updateButton, gbc);
+
+        dialog.add(contentPanel);
+        dialog.setVisible(true);
+    }
+
+    private void updateClassInDatabase(int classId, String newClassName, String newSection) {
+        new Thread(() -> {
+            try {
+                String urlString = "http://cm8tes.com/updateClass.php";
+                String urlParameters = "class_id=" + classId +
+                        "&professor_id=" + URLEncoder.encode(professor.getProfessorID(), "UTF-8") +
+                        "&class=" + URLEncoder.encode(newClassName, "UTF-8") +
+                        "&section=" + URLEncoder.encode(newSection, "UTF-8");
+
+                URL url = new URL(urlString);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+
+                try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
+                    out.writeBytes(urlParameters);
+                }
+
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(conn.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                JSONObject json = new JSONObject(response.toString());
+                SwingUtilities.invokeLater(() -> {
+                    if ("success".equalsIgnoreCase(json.optString("status"))) {
+                        JOptionPane.showMessageDialog(this,
+                                "Class updated successfully",
+                                "Success", JOptionPane.INFORMATION_MESSAGE);
+                        loadClassesForProfessor();
+                    } else {
+                        JOptionPane.showMessageDialog(this,
+                                "Error: " + json.optString("message"),
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(this,
+                            "Error updating class: " + e.getMessage(),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                });
+            }
+        }).start();
+    }
+
+    private void addNewClass() {
+        JDialog dialog = new JDialog(this, "Create New Class", true);
+        dialog.setSize(600, 350);  // Increased size for better visibility
+        dialog.setLocationRelativeTo(this);
+
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+        contentPanel.setBackground(Color.WHITE);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Class Name Field
+        JLabel nameLabel = new JLabel("Class Name:");
+        nameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0.3;
+        contentPanel.add(nameLabel, gbc);
+
+        JTextField classNameField = new JTextField(40);
+        classNameField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        classNameField.setPreferredSize(new Dimension(350, 30));
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 0.7;
+        contentPanel.add(classNameField, gbc);
+
+        // Section Field
+        JLabel sectionLabel = new JLabel("Section:");
+        sectionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0.3;
+        contentPanel.add(sectionLabel, gbc);
+
+        JTextField sectionField = new JTextField(40);
+        sectionField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        sectionField.setPreferredSize(new Dimension(350, 30));
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.weightx = 0.7;
+        contentPanel.add(sectionField, gbc);
+
+        // Expiration Field
+        JLabel expirationLabel = new JLabel("Expiration (mins):");
+        expirationLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.weightx = 0.3;
+        contentPanel.add(expirationLabel, gbc);
+
+        JTextField expirationField = new JTextField("60", 40);
+        expirationField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        expirationField.setPreferredSize(new Dimension(350, 30));
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.weightx = 0.7;
         contentPanel.add(expirationField, gbc);
 
-        // Create button
+        // Create Button
         FancyHoverButton createButton = new FancyHoverButton("Create");
-        createButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        createButton.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        createButton.setPreferredSize(new Dimension(150, 40));
         createButton.addActionListener(e -> {
             String className = classNameField.getText().trim();
             String section = sectionField.getText().trim();
@@ -179,7 +352,8 @@ public class ClassDashboard extends JFrame {
             if (className.isEmpty() || section.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog,
                         "Please fill in both Class Name and Section.",
-                        "Incomplete Form", JOptionPane.ERROR_MESSAGE);
+                        "Incomplete Form",
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -191,19 +365,23 @@ public class ClassDashboard extends JFrame {
             } catch (NumberFormatException nfe) {
                 JOptionPane.showMessageDialog(dialog,
                         "Expiration must be a number. Using default of 60 minutes.",
-                        "Invalid Input", JOptionPane.WARNING_MESSAGE);
+                        "Invalid Input",
+                        JOptionPane.WARNING_MESSAGE);
             }
+
             // Generate a random 4-digit passcode
             int passcode = (int) (Math.random() * 9000) + 1000;
-            
-            //Create a new class
-            createNewClass(professor.getProfessorID(), className,section, passcode, expirationMinutes);
+            String checkInUrl = "tinyurl.com/02221732";
+
+            // Save the class and show QR code
+            createNewClass(className, section, expirationMinutes, passcode, checkInUrl);
             dialog.dispose();
         });
 
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
         contentPanel.add(createButton, gbc);
 
@@ -211,7 +389,7 @@ public class ClassDashboard extends JFrame {
         dialog.setVisible(true);
     }
 
-    private void createNewClass(String professorId, String className,String section, int passcode,int expirationMinutes) {
+    private void createNewClass(String className, String section, int expirationMinutes, int passcode, String checkInUrl) {
         new Thread(() -> {
             try {
                 String urlString = "http://cm8tes.com/createClass.php";
@@ -242,10 +420,13 @@ public class ClassDashboard extends JFrame {
                 JSONObject json = new JSONObject(response.toString());
                 SwingUtilities.invokeLater(() -> {
                     if ("success".equalsIgnoreCase(json.optString("status"))) {
+                        // Generate and show QR code
+                        Image qrImage = generateQRCodeImage(checkInUrl, 200, 200);
+                        showQRCodeDialog(qrImage, checkInUrl, passcode, expirationMinutes);
+
                         JOptionPane.showMessageDialog(this,
-                                "Class created successfully!\nPasscode: " + json.optInt("passcode")+
-                        "\nExpires: " + json.optString("passcode_expires"),
-                        "Success", JOptionPane.INFORMATION_MESSAGE);
+                                "Class created successfully!\nPasscode: " + passcode,
+                                "Success", JOptionPane.INFORMATION_MESSAGE);
                         loadClassesForProfessor();
                     } else {
                         JOptionPane.showMessageDialog(this,
@@ -262,6 +443,45 @@ public class ClassDashboard extends JFrame {
                 });
             }
         }).start();
+    }
+
+    // Method to generate a QR code image using ZXing
+    private Image generateQRCodeImage(String text, int width, int height) {
+        try {
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, width, height);
+            return MatrixToImageWriter.toBufferedImage(bitMatrix);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // Method to show a dialog with the generated QR code
+    private void showQRCodeDialog(Image qrImage, String url, int passcode, int expirationMinutes) {
+        JDialog qrDialog = new JDialog(this, "Class Check-In QR Code", true);
+        qrDialog.setSize(320, 480);
+        qrDialog.setLocationRelativeTo(this);
+
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JLabel qrLabel = new JLabel(new ImageIcon(qrImage));
+        qrLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Include passcode, URL, and expiration information
+        JLabel infoLabel = new JLabel("<html>Passcode: " + passcode + "<br>" +
+                "URL: " + url + "<br>" +
+                "Expires in: " + expirationMinutes + " minute(s)</html>");
+        infoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        infoLabel.setForeground(new Color(50, 50, 50));
+
+        contentPanel.add(qrLabel, BorderLayout.CENTER);
+        contentPanel.add(infoLabel, BorderLayout.SOUTH);
+
+        qrDialog.add(contentPanel);
+        qrDialog.setVisible(true);
     }
 
     private void deleteSelectedClass() {
@@ -291,24 +511,16 @@ public class ClassDashboard extends JFrame {
         new Thread(() -> {
             try {
                 String urlString = "http://cm8tes.com/deleteClass.php";
-                // Add professor_id to the parameters
                 String urlParameters = "class_id=" + classId +
                         "&professor_id=" + URLEncoder.encode(professor.getProfessorID(), "UTF-8");
 
                 URL url = new URL(urlString);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 conn.setDoOutput(true);
 
                 try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
-                    out.write(urlParameters.getBytes(StandardCharsets.UTF_8));
-                }
-
-                // Check response code first
-                int responseCode = conn.getResponseCode();
-                if (responseCode != HttpURLConnection.HTTP_OK) {
-                    throw new IOException("HTTP error code: " + responseCode);
+                    out.writeBytes(urlParameters);
                 }
 
                 BufferedReader in = new BufferedReader(
