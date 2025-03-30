@@ -83,13 +83,13 @@ public class ClassDashboard extends JFrame {
         buttonPanel.setBackground(Color.WHITE);
 
         // Add Class button
-        FancyHoverButton addButton = new FancyHoverButton("Add Class");
+        FancyHoverButton addButton = new FancyHoverButton("Add");
         addButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         addButton.addActionListener(e -> addNewClass());
         buttonPanel.add(addButton);
 
         // Delete Class button
-        FancyHoverButton deleteButton = new FancyHoverButton("Delete Selected");
+        FancyHoverButton deleteButton = new FancyHoverButton("Delete");
         deleteButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         deleteButton.addActionListener(e -> deleteSelectedClass());
         buttonPanel.add(deleteButton);
@@ -128,12 +128,15 @@ public class ClassDashboard extends JFrame {
         nameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 0;
+        gbc.weightx = 0; // label takes minimal width
+
         contentPanel.add(nameLabel, gbc);
 
         JTextField classNameField = new JTextField(20);
         classNameField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gbc.gridx = 1;
         gbc.gridy = 0;
+        gbc.weightx = 1.0;
         contentPanel.add(classNameField, gbc);
 
         // Section
@@ -141,12 +144,14 @@ public class ClassDashboard extends JFrame {
         sectionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 1;
+        gbc.weightx = 0;
         contentPanel.add(sectionLabel, gbc);
 
         JTextField sectionField = new JTextField(20);
         sectionField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gbc.gridx = 1;
         gbc.gridy = 1;
+        gbc.weightx = 1.0;
         contentPanel.add(sectionField, gbc);
 
         // Expiration
@@ -154,9 +159,10 @@ public class ClassDashboard extends JFrame {
         expirationLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 2;
+        gbc.weightx = 0;
         contentPanel.add(expirationLabel, gbc);
 
-        JTextField expirationField = new JTextField("60", 20);
+        JTextField expirationField = new JTextField(20);
         expirationField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gbc.gridx = 1;
         gbc.gridy = 2;
@@ -187,8 +193,11 @@ public class ClassDashboard extends JFrame {
                         "Expiration must be a number. Using default of 60 minutes.",
                         "Invalid Input", JOptionPane.WARNING_MESSAGE);
             }
-
-            createNewClass(className, section, expirationMinutes);
+            // Generate a random 4-digit passcode
+            int passcode = (int) (Math.random() * 9000) + 1000;
+            
+            //Create a new class
+            createNewClass(professor.getProfessorID(), className,section, passcode, expirationMinutes);
             dialog.dispose();
         });
 
@@ -202,14 +211,15 @@ public class ClassDashboard extends JFrame {
         dialog.setVisible(true);
     }
 
-    private void createNewClass(String className, String section, int expirationMinutes) {
+    private void createNewClass(String professorId, String className,String section, int passcode,int expirationMinutes) {
         new Thread(() -> {
             try {
                 String urlString = "http://cm8tes.com/createClass.php";
                 String urlParameters = "professor_id=" + URLEncoder.encode(professor.getProfessorID(), "UTF-8") +
                         "&class=" + URLEncoder.encode(className, "UTF-8") +
                         "&section=" + URLEncoder.encode(section, "UTF-8") +
-                        "&expiration=" + expirationMinutes;
+                        "&expiration=" + expirationMinutes +
+                        "&passcode=" + passcode;
 
                 URL url = new URL(urlString);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -233,8 +243,9 @@ public class ClassDashboard extends JFrame {
                 SwingUtilities.invokeLater(() -> {
                     if ("success".equalsIgnoreCase(json.optString("status"))) {
                         JOptionPane.showMessageDialog(this,
-                                "Class created successfully!\nPasscode: " + json.optInt("passcode"),
-                                "Success", JOptionPane.INFORMATION_MESSAGE);
+                                "Class created successfully!\nPasscode: " + json.optInt("passcode")+
+                        "\nExpires: " + json.optString("passcode_expires"),
+                        "Success", JOptionPane.INFORMATION_MESSAGE);
                         loadClassesForProfessor();
                     } else {
                         JOptionPane.showMessageDialog(this,
