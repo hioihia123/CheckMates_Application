@@ -587,7 +587,7 @@ public class ClassDashboard extends JFrame {
         gbc.weightx = 0.3;
         contentPanel.add(expirationLabel, gbc);
 
-        JTextField expirationField = new JTextField("60", 40);
+        JTextField expirationField = new JTextField(40);
         expirationField.setFont(oldTimeyMode ? typewriterFont : modernFont);
         expirationField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
         expirationField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
