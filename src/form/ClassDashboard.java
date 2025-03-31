@@ -180,6 +180,7 @@ public class ClassDashboard extends JFrame {
         addOldTimeyButton(buttonPanel, "Edit Selected", e -> editSelectedClass());
         addOldTimeyButton(buttonPanel, "Delete Selected", e -> deleteSelectedClass());
         addOldTimeyButton(buttonPanel, "Refresh", e -> loadClassesForProfessor());
+        addOldTimeyButton(buttonPanel, "Get Out", e -> dispose()); // Added exit button
 
         // Assemble components
         mainPanel.add(topPanel, BorderLayout.NORTH);
@@ -198,11 +199,15 @@ public class ClassDashboard extends JFrame {
 
         // Top panel with greeting
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
         topPanel.setBackground(Color.WHITE);
+
+ 
 
         JLabel greetingLabel = new JLabel("Classes for Professor " + professor.getProfessorName());
         greetingLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
         topPanel.add(greetingLabel);
+
 
         // Table to display classes
         classesTable = new JTable();
@@ -238,7 +243,7 @@ public class ClassDashboard extends JFrame {
         refreshButton.addActionListener(e -> loadClassesForProfessor());
         buttonPanel.add(refreshButton);
 
-        // Add components to main panel
+      
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
