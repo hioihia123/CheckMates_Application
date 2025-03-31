@@ -399,6 +399,7 @@ public class Dashboard extends javax.swing.JFrame {
         qrDialog.add(contentPanel);
         qrDialog.setVisible(true);
     }
+    //
 
     private void saveClassToDatabase(String professorId, String className, String section, int passcode, int expirationMinutes) {
         new Thread(() -> {
