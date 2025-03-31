@@ -124,7 +124,7 @@ public class Dashboard extends javax.swing.JFrame {
         rightPanel.add(oldTimeyButton);
 
         // Add log off button
-        FancyHoverButton logOffButton = new FancyHoverButton("Log Off");
+        ModernButton logOffButton = new ModernButton("Log Off");
         logOffButton.addActionListener(e -> {
             this.dispose();
             new Login().setVisible(true);
