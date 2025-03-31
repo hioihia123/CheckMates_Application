@@ -158,7 +158,7 @@ public class Dashboard extends javax.swing.JFrame {
      topSection.add(javax.swing.Box.createVerticalStrut(60));
 
      // Put the button in a small panel (FlowLayout) if you want it left-aligned
-     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,0, 0));
+     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,0, 0));
      buttonPanel.setOpaque(false);
      buttonPanel.add(fancyButton);
      topSection.add(buttonPanel);
