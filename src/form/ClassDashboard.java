@@ -665,27 +665,61 @@ public class ClassDashboard extends JFrame {
                     out.writeBytes(urlParameters);
                 }
 
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(conn.getInputStream()));
-                StringBuilder response = new StringBuilder();
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
+                // Read response
+                StringBuilder responseBuilder = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        responseBuilder.append(inputLine);
+                    }
                 }
-                in.close();
+                final String response = responseBuilder.toString();
+                final JSONObject json = new JSONObject(response);
 
-                JSONObject json = new JSONObject(response.toString());
                 SwingUtilities.invokeLater(() -> {
                     if ("success".equalsIgnoreCase(json.optString("status"))) {
                         // Generate and show QR code
                         Image qrImage = generateQRCodeImage(checkInUrl, 200, 200);
                         showQRCodeDialog(qrImage, checkInUrl, passcode, expirationMinutes);
 
-                        JOptionPane.showMessageDialog(this,
-                                "Class created successfully!\nPasscode: " + passcode,
-                                "Success", JOptionPane.INFORMATION_MESSAGE);
+                        // Create custom notification panel
+                        JPanel panel = new JPanel(new BorderLayout());
+                        panel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+                        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+                        // Create message label
+                        JLabel message = new JLabel("<html><center>Class created successfully!<br>Passcode: " + passcode + "</center></html>");
+                        message.setFont(oldTimeyMode ? typewriterFont : modernFont);
+                        message.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+                        message.setHorizontalAlignment(SwingConstants.CENTER);
+                        panel.add(message, BorderLayout.CENTER);
+
+                        // Create OK button
+                        JButton okButton = oldTimeyMode ?
+                                createTypewriterButton("OK") :
+                                createModernButton("OK");
+                        okButton.addActionListener(e -> {
+                            Window window = SwingUtilities.getWindowAncestor(panel);
+                            if (window != null) {
+                                window.dispose();
+                            }
+                        });
+
+                        JPanel buttonPanel = new JPanel();
+                        buttonPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+                        buttonPanel.add(okButton);
+                        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+                        // Create and show custom dialog
+                        JDialog dialog = new JDialog(this, "Success", true);
+                        dialog.setContentPane(panel);
+                        dialog.pack();
+                        dialog.setLocationRelativeTo(this);
+                        dialog.setVisible(true);
+
                         loadClassesForProfessor();
                     } else {
+                        // Error handling
                         JOptionPane.showMessageDialog(this,
                                 "Error: " + json.optString("message"),
                                 "Error", JOptionPane.ERROR_MESSAGE);
