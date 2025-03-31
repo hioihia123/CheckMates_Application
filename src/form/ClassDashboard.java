@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONObject;
@@ -35,11 +36,13 @@ public class ClassDashboard extends JFrame {
     private Color parchmentColor = new Color(253, 245, 230, 200);
 
     // Modern style properties
-    private Color modernTextColor = Color.BLACK;
-    private Font modernFont = new Font("Arial", Font.PLAIN, 14);
-    private Font modernTitleFont = new Font("Arial", Font.BOLD, 24);
+    private Color modernTextColor = new Color(60, 60, 60);
+    private Font modernFont = new Font("Segoe UI", Font.PLAIN, 14);
+    private Font modernTitleFont = new Font("Segoe UI", Font.BOLD, 24);
     private Color modernBackground = Color.WHITE;
     private Color modernPanelColor = new Color(240, 240, 240);
+    private Color modernAccentColor = new Color(100, 149, 237); // Cornflower blue
+    private Color modernHighlightColor = new Color(200, 220, 255);
 
     public ClassDashboard(Professor professor) {
         this(professor, false); // Default to modern style
@@ -49,7 +52,7 @@ public class ClassDashboard extends JFrame {
         this.professor = professor;
         this.oldTimeyMode = oldTimeyMode;
         setTitle("Class Dashboard for " + professor.getProfessorName());
-        setSize(1000, 800);
+        setSize(1200, 800);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -83,7 +86,16 @@ public class ClassDashboard extends JFrame {
                 UIManager.put("Label.font", typewriterFont);
                 UIManager.put("Label.foreground", typewriterInk);
             } else {
-                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+                // Modern look and feel settings
+                UIManager.put("OptionPane.background", modernBackground);
+                UIManager.put("OptionPane.messageFont", modernFont);
+                UIManager.put("OptionPane.messageForeground", modernTextColor);
+                UIManager.put("TextField.background", modernBackground);
+                UIManager.put("TextField.font", modernFont);
+                UIManager.put("TextField.foreground", modernTextColor);
+                UIManager.put("TextField.border", BorderFactory.createLineBorder(new Color(200, 200, 200)));
+                UIManager.put("Label.font", modernFont);
+                UIManager.put("Label.foreground", modernTextColor);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -179,31 +191,35 @@ public class ClassDashboard extends JFrame {
     }
 
     private void initModernComponents() {
-        // Main panel with background
+        // Main panel with modern styling
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(modernBackground);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Top panel
+        // Top panel with title
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         topPanel.setBackground(modernPanelColor);
-        topPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
+        topPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
 
         JLabel greetingLabel = new JLabel("Classes for Professor " + professor.getProfessorName());
         greetingLabel.setFont(modernTitleFont);
         greetingLabel.setForeground(modernTextColor);
         topPanel.add(greetingLabel);
 
-        // Table setup
+        // Table setup with modern styling
         classesTable = new JTable() {
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
                 Component c = super.prepareRenderer(renderer, row, column);
-                c.setBackground(modernBackground);
+                c.setBackground(row % 2 == 0 ? modernBackground : new Color(248, 248, 248));
                 c.setForeground(modernTextColor);
                 c.setFont(modernFont);
                 if (isRowSelected(row)) {
-                    c.setBackground(new Color(200, 200, 255));
+                    c.setBackground(new Color(129, 199, 132)); // Light green for selection
+                    c.setForeground(Color.WHITE);
                 }
                 return c;
             }
@@ -211,12 +227,15 @@ public class ClassDashboard extends JFrame {
         customizeTable(oldTimeyMode);
 
         JScrollPane scrollPane = new JScrollPane(classesTable);
-        scrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
 
-        // Button panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        // Button panel with modern buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
         buttonPanel.setBackground(modernPanelColor);
-        buttonPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
+        buttonPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
 
         addModernButton(buttonPanel, "Add Class", e -> addNewClass());
         addModernButton(buttonPanel, "Edit Selected", e -> editSelectedClass());
@@ -243,7 +262,6 @@ public class ClassDashboard extends JFrame {
             classesTable.setSelectionForeground(typewriterInk);
             classesTable.setBorder(BorderFactory.createLineBorder(typewriterInk));
 
-            // Custom header
             JTableHeader header = classesTable.getTableHeader();
             header.setFont(typewriterFont);
             header.setForeground(typewriterInk);
@@ -253,15 +271,15 @@ public class ClassDashboard extends JFrame {
             classesTable.setFont(modernFont);
             classesTable.setForeground(modernTextColor);
             classesTable.setRowHeight(30);
-            classesTable.setSelectionBackground(new Color(200, 200, 255));
+            classesTable.setSelectionBackground(modernHighlightColor);
             classesTable.setSelectionForeground(modernTextColor);
-            classesTable.setGridColor(Color.LIGHT_GRAY);
+            classesTable.setGridColor(new Color(220, 220, 220));
 
-            // Custom header
             JTableHeader header = classesTable.getTableHeader();
-            header.setFont(modernFont);
+            header.setFont(modernFont.deriveFont(Font.BOLD));
             header.setForeground(modernTextColor);
             header.setBackground(modernPanelColor);
+            header.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
         }
     }
 
@@ -293,14 +311,10 @@ public class ClassDashboard extends JFrame {
     }
 
     private void addModernButton(JPanel panel, String text, ActionListener action) {
-        JButton button = new JButton(text);
-        button.setFont(modernFont);
-        button.setForeground(modernTextColor);
-        button.setBackground(Color.WHITE);
-        button.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.GRAY),
-                BorderFactory.createEmptyBorder(5, 15, 5, 15)
-        ));
+        FancyHoverButton button = new FancyHoverButton(text);
+        button.setFont(modernFont.deriveFont(Font.BOLD));
+        button.setForeground(Color.WHITE);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
         button.addActionListener(action);
         panel.add(button);
     }
@@ -332,14 +346,10 @@ public class ClassDashboard extends JFrame {
     }
 
     private JButton createModernButton(String text) {
-        JButton button = new JButton(text);
+        FancyHoverButton button = new FancyHoverButton(text);
         button.setFont(modernFont);
-        button.setForeground(modernTextColor);
-        button.setBackground(Color.WHITE);
-        button.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.GRAY),
-                BorderFactory.createEmptyBorder(5, 15, 5, 15)
-        ));
+        button.setForeground(Color.WHITE);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
         return button;
     }
 
@@ -387,7 +397,7 @@ public class ClassDashboard extends JFrame {
         classNameField.setFont(oldTimeyMode ? typewriterFont : modernFont);
         classNameField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
         classNameField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
-        classNameField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : Color.GRAY));
+        classNameField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
         classNameField.setPreferredSize(new Dimension(350, 30));
         gbc.gridx = 1;
         gbc.gridy = 0;
@@ -407,7 +417,7 @@ public class ClassDashboard extends JFrame {
         sectionField.setFont(oldTimeyMode ? typewriterFont : modernFont);
         sectionField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
         sectionField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
-        sectionField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : Color.GRAY));
+        sectionField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
         sectionField.setPreferredSize(new Dimension(350, 30));
         gbc.gridx = 1;
         gbc.gridy = 1;
@@ -469,7 +479,8 @@ public class ClassDashboard extends JFrame {
                         "&class=" + URLEncoder.encode(newClassName, "UTF-8") +
                         "&section=" + URLEncoder.encode(newSection, "UTF-8");
 
-                URL url = new URL(urlString);
+                URI uri = new URI(urlString);
+                URL url = uri.toURL();
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
@@ -537,7 +548,7 @@ public class ClassDashboard extends JFrame {
         classNameField.setFont(oldTimeyMode ? typewriterFont : modernFont);
         classNameField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
         classNameField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
-        classNameField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : Color.GRAY));
+        classNameField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
         classNameField.setPreferredSize(new Dimension(350, 30));
         gbc.gridx = 1;
         gbc.gridy = 0;
@@ -557,7 +568,7 @@ public class ClassDashboard extends JFrame {
         sectionField.setFont(oldTimeyMode ? typewriterFont : modernFont);
         sectionField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
         sectionField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
-        sectionField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : Color.GRAY));
+        sectionField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
         sectionField.setPreferredSize(new Dimension(350, 30));
         gbc.gridx = 1;
         gbc.gridy = 1;
@@ -577,7 +588,7 @@ public class ClassDashboard extends JFrame {
         expirationField.setFont(oldTimeyMode ? typewriterFont : modernFont);
         expirationField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
         expirationField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
-        expirationField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : Color.GRAY));
+        expirationField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
         expirationField.setPreferredSize(new Dimension(350, 30));
         gbc.gridx = 1;
         gbc.gridy = 2;
@@ -642,7 +653,8 @@ public class ClassDashboard extends JFrame {
                         "&expiration=" + expirationMinutes +
                         "&passcode=" + passcode;
 
-                URL url = new URL(urlString);
+                URI uri = new URI(urlString);
+                URL url = uri.toURL();
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
@@ -755,7 +767,8 @@ public class ClassDashboard extends JFrame {
                 String urlParameters = "class_id=" + classId +
                         "&professor_id=" + URLEncoder.encode(professor.getProfessorID(), "UTF-8");
 
-                URL url = new URL(urlString);
+                URI uri = new URI(urlString);
+                URL url = uri.toURL();
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
@@ -798,14 +811,16 @@ public class ClassDashboard extends JFrame {
     }
 
     private void loadClassesForProfessor() {
-        String urlString = "http://cm8tes.com/getClasses.php?professor_id=" +
-                URLEncoder.encode(professor.getProfessorID(), StandardCharsets.UTF_8);
-
-        ArrayList<String[]> rowData = new ArrayList<>();
-        String[] columnNames = {"No.", "Class ID", "Class Name", "Section", "Passcode", "Created At", "Expires At"};
-
         try {
-            URL url = new URL(urlString);
+            String urlString = "http://cm8tes.com/getClasses.php?professor_id=" +
+                    URLEncoder.encode(professor.getProfessorID(), StandardCharsets.UTF_8);
+
+            URI uri = new URI(urlString);
+            URL url = uri.toURL();
+
+            ArrayList<String[]> rowData = new ArrayList<>();
+            String[] columnNames = {"No.", "Class ID", "Class Name", "Section", "Passcode", "Created At", "Expires At"};
+
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
@@ -836,23 +851,61 @@ public class ClassDashboard extends JFrame {
                         "Error: " + json.optString("message"),
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
+
+            String[][] rowArray = rowData.toArray(new String[0][]);
+            javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(rowArray, columnNames) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false; // Make table cells non-editable
+                }
+            };
+
+            classesTable.setModel(model);
+            classesTable.removeColumn(classesTable.getColumnModel().getColumn(1)); // Hide Class ID column
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this,
                     "Error: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
 
-        String[][] rowArray = rowData.toArray(new String[0][]);
-        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(rowArray, columnNames) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // Make table cells non-editable
+    static class FancyHoverButton extends JButton {
+        private Color normalColor = new Color(76, 175, 80); // Green 500
+        private Color hoverColor = new Color(102, 187, 106); // Green 400
+        private Color pressedColor = new Color(56, 142, 60); // Green 600
+        private Color textColor = Color.WHITE;
+        private int cornerRadius = 12;
+
+        public FancyHoverButton(String text) {
+            super(text);
+            setContentAreaFilled(false);
+            setFocusPainted(false);
+            setForeground(textColor);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            if (getModel().isPressed()) {
+                g2.setColor(pressedColor);
+            } else if (getModel().isRollover()) {
+                g2.setColor(hoverColor);
+            } else {
+                g2.setColor(normalColor);
             }
-        };
 
-        classesTable.setModel(model);
-        classesTable.removeColumn(classesTable.getColumnModel().getColumn(1)); // Hide Class ID column
+            g2.fillRoundRect(0, 0, getWidth(), getHeight(), cornerRadius, cornerRadius);
+            super.paintComponent(g2);
+            g2.dispose();
+        }
+
+        @Override
+        protected void paintBorder(Graphics g) {
+            // No border painting
+        }
     }
 
     public static void main(String[] args) {

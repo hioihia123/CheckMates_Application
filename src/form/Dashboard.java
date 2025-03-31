@@ -21,6 +21,7 @@ import java.awt.Toolkit;
 import java.awt.Dimension;
 
 
+import java.awt.image.BufferedImage;
 import javax.swing.UIManager;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -142,6 +143,22 @@ public class Dashboard extends javax.swing.JFrame {
         topBar.setOpaque(false);
         topBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, typewriterInk));
 
+        // Left side: logo and header panel
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
+        leftPanel.setOpaque(false);
+
+        // Add logo image (sepia-toned for old-timey mode)
+        try {
+            ImageIcon logoIcon = new ImageIcon(getClass().getResource("logo.png")); // Adjust path as needed
+            Image logoImage = logoIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+            // Convert to sepia tone for old-timey mode
+            logoImage = convertToSepia(logoImage);
+            JLabel logoLabel = new JLabel(new ImageIcon(logoImage));
+            leftPanel.add(logoLabel);
+        } catch (Exception e) {
+            System.err.println("Could not load logo image: " + e.getMessage());
+        }
+
         // Greeting labels
         JLabel greetingLabel = new JLabel("Hello, " + professor.getProfessorName() + "!");
         greetingLabel.setFont(titleFont);
@@ -157,9 +174,6 @@ public class Dashboard extends javax.swing.JFrame {
         headerPanel.add(greetingLabel);
         headerPanel.add(professorIDLabel);
 
-        // Left side: header panel
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        leftPanel.setOpaque(false);
         leftPanel.add(headerPanel);
 
         // Right side: buttons
@@ -167,7 +181,7 @@ public class Dashboard extends javax.swing.JFrame {
         rightPanel.setOpaque(false);
 
         // Add style toggle button
-        JButton toggleBtn = createTypewriterButton(oldTimeyMode ? "Modern Style" : "Old-Timey Style");
+        JButton toggleBtn = createTypewriterButton("Modern Style");
         toggleBtn.addActionListener(e -> toggleStyle());
         rightPanel.add(toggleBtn);
 
@@ -183,6 +197,32 @@ public class Dashboard extends javax.swing.JFrame {
         topBar.add(rightPanel, BorderLayout.EAST);
 
         return topBar;
+    }
+
+    // Helper method to convert image to sepia tone for old-timey mode
+    private Image convertToSepia(Image image) {
+        BufferedImage bufferedImage = new BufferedImage(
+                image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = bufferedImage.createGraphics();
+        g2d.drawImage(image, 0, 0, null);
+        g2d.dispose();
+
+        for (int y = 0; y < bufferedImage.getHeight(); y++) {
+            for (int x = 0; x < bufferedImage.getWidth(); x++) {
+                Color color = new Color(bufferedImage.getRGB(x, y));
+                int r = color.getRed();
+                int g = color.getGreen();
+                int b = color.getBlue();
+
+                // Apply sepia filter
+                int newRed = (int) Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));
+                int newGreen = (int) Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168));
+                int newBlue = (int) Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131));
+
+                bufferedImage.setRGB(x, y, new Color(newRed, newGreen, newBlue).getRGB());
+            }
+        }
+        return bufferedImage;
     }
 
     private JPanel createOldTimeyContent() {
@@ -281,47 +321,64 @@ public class Dashboard extends javax.swing.JFrame {
     private JPanel createModernTopBar() {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(new Color(240, 240, 240));
-        topBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY));
+        topBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)));
 
-        // Greeting labels
+        // Left side: logo and header panel
+        JPanel leftPanel = new JPanel(new BorderLayout(20, 0)); // Changed to BorderLayout for better control
+        leftPanel.setOpaque(false);
+
+        // Add logo image - now 200x200 (5 times bigger than 40x40)
+        try {
+            URL logoUrl = getClass().getResource("inner-ground2.png");
+            if (logoUrl != null) {
+                ImageIcon logoIcon = new ImageIcon(logoUrl);
+                Image logoImage = logoIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+                JLabel logoLabel = new JLabel(new ImageIcon(logoImage));
+                leftPanel.add(logoLabel, BorderLayout.WEST); // Position to the west (left)
+            } else {
+                System.err.println("Logo image not found at: form/inner-ground2.png");
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading logo image: " + e.getMessage());
+            leftPanel.add(new JLabel("[LOGO]"), BorderLayout.WEST);
+        }
+
+        // Greeting labels in a separate panel
+        JPanel greetingPanel = new JPanel(new GridLayout(2, 1, 0, 5));
+        greetingPanel.setOpaque(false);
+
         JLabel greetingLabel = new JLabel("Hello, " + professor.getProfessorName() + "!");
-        greetingLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        greetingLabel.setForeground(Color.BLACK);
+        greetingLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        greetingLabel.setForeground(new Color(50, 50, 50));
 
         JLabel professorIDLabel = new JLabel("Professor ID: " + professor.getProfessorID());
-        professorIDLabel.setFont(new Font("Arial", Font.PLAIN, 18));
-        professorIDLabel.setForeground(Color.DARK_GRAY);
+        professorIDLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        professorIDLabel.setForeground(new Color(100, 100, 100));
 
-        // Header panel
-        JPanel headerPanel = new JPanel(new GridLayout(2, 1));
-        headerPanel.setOpaque(false);
-        headerPanel.add(greetingLabel);
-        headerPanel.add(professorIDLabel);
+        greetingPanel.add(greetingLabel);
+        greetingPanel.add(professorIDLabel);
 
-        // Left side: header panel
-        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        leftPanel.setOpaque(false);
-        leftPanel.add(headerPanel);
+        leftPanel.add(greetingPanel, BorderLayout.CENTER); // Add greeting panel to center
 
         // Right side: buttons
-        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         rightPanel.setOpaque(false);
 
         // Add style toggle button
-        JButton toggleBtn = new JButton("Old-Timey Style");
-        toggleBtn.setFont(new Font("Arial", Font.PLAIN, 12));
+        FancyHoverButton toggleBtn = new FancyHoverButton("Old-Timey Style");
+        toggleBtn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         toggleBtn.addActionListener(e -> toggleStyle());
         rightPanel.add(toggleBtn);
 
         // Add log off button
-        JButton logOffButton = new JButton("Log Off");
+        FancyHoverButton logOffButton = new FancyHoverButton("Log Off");
         logOffButton.addActionListener(e -> {
             this.dispose();
             new Login().setVisible(true);
         });
         rightPanel.add(logOffButton);
 
-        topBar.add(leftPanel, BorderLayout.WEST);
+        topBar.add(leftPanel, BorderLayout.CENTER);
         topBar.add(rightPanel, BorderLayout.EAST);
 
         return topBar;
@@ -334,8 +391,8 @@ public class Dashboard extends javax.swing.JFrame {
 
         // Question header
         JLabel questionHeader = new JLabel("What's on your mind, " + professor.getProfessorName() + "?");
-        questionHeader.setFont(new Font("Arial", Font.BOLD, 36));
-        questionHeader.setForeground(Color.BLACK);
+        questionHeader.setFont(new Font("Segoe UI", Font.BOLD, 36));
+        questionHeader.setForeground(new Color(60, 60, 60));
         questionHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Button panel
@@ -345,26 +402,26 @@ public class Dashboard extends javax.swing.JFrame {
         buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Create buttons
-        JButton createClassButton = new JButton("Create Class");
-        createClassButton.setFont(new Font("Arial", Font.BOLD, 18));
+        FancyHoverButton createClassButton = new FancyHoverButton("Create Class");
+        createClassButton.setFont(new Font("Segoe UI", Font.BOLD, 18));
         createClassButton.addActionListener(e -> openCreateClassDialog());
 
-        JButton viewClassButton = new JButton("View Class");
-        viewClassButton.setFont(new Font("Arial", Font.BOLD, 18));
+        FancyHoverButton viewClassButton = new FancyHoverButton("View Class");
+        viewClassButton.setFont(new Font("Segoe UI", Font.BOLD, 18));
         viewClassButton.addActionListener(e -> {
-            ClassDashboard classDash = new ClassDashboard(professor, oldTimeyMode); // Pass oldTimeyMode
+            ClassDashboard classDash = new ClassDashboard(professor, oldTimeyMode);
             classDash.setVisible(true);
         });
 
-        JButton viewAttendanceButton = new JButton("Records");
-        viewAttendanceButton.setFont(new Font("Arial", Font.BOLD, 18));
+        FancyHoverButton viewAttendanceButton = new FancyHoverButton("Records");
+        viewAttendanceButton.setFont(new Font("Segoe UI", Font.BOLD, 18));
         viewAttendanceButton.addActionListener(e -> {
             ClassSelectionDashboard csd = new ClassSelectionDashboard(professor);
             csd.setVisible(true);
         });
 
-        JButton AIbutton = new JButton("Saki");
-        AIbutton.setFont(new Font("Arial", Font.BOLD, 18));
+        FancyHoverButton AIbutton = new FancyHoverButton("Saki");
+        AIbutton.setFont(new Font("Segoe UI", Font.BOLD, 18));
         AIbutton.addActionListener(e -> {
             ChatDialog chatDialog = new ChatDialog(Dashboard.this, professor);
             chatDialog.setVisible(true);
@@ -391,8 +448,8 @@ public class Dashboard extends javax.swing.JFrame {
 
     private JPanel createModernFooter() {
         JLabel versionLabel = new JLabel("CheckMates Version 1.0");
-        versionLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        versionLabel.setForeground(Color.DARK_GRAY);
+        versionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        versionLabel.setForeground(new Color(120, 120, 120));
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         footerPanel.setOpaque(false);
         footerPanel.add(versionLabel);
