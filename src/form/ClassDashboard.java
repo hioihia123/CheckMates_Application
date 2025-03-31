@@ -192,64 +192,65 @@ public class ClassDashboard extends JFrame {
     }
 
     private void initModernComponents() {
-        // Main panel with modern styling
+       // Main panel with border layout
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(modernBackground);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Top panel with title
+        // Top panel with greeting
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.setBackground(modernBackground);
-        topPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)),
-                BorderFactory.createEmptyBorder(10, 20, 10, 20)
-        ));
+
+        topPanel.setBackground(Color.WHITE);
+
+ 
 
         JLabel greetingLabel = new JLabel("Classes for Professor " + professor.getProfessorName());
-        greetingLabel.setFont(modernTitleFont);
-        greetingLabel.setForeground(modernTextColor);
+        greetingLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
         topPanel.add(greetingLabel);
 
-        // Table setup with modern styling
-        classesTable = new JTable() {
-            @Override
-            public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-                Component c = super.prepareRenderer(renderer, row, column);
-                c.setBackground(row % 2 == 0 ? modernBackground : new Color(248, 248, 248));
-                c.setForeground(modernTextColor);
-                c.setFont(modernFont);
-                if (isRowSelected(row)) {
-                    c.setBackground(modernHighlightColor);
-                    c.setForeground(Color.WHITE);
-                }
-                return c;
-            }
-        };
-        customizeTable(oldTimeyMode);
 
+        // Table to display classes
+        classesTable = new JTable();
+        classesTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        classesTable.setRowHeight(30);
         JScrollPane scrollPane = new JScrollPane(classesTable);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
 
-        // Button panel with modern buttons
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
-        buttonPanel.setBackground(modernBackground);
-        buttonPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(200, 200, 200)),
-                BorderFactory.createEmptyBorder(10, 20, 10, 20)
-        ));
+        // Button panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttonPanel.setBackground(Color.WHITE);
 
-        addModernButton(buttonPanel, "Add Class", e -> addNewClass());
-        addModernButton(buttonPanel, "Edit Selected", e -> editSelectedClass());
-        addModernButton(buttonPanel, "Delete Selected", e -> deleteSelectedClass());
-        addModernButton(buttonPanel, "Refresh", e -> loadClassesForProfessor());
-        addModernButton(buttonPanel, "Exit", e -> dispose()); // Added exit button
+        // Add Class button
+        form.FancyHoverButton addButton = new form.FancyHoverButton("Add");
+        addButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        addButton.addActionListener(e -> addNewClass());
+        buttonPanel.add(addButton);
 
-        // Assemble components
+        // Edit Class button
+        form.FancyHoverButton editButton = new form.FancyHoverButton("Edit");
+        editButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        editButton.addActionListener(e -> editSelectedClass());
+        buttonPanel.add(editButton);
+
+        // Delete Class button
+        form.FancyHoverButton deleteButton = new form.FancyHoverButton("Delete ");
+        deleteButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        deleteButton.addActionListener(e -> deleteSelectedClass());
+        buttonPanel.add(deleteButton);
+
+        // Refresh button
+        form.FancyHoverButton refreshButton = new form.FancyHoverButton("Refresh");
+        refreshButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        refreshButton.addActionListener(e -> loadClassesForProfessor());
+        buttonPanel.add(refreshButton);
+
+      
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         getContentPane().add(mainPanel);
+
+        // Finally, fetch data and update the table
         loadClassesForProfessor();
     }
 
