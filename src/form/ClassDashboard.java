@@ -180,6 +180,7 @@ public class ClassDashboard extends JFrame {
         addOldTimeyButton(buttonPanel, "Edit Selected", e -> editSelectedClass());
         addOldTimeyButton(buttonPanel, "Delete Selected", e -> deleteSelectedClass());
         addOldTimeyButton(buttonPanel, "Refresh", e -> loadClassesForProfessor());
+        addOldTimeyButton(buttonPanel, "Get Out", e -> dispose()); // Added exit button
 
         // Assemble components
         mainPanel.add(topPanel, BorderLayout.NORTH);
@@ -198,7 +199,7 @@ public class ClassDashboard extends JFrame {
 
         // Top panel with title
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.setBackground(modernPanelColor);
+        topPanel.setBackground(modernBackground);
         topPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)),
                 BorderFactory.createEmptyBorder(10, 20, 10, 20)
@@ -218,7 +219,7 @@ public class ClassDashboard extends JFrame {
                 c.setForeground(modernTextColor);
                 c.setFont(modernFont);
                 if (isRowSelected(row)) {
-                    c.setBackground(new Color(129, 199, 132)); // Light green for selection
+                    c.setBackground(modernHighlightColor);
                     c.setForeground(Color.WHITE);
                 }
                 return c;
@@ -231,7 +232,7 @@ public class ClassDashboard extends JFrame {
 
         // Button panel with modern buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
-        buttonPanel.setBackground(modernPanelColor);
+        buttonPanel.setBackground(modernBackground);
         buttonPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(200, 200, 200)),
                 BorderFactory.createEmptyBorder(10, 20, 10, 20)
@@ -241,6 +242,7 @@ public class ClassDashboard extends JFrame {
         addModernButton(buttonPanel, "Edit Selected", e -> editSelectedClass());
         addModernButton(buttonPanel, "Delete Selected", e -> deleteSelectedClass());
         addModernButton(buttonPanel, "Refresh", e -> loadClassesForProfessor());
+        addModernButton(buttonPanel, "Exit", e -> dispose()); // Added exit button
 
         // Assemble components
         mainPanel.add(topPanel, BorderLayout.NORTH);
