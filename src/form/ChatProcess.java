@@ -41,7 +41,8 @@ public class ChatProcess {
             String attendanceData = getAttendanceSummary(class_id);
             String prompt = "For class " + classContext + ", here is the attendance data:\n" 
                             + attendanceData +
-                            "\nNow answer the following question: " + message;
+                            "\nNow answer the following question: " + message + "You are an assistant that converts natural language commands into JSON commands for a class management system. Convert the following command into JSON:\n" +
+"\"Create a new class named Biology101, section B, with expiration 45 minutes.\"";
             String response = getChatGPTResponse(prompt);
             conversationHistory.add("Saki: " + response);
             return response;
@@ -141,7 +142,14 @@ public class ChatProcess {
             // System message
             JSONObject systemMessage = new JSONObject();
             systemMessage.put("role", "system");
-            systemMessage.put("content", "Your name is Saki. You are an AI assistant that answers questions about class attendance. Maintain context from previous interactions when possible.");
+            systemMessage.put("content", "Your name is Saki. You are an AI assistant for CheckMates attendance applications that answers questions about class attendance. "
+                    + "You can answer anything about CheckMates application.CheckMates application has Create Class, View Class, Records and Saki ( which is you )"
+                    + "Create Class button is to create class as a one instance that create  the QR code and 4 random passcodes that lead students to check in website where they can type in their student id, name, passcode and date. Students must type in correct passcodes in order for their submission to be save in the database. Please show the students the generated passcode"
+                    + "View Class is to view created class attendance, each created class is as one instance, the class that user created will not be save as a permanent instance but rather a one instance that user can delete, edit"
+                    + "Records button is to view the checked in students of each created class, where user can do the same operations as View Class (add,edit,delete,refresh)"
+                    + "Saki button is to launch Saki (You!) to help the user about attendance data, you have to help them access specific student data when asked about. The user don't have to look all over at the Records. They just can ask you. "
+                    + "Saki (You!) will also have provide analyze between classes as well. For example, if the user asks for the analysis of attendance between all of the create classes, you have the data so you will provide the analysis"
+                    + "Maintain context from previous interactions when possible.");
             messages.put(systemMessage);
             
             // Add previous conversation history as context (if available)
@@ -170,7 +178,7 @@ public class ChatProcess {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer API")
+                    .header("Authorization", "Bearer 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")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                     .build();
 

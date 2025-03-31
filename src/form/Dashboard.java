@@ -197,7 +197,7 @@ public class Dashboard extends javax.swing.JFrame {
         ChatDialog chatDialog = new ChatDialog(Dashboard.this, professor);
         chatDialog.setVisible(true);
 }); 
-
+     
 
      // Add spacing before adding the additional button
      additionalButtonsPanel.add(Box.createHorizontalStrut(20)); // 20-pixel space
