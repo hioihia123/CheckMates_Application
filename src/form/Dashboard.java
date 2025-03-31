@@ -75,6 +75,7 @@ public class Dashboard extends javax.swing.JFrame {
     /**
      * This method is used to add custom components to the Dashboard.
      */
+
     private void initializeUI() {
         // Create the fancy logo panel (adjust the image path as needed)
         FancyLogoPanel fancyLogo = new FancyLogoPanel(
