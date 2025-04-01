@@ -909,6 +909,8 @@ public class ClassDashboard extends JFrame {
 
         buttonPanel.add(yesButton);
         buttonPanel.add(noButton);
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(25, 0, 25, 0));
+
         confirmPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         JDialog confirmDialog = new JDialog(this, "Confirm Deletion", true);
