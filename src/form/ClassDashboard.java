@@ -589,118 +589,112 @@ public class ClassDashboard extends JFrame {
 
     private void addNewClass() {
         JDialog dialog = new JDialog(this, "Create New Class", true);
-        dialog.setSize(600, 350);
+        dialog.setSize(400, 250);
         dialog.setLocationRelativeTo(this);
-        dialog.getContentPane().setBackground(oldTimeyMode ? parchmentColor : modernBackground);
 
+        // Use GridBagLayout for more control
         JPanel contentPanel = new JPanel(new GridBagLayout());
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
-        contentPanel.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        contentPanel.setBackground(Color.WHITE);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.insets = new Insets(8, 8, 8, 8);  // spacing between components
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Class Name Field
+        // Row 0: Class Name
         JLabel nameLabel = new JLabel("Class Name:");
-        nameLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
-        nameLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        nameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.weightx = 0.3;
+        gbc.weightx = 0; // label takes minimal width
         contentPanel.add(nameLabel, gbc);
 
-        JTextField classNameField = new JTextField(40);
-        classNameField.setFont(oldTimeyMode ? typewriterFont : modernFont);
-        classNameField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
-        classNameField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
-        classNameField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
-        classNameField.setPreferredSize(new Dimension(350, 30));
+        JTextField classNameField = new JTextField();
+        classNameField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        classNameField.setEditable(true);
         gbc.gridx = 1;
         gbc.gridy = 0;
-        gbc.weightx = 0.7;
+        gbc.weightx = 1.0;  // text field expands
         contentPanel.add(classNameField, gbc);
 
-        // Section Field
+        // Row 1: Section
         JLabel sectionLabel = new JLabel("Section:");
-        sectionLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
-        sectionLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        sectionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.weightx = 0.3;
+        gbc.weightx = 0;
         contentPanel.add(sectionLabel, gbc);
 
-        JTextField sectionField = new JTextField(40);
-        sectionField.setFont(oldTimeyMode ? typewriterFont : modernFont);
-        sectionField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
-        sectionField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
-        sectionField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
-        sectionField.setPreferredSize(new Dimension(350, 30));
+        JTextField sectionField = new JTextField();
+        sectionField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        sectionField.setEditable(true);
         gbc.gridx = 1;
         gbc.gridy = 1;
-        gbc.weightx = 0.7;
+        gbc.weightx = 1.0;
         contentPanel.add(sectionField, gbc);
 
-        // Expiration Field
-        JLabel expirationLabel = new JLabel("Expiration (mins):");
-        expirationLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
-        expirationLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        // Row 2: Expiration (minutes)
+        JLabel expirationLabel = new JLabel("Expiration (minutes):");
+        expirationLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.weightx = 0.3;
+        gbc.weightx = 0;
         contentPanel.add(expirationLabel, gbc);
 
-        JTextField expirationField = new JTextField(40);
-        expirationField.setFont(oldTimeyMode ? typewriterFont : modernFont);
-        expirationField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
-        expirationField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
-        expirationField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
-        expirationField.setPreferredSize(new Dimension(350, 30));
+        JTextField expirationField = new JTextField();
+        expirationField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        expirationField.setEditable(true);
         gbc.gridx = 1;
         gbc.gridy = 2;
-        gbc.weightx = 0.7;
+        gbc.weightx = 1.0;
         contentPanel.add(expirationField, gbc);
 
-        // Create Button
-        JButton createButton = oldTimeyMode ? createTypewriterButton("Create") : createModernButton("Create");
-        createButton.setPreferredSize(new Dimension(150, 40));
-        createButton.addActionListener(e -> {
-            String className = classNameField.getText().trim();
-            String section = sectionField.getText().trim();
-            String expirationText = expirationField.getText().trim();
+        // Row 3: Create button (spanning two columns)
+        form.FancyHoverButton createButton = new form.FancyHoverButton("Create");
+        createButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        createButton.setBackground(new Color(0, 100, 0));  // modern blue
+        createButton.setFocusPainted(false);
+        createButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
 
-            if (className.isEmpty() || section.isEmpty()) {
-                JOptionPane.showMessageDialog(dialog,
-                        "Please fill in both Class Name and Section.",
-                        "Incomplete Form",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+        createButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String className = classNameField.getText().trim();
+                String section = sectionField.getText().trim();
+                String expirationText = expirationField.getText().trim();
 
-            int expirationMinutes = 60;
-            try {
-                if (!expirationText.isEmpty()) {
-                    expirationMinutes = Integer.parseInt(expirationText);
+                if (className.isEmpty() || section.isEmpty()) {
+                    JOptionPane.showMessageDialog(dialog, "Please fill in both Class Name and Section.", "Incomplete Form", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
-            } catch (NumberFormatException nfe) {
-                JOptionPane.showMessageDialog(dialog,
-                        "Expiration must be a number. Using default of 60 minutes.",
-                        "Invalid Input",
-                        JOptionPane.WARNING_MESSAGE);
+
+                // Default expiration minutes
+                int expirationMinutes = 60;
+                try {
+                    if (!expirationText.isEmpty()) {
+                        expirationMinutes = Integer.parseInt(expirationText);
+                    }
+                } catch (NumberFormatException nfe) {
+                    JOptionPane.showMessageDialog(dialog, "Expiration must be a number (minutes). Using default of 60 minutes.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+                }
+
+                // Generate a random 4-digit passcode
+                int passcode = (int) (Math.random() * 9000) + 1000;
+
+                // Build the check-in URL
+                String checkInUrl = "tinyurl.com/02221732";
+
+                // Save the class information and generate QR code
+                createNewClass( className,  section,  expirationMinutes,  passcode,  checkInUrl);
+                
+
+                dialog.dispose();
             }
-
-            // Generate a random 4-digit passcode
-            int passcode = (int) (Math.random() * 9000) + 1000;
-            String checkInUrl = "tinyurl.com/02221732";
-
-            // Save the class and show QR code
-            createNewClass(className, section, expirationMinutes, passcode, checkInUrl);
-            dialog.dispose();
         });
 
         gbc.gridx = 0;
         gbc.gridy = 3;
         gbc.gridwidth = 2;
-        gbc.weightx = 1.0;
+        gbc.weightx = 0;
         gbc.anchor = GridBagConstraints.CENTER;
         contentPanel.add(createButton, gbc);
 
@@ -909,6 +903,8 @@ public class ClassDashboard extends JFrame {
 
         buttonPanel.add(yesButton);
         buttonPanel.add(noButton);
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(25, 0, 25, 0));
+
         confirmPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         JDialog confirmDialog = new JDialog(this, "Confirm Deletion", true);
