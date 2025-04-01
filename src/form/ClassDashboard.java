@@ -359,9 +359,35 @@ public class ClassDashboard extends JFrame {
     private void editSelectedClass() {
         int selectedRow = classesTable.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this,
-                    "Please select a class to edit",
-                    "No Selection", JOptionPane.WARNING_MESSAGE);
+            // Custom "no selection" notification for edit
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+            panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+            JLabel message = new JLabel("Please select a class to edit");
+            message.setFont(oldTimeyMode ? typewriterFont : modernFont);
+            message.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+            message.setHorizontalAlignment(SwingConstants.CENTER);
+            panel.add(message, BorderLayout.CENTER);
+
+            JButton okButton = oldTimeyMode ?
+                    createTypewriterButton("OK") :
+                    createModernButton("OK");
+            okButton.addActionListener(e -> {
+                Window window = SwingUtilities.getWindowAncestor(panel);
+                if (window != null) window.dispose();
+            });
+
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+            buttonPanel.add(okButton);
+            panel.add(buttonPanel, BorderLayout.SOUTH);
+
+            JDialog dialog = new JDialog(this, "No Selection", true);
+            dialog.setContentPane(panel);
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
             return;
         }
 
@@ -492,23 +518,57 @@ public class ClassDashboard extends JFrame {
                     out.writeBytes(urlParameters);
                 }
 
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(conn.getInputStream()));
-                StringBuilder response = new StringBuilder();
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
+                // Read response
+                StringBuilder responseBuilder = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        responseBuilder.append(inputLine);
+                    }
                 }
-                in.close();
+                final String response = responseBuilder.toString();
+                final JSONObject json = new JSONObject(response);
 
-                JSONObject json = new JSONObject(response.toString());
                 SwingUtilities.invokeLater(() -> {
                     if ("success".equalsIgnoreCase(json.optString("status"))) {
-                        JOptionPane.showMessageDialog(this,
-                                "Class updated successfully",
-                                "Success", JOptionPane.INFORMATION_MESSAGE);
+                        // Create custom notification panel
+                        JPanel panel = new JPanel(new BorderLayout());
+                        panel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+                        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+                        // Create message label
+                        JLabel message = new JLabel("Class updated successfully");
+                        message.setFont(oldTimeyMode ? typewriterFont : modernFont);
+                        message.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+                        message.setHorizontalAlignment(SwingConstants.CENTER);
+                        panel.add(message, BorderLayout.CENTER);
+
+                        // Create OK button
+                        JButton okButton = oldTimeyMode ?
+                                createTypewriterButton("OK") :
+                                createModernButton("OK");
+                        okButton.addActionListener(e -> {
+                            Window window = SwingUtilities.getWindowAncestor(panel);
+                            if (window != null) {
+                                window.dispose();
+                            }
+                        });
+
+                        JPanel buttonPanel = new JPanel();
+                        buttonPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+                        buttonPanel.add(okButton);
+                        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+                        // Create and show custom dialog
+                        JDialog dialog = new JDialog(this, "Success", true);
+                        dialog.setContentPane(panel);
+                        dialog.pack();
+                        dialog.setLocationRelativeTo(this);
+                        dialog.setVisible(true);
+
                         loadClassesForProfessor();
                     } else {
+                        // Error handling
                         JOptionPane.showMessageDialog(this,
                                 "Error: " + json.optString("message"),
                                 "Error", JOptionPane.ERROR_MESSAGE);
@@ -524,6 +584,8 @@ public class ClassDashboard extends JFrame {
             }
         }).start();
     }
+
+
 
     private void addNewClass() {
         JDialog dialog = new JDialog(this, "Create New Class", true);
@@ -778,23 +840,82 @@ public class ClassDashboard extends JFrame {
     private void deleteSelectedClass() {
         int selectedRow = classesTable.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this,
-                    "Please select a class to delete",
-                    "No Selection", JOptionPane.WARNING_MESSAGE);
+            // Custom "no selection" notification
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+            panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+            JLabel message = new JLabel("Please select a class to delete");
+            message.setFont(oldTimeyMode ? typewriterFont : modernFont);
+            message.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+            message.setHorizontalAlignment(SwingConstants.CENTER);
+            panel.add(message, BorderLayout.CENTER);
+
+            JButton okButton = oldTimeyMode ?
+                    createTypewriterButton("OK") :
+                    createModernButton("OK");
+            okButton.addActionListener(e -> {
+                Window window = SwingUtilities.getWindowAncestor(panel);
+                if (window != null) window.dispose();
+            });
+
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+            buttonPanel.add(okButton);
+            panel.add(buttonPanel, BorderLayout.SOUTH);
+
+            JDialog dialog = new JDialog(this, "No Selection", true);
+            dialog.setContentPane(panel);
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
             return;
         }
 
-        int classId = Integer.parseInt(
-                ((javax.swing.table.DefaultTableModel)classesTable.getModel())
-                        .getValueAt(selectedRow, 1).toString());
+        // Custom delete confirmation dialog
+        JPanel confirmPanel = new JPanel(new BorderLayout());
+        confirmPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+        confirmPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to delete this class?",
-                "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+        JLabel confirmMessage = new JLabel("Are you sure you want to delete this class?");
+        confirmMessage.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        confirmMessage.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        confirmMessage.setHorizontalAlignment(SwingConstants.CENTER);
+        confirmPanel.add(confirmMessage, BorderLayout.CENTER);
 
-        if (confirm == JOptionPane.YES_OPTION) {
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        buttonPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+
+        JButton yesButton = oldTimeyMode ?
+                createTypewriterButton("Yes") :
+                createModernButton("Yes");
+        yesButton.addActionListener(e -> {
+            Window window = SwingUtilities.getWindowAncestor(confirmPanel);
+            if (window != null) window.dispose();
+
+            int classId = Integer.parseInt(
+                    ((javax.swing.table.DefaultTableModel)classesTable.getModel())
+                            .getValueAt(selectedRow, 1).toString());
             deleteClassFromDatabase(classId);
-        }
+        });
+
+        JButton noButton = oldTimeyMode ?
+                createTypewriterButton("No") :
+                createModernButton("No");
+        noButton.addActionListener(e -> {
+            Window window = SwingUtilities.getWindowAncestor(confirmPanel);
+            if (window != null) window.dispose();
+        });
+
+        buttonPanel.add(yesButton);
+        buttonPanel.add(noButton);
+        confirmPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        JDialog confirmDialog = new JDialog(this, "Confirm Deletion", true);
+        confirmDialog.setContentPane(confirmPanel);
+        confirmDialog.pack();
+        confirmDialog.setLocationRelativeTo(this);
+        confirmDialog.setVisible(true);
     }
 
     private void deleteClassFromDatabase(int classId) {
@@ -814,23 +935,57 @@ public class ClassDashboard extends JFrame {
                     out.writeBytes(urlParameters);
                 }
 
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(conn.getInputStream()));
-                StringBuilder response = new StringBuilder();
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
+                // Read response
+                StringBuilder responseBuilder = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        responseBuilder.append(inputLine);
+                    }
                 }
-                in.close();
+                final String response = responseBuilder.toString();
+                final JSONObject json = new JSONObject(response);
 
-                JSONObject json = new JSONObject(response.toString());
                 SwingUtilities.invokeLater(() -> {
                     if ("success".equalsIgnoreCase(json.optString("status"))) {
-                        JOptionPane.showMessageDialog(this,
-                                "Class deleted successfully",
-                                "Success", JOptionPane.INFORMATION_MESSAGE);
+                        // Create custom notification panel
+                        JPanel panel = new JPanel(new BorderLayout());
+                        panel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+                        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+                        // Create message label
+                        JLabel message = new JLabel("Class deleted successfully");
+                        message.setFont(oldTimeyMode ? typewriterFont : modernFont);
+                        message.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+                        message.setHorizontalAlignment(SwingConstants.CENTER);
+                        panel.add(message, BorderLayout.CENTER);
+
+                        // Create OK button
+                        JButton okButton = oldTimeyMode ?
+                                createTypewriterButton("OK") :
+                                createModernButton("OK");
+                        okButton.addActionListener(e -> {
+                            Window window = SwingUtilities.getWindowAncestor(panel);
+                            if (window != null) {
+                                window.dispose();
+                            }
+                        });
+
+                        JPanel buttonPanel = new JPanel();
+                        buttonPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+                        buttonPanel.add(okButton);
+                        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+                        // Create and show custom dialog
+                        JDialog dialog = new JDialog(this, "Success", true);
+                        dialog.setContentPane(panel);
+                        dialog.pack();
+                        dialog.setLocationRelativeTo(this);
+                        dialog.setVisible(true);
+
                         loadClassesForProfessor();
                     } else {
+                        // Error handling
                         JOptionPane.showMessageDialog(this,
                                 "Error: " + json.optString("message"),
                                 "Error", JOptionPane.ERROR_MESSAGE);
