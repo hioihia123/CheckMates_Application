@@ -237,41 +237,43 @@ public class ClassDashboard extends JFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setBackground(Color.WHITE);
 
-        FancyHoverButton addButton = new FancyHoverButton("Add Class");
-        addButton.setFont(modernFont.deriveFont(Font.BOLD, 16));
-        addButton.setPreferredSize(new Dimension(120, 40));
+        // Add Class button
+        form.FancyHoverButton addButton = new form.FancyHoverButton("Add");
+        addButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         addButton.addActionListener(e -> addNewClass());
         buttonPanel.add(addButton);
 
-        FancyHoverButton editButton = new FancyHoverButton("Edit");
-        editButton.setFont(modernFont.deriveFont(Font.BOLD, 16));
-        editButton.setPreferredSize(new Dimension(120, 40));
+        // Edit Class button
+        form.FancyHoverButton editButton = new form.FancyHoverButton("Edit");
+        editButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         editButton.addActionListener(e -> editSelectedClass());
         buttonPanel.add(editButton);
 
-        FancyHoverButton deleteButton = new FancyHoverButton("Delete");
-        deleteButton.setFont(modernFont.deriveFont(Font.BOLD, 16));
-        deleteButton.setPreferredSize(new Dimension(120, 40));
+        // Delete Class button
+        form.FancyHoverButton deleteButton = new form.FancyHoverButton("Delete ");
+        deleteButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         deleteButton.addActionListener(e -> deleteSelectedClass());
         buttonPanel.add(deleteButton);
 
-        FancyHoverButton refreshButton = new FancyHoverButton("Refresh");
-        refreshButton.setFont(modernFont.deriveFont(Font.BOLD, 16));
-        refreshButton.setPreferredSize(new Dimension(120, 40));
+        // Refresh button
+        form.FancyHoverButton refreshButton = new form.FancyHoverButton("Refresh");
+        refreshButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         refreshButton.addActionListener(e -> loadClassesForProfessor());
         buttonPanel.add(refreshButton);
+        
+         // Button to view attendance for selected class with modern styling
+        FancyHoverButton viewAttendanceBtn = new FancyHoverButton("View Attendance");
+        viewAttendanceBtn.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        viewAttendanceBtn.setFocusPainted(false);
+        viewAttendanceBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        viewAttendanceBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewAttendanceForSelectedClass();
+            }
+        });
+        buttonPanel.add(viewAttendanceBtn);
 
-        FancyHoverButton attendanceButton = new FancyHoverButton("View Attendance");
-        attendanceButton.setFont(modernFont.deriveFont(Font.BOLD, 16));
-        attendanceButton.setPreferredSize(new Dimension(150, 40));
-        attendanceButton.addActionListener(e -> viewAttendanceForSelectedClass());
-        buttonPanel.add(attendanceButton);
-
-        FancyHoverButton closeButton = new FancyHoverButton("Close");
-        closeButton.setFont(modernFont.deriveFont(Font.BOLD, 16));
-        closeButton.setPreferredSize(new Dimension(120, 40));
-        closeButton.addActionListener(e -> dispose());
-        buttonPanel.add(closeButton);
 
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
@@ -296,8 +298,6 @@ public class ClassDashboard extends JFrame {
         String section = classesTable.getModel()
                 .getValueAt(selectedRow, 3).toString();
 
-        JDialog loadingDialog = showLoadingDialog("Loading attendance records...");
-
         new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() throws Exception {
@@ -306,18 +306,15 @@ public class ClassDashboard extends JFrame {
                             classId, oldTimeyMode);
                     attDash.setTitle(className + " - " + section + " Attendance");
                     attDash.setVisible(true);
-                    loadingDialog.dispose();
                 });
                 return null;
             }
 
-            @Override
-            protected void done() {
-                loadingDialog.dispose();
-            }
+            
         }.execute();
     }
 
+    /* Dialog for loading screen defeats its purpose ( users have to close it in order to access attendance dashboard ). 
     private JDialog showLoadingDialog(String message) {
         JDialog loadingDialog = new JDialog(this, "Loading", true);
         JPanel panel = new JPanel(new BorderLayout());
@@ -342,6 +339,7 @@ public class ClassDashboard extends JFrame {
         loadingDialog.setVisible(true);
         return loadingDialog;
     }
+*/
 
     private void customizeTable(boolean oldTimey) {
         if (oldTimey) {
