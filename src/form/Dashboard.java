@@ -176,7 +176,7 @@ public class Dashboard extends javax.swing.JFrame {
         additionalButtonsPanel.setOpaque(false);
 
         //create a "View Class" button - explicitly set to modern style (false)
-        FancyHoverButton viewClassButton = new FancyHoverButton("View Class");
+        FancyHoverButton viewClassButton = new FancyHoverButton("Records");
         viewClassButton.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
         viewClassButton.setPreferredSize(new Dimension(180, 50));
         viewClassButton.setMaximumSize(new Dimension(180,50));
@@ -186,7 +186,7 @@ public class Dashboard extends javax.swing.JFrame {
             classDash.setVisible(true);
         });
 
-        //create a "View Attendance" button
+        /*create a "View Attendance" button
         FancyHoverButton viewAttendanceButton = new FancyHoverButton("Records");
         viewAttendanceButton.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
         viewAttendanceButton.setPreferredSize(new Dimension(180, 50));
@@ -195,6 +195,7 @@ public class Dashboard extends javax.swing.JFrame {
             ClassSelectionDashboard csd = new ClassSelectionDashboard(professor);
             csd.setVisible(true);
         });
+        */
 
         //create a "Saki" button for Saki AI Agent
         FancyHoverButton AIbutton = new FancyHoverButton("Saki");
@@ -209,8 +210,10 @@ public class Dashboard extends javax.swing.JFrame {
         // Add spacing before adding the additional button
         additionalButtonsPanel.add(Box.createHorizontalStrut(20)); // 20-pixel space
         additionalButtonsPanel.add(viewClassButton);
+        /*
         additionalButtonsPanel.add(Box.createHorizontalStrut(20));
         additionalButtonsPanel.add(viewAttendanceButton);
+        */
         additionalButtonsPanel.add(Box.createHorizontalStrut(20));
         additionalButtonsPanel.add(AIbutton);
 
