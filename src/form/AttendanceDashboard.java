@@ -276,7 +276,8 @@ public class AttendanceDashboard extends JFrame {
             } else {
                 showMessage("Error: " + json.optString("message"), "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (Exception ex) {
+        } catch (Exception ex) {////comment
+
             ex.printStackTrace();
             showMessage("Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }

@@ -73,7 +73,8 @@ public class ClassDashboard extends JFrame {
             buttonPanel.add(okButton);
             panel.add(buttonPanel, BorderLayout.SOUTH);
 
-            JDialog dialog = new JDialog(this, title, true);
+            JDialog dialog = new JDialog(this, title, true);////comment
+
             dialog.setContentPane(panel);
             dialog.pack();
             dialog.setLocationRelativeTo(this);
