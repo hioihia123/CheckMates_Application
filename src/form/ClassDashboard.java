@@ -242,6 +242,19 @@ public class ClassDashboard extends JFrame {
         refreshButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         refreshButton.addActionListener(e -> loadClassesForProfessor());
         buttonPanel.add(refreshButton);
+        
+         // Button to view attendance for selected class with modern styling
+        FancyHoverButton viewAttendanceBtn = new FancyHoverButton("View Attendance");
+        viewAttendanceBtn.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        viewAttendanceBtn.setFocusPainted(false);
+        viewAttendanceBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        viewAttendanceBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                viewAttendanceForSelectedClass();
+            }
+        });
+        buttonPanel.add(viewAttendanceBtn);
 
       
         mainPanel.add(topPanel, BorderLayout.NORTH);
@@ -253,6 +266,20 @@ public class ClassDashboard extends JFrame {
         // Finally, fetch data and update the table
         loadClassesForProfessor();
     }
+    
+    private void viewAttendanceForSelectedClass() {
+    int selectedRow = classesTable.getSelectedRow();
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a class from the table.", "No Selection", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+    // Directly access the hidden column from the model (column index 1)
+        int classId = Integer.parseInt(((javax.swing.table.DefaultTableModel)classesTable.getModel())
+                            .getValueAt(selectedRow, 1).toString());
+    // Open the AttendanceDashboard for the selected class
+    AttendanceDashboard attDash = new AttendanceDashboard(classId);
+    attDash.setVisible(true);
+}
 
     private void customizeTable(boolean oldTimey) {
         if (oldTimey) {
@@ -690,6 +717,8 @@ public class ClassDashboard extends JFrame {
                 dialog.dispose();
             }
         });
+        
+      
 
         gbc.gridx = 0;
         gbc.gridy = 3;

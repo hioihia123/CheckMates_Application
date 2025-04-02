@@ -385,7 +385,7 @@ public void paint(Graphics g) {
     }//GEN-LAST:event_btnLoginActionPerformed
 
     private void userNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userNameActionPerformed
-        // TODO add your handling code here:
+        // TODO add handling code here:
     }//GEN-LAST:event_userNameActionPerformed
 
     private void customizeComponents() {
@@ -469,7 +469,7 @@ public void paint(Graphics g) {
 
 
         // Create an  JButton for toggling the password visibility
-        JButton btnTogglePassword = new JButton("Show");
+        FancyHoverButton btnTogglePassword = new FancyHoverButton("Show");
         final char defaultEchoChar = '*';
         btnTogglePassword.addActionListener(e-> {
             // @Override
