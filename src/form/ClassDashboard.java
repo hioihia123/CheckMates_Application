@@ -21,6 +21,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
+import javax.swing.RowFilter;
 
 public class ClassDashboard extends JFrame {
 
@@ -41,13 +42,46 @@ public class ClassDashboard extends JFrame {
     private Font modernTitleFont = new Font("Segoe UI", Font.BOLD, 24);
     private Color modernBackground = Color.WHITE;
     private Color modernPanelColor = new Color(240, 240, 240);
-    private Color modernAccentColor = new Color(100, 149, 237); // Cornflower blue
+    private Color modernAccentColor = new Color(100, 149, 237);
     private Color modernHighlightColor = new Color(200, 220, 255);
 
     public ClassDashboard(Professor professor) {
-        this(professor, false); // Default to modern style
+        this(professor, false);
     }
 
+
+    private void showMessage(String message, String title, int messageType) {
+        if (oldTimeyMode) {
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setBackground(parchmentColor);
+            panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+            JLabel messageLabel = new JLabel(message);
+            messageLabel.setFont(typewriterFont);
+            messageLabel.setForeground(typewriterInk);
+            messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            panel.add(messageLabel, BorderLayout.CENTER);
+
+            JButton okButton = createTypewriterButton("OK");
+            okButton.addActionListener(e -> {
+                Window window = SwingUtilities.getWindowAncestor(panel);
+                if (window != null) window.dispose();
+            });
+
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.setBackground(parchmentColor);
+            buttonPanel.add(okButton);
+            panel.add(buttonPanel, BorderLayout.SOUTH);
+
+            JDialog dialog = new JDialog(this, title, true);
+            dialog.setContentPane(panel);
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, message, title, messageType);
+        }
+    }
     public ClassDashboard(Professor professor, boolean oldTimeyMode) {
         this.professor = professor;
         this.oldTimeyMode = oldTimeyMode;
@@ -56,16 +90,11 @@ public class ClassDashboard extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // Load background image for old-timey mode
         if (oldTimeyMode) {
             try {
-                backgroundImage = ImageIO.read(getClass().getResource("parchmentColor.jpg"));
+                backgroundImage = ImageIO.read(getClass().getResource("/form/parchmentColor.jpg"));
             } catch (IOException | IllegalArgumentException e) {
-                System.out.println("Error loading image: " + e.getMessage());
                 backgroundImage = null;
-                JOptionPane.showMessageDialog(this,
-                        "Could not load background image\nUsing fallback color",
-                        "Image Error", JOptionPane.WARNING_MESSAGE);
             }
         }
 
@@ -86,7 +115,6 @@ public class ClassDashboard extends JFrame {
                 UIManager.put("Label.font", typewriterFont);
                 UIManager.put("Label.foreground", typewriterInk);
             } else {
-                // Modern look and feel settings
                 UIManager.put("OptionPane.background", modernBackground);
                 UIManager.put("OptionPane.messageFont", modernFont);
                 UIManager.put("OptionPane.messageForeground", modernTextColor);
@@ -111,7 +139,6 @@ public class ClassDashboard extends JFrame {
     }
 
     private void initOldTimeyComponents() {
-        // Main panel with background
         JPanel mainPanel = new JPanel(new BorderLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -126,7 +153,6 @@ public class ClassDashboard extends JFrame {
         };
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Top panel
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -143,7 +169,6 @@ public class ClassDashboard extends JFrame {
         greetingLabel.setForeground(typewriterInk);
         topPanel.add(greetingLabel);
 
-        // Table setup
         classesTable = new JTable() {
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -164,7 +189,6 @@ public class ClassDashboard extends JFrame {
         scrollPane.getViewport().setOpaque(false);
         scrollPane.setBorder(BorderFactory.createLineBorder(typewriterInk));
 
-        // Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10)) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -180,9 +204,9 @@ public class ClassDashboard extends JFrame {
         addOldTimeyButton(buttonPanel, "Edit Selected", e -> editSelectedClass());
         addOldTimeyButton(buttonPanel, "Delete Selected", e -> deleteSelectedClass());
         addOldTimeyButton(buttonPanel, "Refresh", e -> loadClassesForProfessor());
-        addOldTimeyButton(buttonPanel, "Get Out", e -> dispose()); // Added exit button
+        addOldTimeyButton(buttonPanel, "View Attendance", e -> viewAttendanceForSelectedClass());
+        addOldTimeyButton(buttonPanel, "Close", e -> dispose());
 
-        // Assemble components
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -192,94 +216,131 @@ public class ClassDashboard extends JFrame {
     }
 
     private void initModernComponents() {
-       // Main panel with border layout
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Top panel with greeting
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
         topPanel.setBackground(Color.WHITE);
 
- 
-
         JLabel greetingLabel = new JLabel("Classes for Professor " + professor.getProfessorName());
-        greetingLabel.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
+        greetingLabel.setFont(modernTitleFont);
+        greetingLabel.setForeground(modernTextColor);
         topPanel.add(greetingLabel);
 
-
-        // Table to display classes
         classesTable = new JTable();
-        classesTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        classesTable.setRowHeight(30);
+        customizeTable(false);
+
         JScrollPane scrollPane = new JScrollPane(classesTable);
 
-        // Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setBackground(Color.WHITE);
 
-        // Add Class button
-        form.FancyHoverButton addButton = new form.FancyHoverButton("Add");
-        addButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        FancyHoverButton addButton = new FancyHoverButton("Add Class");
+        addButton.setFont(modernFont.deriveFont(Font.BOLD, 16));
+        addButton.setPreferredSize(new Dimension(120, 40));
         addButton.addActionListener(e -> addNewClass());
         buttonPanel.add(addButton);
 
-        // Edit Class button
-        form.FancyHoverButton editButton = new form.FancyHoverButton("Edit");
-        editButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        FancyHoverButton editButton = new FancyHoverButton("Edit");
+        editButton.setFont(modernFont.deriveFont(Font.BOLD, 16));
+        editButton.setPreferredSize(new Dimension(120, 40));
         editButton.addActionListener(e -> editSelectedClass());
         buttonPanel.add(editButton);
 
-        // Delete Class button
-        form.FancyHoverButton deleteButton = new form.FancyHoverButton("Delete ");
-        deleteButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        FancyHoverButton deleteButton = new FancyHoverButton("Delete");
+        deleteButton.setFont(modernFont.deriveFont(Font.BOLD, 16));
+        deleteButton.setPreferredSize(new Dimension(120, 40));
         deleteButton.addActionListener(e -> deleteSelectedClass());
         buttonPanel.add(deleteButton);
 
-        // Refresh button
-        form.FancyHoverButton refreshButton = new form.FancyHoverButton("Refresh");
-        refreshButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        FancyHoverButton refreshButton = new FancyHoverButton("Refresh");
+        refreshButton.setFont(modernFont.deriveFont(Font.BOLD, 16));
+        refreshButton.setPreferredSize(new Dimension(120, 40));
         refreshButton.addActionListener(e -> loadClassesForProfessor());
         buttonPanel.add(refreshButton);
-        
-         // Button to view attendance for selected class with modern styling
-        FancyHoverButton viewAttendanceBtn = new FancyHoverButton("View Attendance");
-        viewAttendanceBtn.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        viewAttendanceBtn.setFocusPainted(false);
-        viewAttendanceBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        viewAttendanceBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                viewAttendanceForSelectedClass();
-            }
-        });
-        buttonPanel.add(viewAttendanceBtn);
 
-      
+        FancyHoverButton attendanceButton = new FancyHoverButton("View Attendance");
+        attendanceButton.setFont(modernFont.deriveFont(Font.BOLD, 16));
+        attendanceButton.setPreferredSize(new Dimension(150, 40));
+        attendanceButton.addActionListener(e -> viewAttendanceForSelectedClass());
+        buttonPanel.add(attendanceButton);
+
+        FancyHoverButton closeButton = new FancyHoverButton("Close");
+        closeButton.setFont(modernFont.deriveFont(Font.BOLD, 16));
+        closeButton.setPreferredSize(new Dimension(120, 40));
+        closeButton.addActionListener(e -> dispose());
+        buttonPanel.add(closeButton);
+
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         getContentPane().add(mainPanel);
-
-        // Finally, fetch data and update the table
         loadClassesForProfessor();
     }
-    
+
     private void viewAttendanceForSelectedClass() {
-    int selectedRow = classesTable.getSelectedRow();
-    if (selectedRow == -1) {
-        JOptionPane.showMessageDialog(this, "Please select a class from the table.", "No Selection", JOptionPane.WARNING_MESSAGE);
-        return;
+        int selectedRow = classesTable.getSelectedRow();
+        if (selectedRow == -1) {
+            showMessage("Please select a class from the table.", "No Selection",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int classId = Integer.parseInt(classesTable.getModel()
+                .getValueAt(selectedRow, 1).toString());
+        String className = classesTable.getModel()
+                .getValueAt(selectedRow, 2).toString();
+        String section = classesTable.getModel()
+                .getValueAt(selectedRow, 3).toString();
+
+        JDialog loadingDialog = showLoadingDialog("Loading attendance records...");
+
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                SwingUtilities.invokeLater(() -> {
+                    AttendanceDashboard attDash = new AttendanceDashboard(
+                            classId, oldTimeyMode);
+                    attDash.setTitle(className + " - " + section + " Attendance");
+                    attDash.setVisible(true);
+                    loadingDialog.dispose();
+                });
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                loadingDialog.dispose();
+            }
+        }.execute();
     }
-    // Directly access the hidden column from the model (column index 1)
-        int classId = Integer.parseInt(((javax.swing.table.DefaultTableModel)classesTable.getModel())
-                            .getValueAt(selectedRow, 1).toString());
-    // Open the AttendanceDashboard for the selected class
-    AttendanceDashboard attDash = new AttendanceDashboard(classId);
-    attDash.setVisible(true);
-}
+
+    private JDialog showLoadingDialog(String message) {
+        JDialog loadingDialog = new JDialog(this, "Loading", true);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        if (oldTimeyMode) {
+            panel.setBackground(parchmentColor);
+            JLabel label = new JLabel(message);
+            label.setFont(typewriterFont);
+            label.setForeground(typewriterInk);
+            panel.add(label, BorderLayout.CENTER);
+        } else {
+            panel.setBackground(Color.WHITE);
+            JLabel label = new JLabel(message, new ImageIcon("loading.gif"), SwingConstants.CENTER);
+            label.setFont(modernFont);
+            panel.add(label, BorderLayout.CENTER);
+        }
+
+        loadingDialog.setContentPane(panel);
+        loadingDialog.setSize(300, 150);
+        loadingDialog.setLocationRelativeTo(this);
+        loadingDialog.setVisible(true);
+        return loadingDialog;
+    }
 
     private void customizeTable(boolean oldTimey) {
         if (oldTimey) {
@@ -712,13 +773,13 @@ public class ClassDashboard extends JFrame {
 
                 // Save the class information and generate QR code
                 createNewClass( className,  section,  expirationMinutes,  passcode,  checkInUrl);
-                
+
 
                 dialog.dispose();
             }
         });
-        
-      
+
+
 
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -1128,7 +1189,7 @@ public class ClassDashboard extends JFrame {
     public static void main(String[] args) {
         Professor dummyProf = new Professor("Dr. Smith", "drsmith@example.com", "DR12345");
         SwingUtilities.invokeLater(() -> {
-            ClassDashboard dashboard = new ClassDashboard(dummyProf, true); // Test with old-timey style
+            ClassDashboard dashboard = new ClassDashboard(dummyProf, false);
             dashboard.setVisible(true);
         });
     }

@@ -233,19 +233,12 @@ public class oldDashboard extends javax.swing.JFrame {
         createClassButton.setFont(new Font("Courier New", Font.BOLD, 18));
         createClassButton.addActionListener(e -> openCreateClassDialog());
 
-        JButton viewClassButton = createTypewriterButton("View Class");
-        viewClassButton.setFont(new Font("Courier New", Font.BOLD, 18));
-        viewClassButton.addActionListener(e -> {
-            // Explicitly tell ClassDashboard to use old-timey style (true)
+        JButton recordsButton = createTypewriterButton("Records");
+        recordsButton.setFont(new Font("Courier New", Font.BOLD, 18));
+        recordsButton.addActionListener(e -> {
+            // Create a new ClassDashboard window with old-timey style (true)
             ClassDashboard classDash = new ClassDashboard(professor, true);
             classDash.setVisible(true);
-        });
-
-        JButton viewAttendanceButton = createTypewriterButton("Records");
-        viewAttendanceButton.setFont(new Font("Courier New", Font.BOLD, 18));
-        viewAttendanceButton.addActionListener(e -> {
-            ClassSelectionDashboard csd = new ClassSelectionDashboard(professor);
-            csd.setVisible(true);
         });
 
         JButton AIbutton = createTypewriterButton("Saki");
@@ -259,9 +252,7 @@ public class oldDashboard extends javax.swing.JFrame {
         buttonPanel.add(Box.createHorizontalStrut(20));
         buttonPanel.add(createClassButton);
         buttonPanel.add(Box.createHorizontalStrut(20));
-        buttonPanel.add(viewClassButton);
-        buttonPanel.add(Box.createHorizontalStrut(20));
-        buttonPanel.add(viewAttendanceButton);
+        buttonPanel.add(recordsButton);
         buttonPanel.add(Box.createHorizontalStrut(20));
         buttonPanel.add(AIbutton);
 
