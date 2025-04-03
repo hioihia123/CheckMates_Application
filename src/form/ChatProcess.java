@@ -41,8 +41,7 @@ public class ChatProcess {
             String attendanceData = getAttendanceSummary(class_id);
             String prompt = "For class " + classContext + ", here is the attendance data:\n" 
                             + attendanceData +
-                            "\nNow answer the following question: " + message + "You are an assistant that converts natural language commands into JSON commands for a class management system. Convert the following command into JSON:\n" +
-"\"Create a new class named Biology101, section B, with expiration 45 minutes.\"";
+                            "\nNow answer the following question: " + message;
             String response = getChatGPTResponse(prompt);
             conversationHistory.add("Saki: " + response);
             return response;
@@ -178,7 +177,7 @@ public class ChatProcess {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer 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")
+                    .header("Authorization", "Bearer API")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                     .build();
 
