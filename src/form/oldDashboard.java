@@ -236,7 +236,6 @@ public class oldDashboard extends javax.swing.JFrame {
         JButton recordsButton = createTypewriterButton("Records");
         recordsButton.setFont(new Font("Courier New", Font.BOLD, 18));
         recordsButton.addActionListener(e -> {
-            // Create a new ClassDashboard window with old-timey style (true)
             ClassDashboard classDash = new ClassDashboard(professor, true);
             classDash.setVisible(true);
         });
@@ -256,10 +255,10 @@ public class oldDashboard extends javax.swing.JFrame {
         buttonPanel.add(Box.createHorizontalStrut(20));
         buttonPanel.add(AIbutton);
 
-        // Add components to content panel
-        contentPanel.add(Box.createVerticalStrut(40));
+        // Add components to content panel with reduced vertical spacing
+        contentPanel.add(Box.createVerticalStrut(-250)); // Reduced from original
         contentPanel.add(questionHeader);
-        contentPanel.add(Box.createVerticalStrut(40));
+        contentPanel.add(Box.createVerticalStrut(-250)); // Reduced from original
         contentPanel.add(buttonPanel);
 
         return contentPanel;
