@@ -14,21 +14,21 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class ChatDialog extends JDialog {
-    private JTextArea chatArea;
-    private JTextField inputField;
-    private JButton sendButton;
+    private final JTextArea chatArea;
+    private final JTextField inputField;
+    private final JButton sendButton;
     private int classId; // Current selected class ID
-    private Professor professor;
-    private JComboBox<ClassItem> classComboBox; // To let professor choose a class
+    private final Professor professor;
+    private final JComboBox<ClassItem> classComboBox; // To let professor choose a class
 
-    // Constructor now accepts the Professor object
     public ChatDialog(JFrame parent, Professor professor) {
         super(parent, "Saki Chat", true);
         this.professor = professor;
         setLayout(new BorderLayout(10, 10));
         setSize(600, 500);
         setLocationRelativeTo(parent);
-        
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
         // Apply padding around the dialog content
         ((JComponent) getContentPane()).setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -38,7 +38,7 @@ public class ChatDialog extends JDialog {
         JLabel classLabel = new JLabel("Select Class:");
         classLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         topPanel.add(classLabel);
-        
+
         classComboBox = new JComboBox<>();
         classComboBox.setFont(new Font("SansSerif", Font.PLAIN, 14));
         topPanel.add(classComboBox);
@@ -60,27 +60,29 @@ public class ChatDialog extends JDialog {
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         add(scrollPane, BorderLayout.CENTER);
 
-        // Input panel with text field and send button
-        JPanel inputPanel = new JPanel(new BorderLayout(5, 5));
-        inputField = new JTextField();
-        inputField.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        inputField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200)),
-                new EmptyBorder(5, 10, 5, 10)
-        ));
-        sendButton = new JButton("Send");
-        sendButton.setFont(new Font("SansSerif", Font.BOLD, 14));
-        sendButton.setBackground(new Color(66, 133, 244));
-        sendButton.setForeground(Color.WHITE);
-        sendButton.setFocusPainted(false);
-        sendButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
-        inputPanel.add(inputField, BorderLayout.CENTER);
-        inputPanel.add(sendButton, BorderLayout.EAST);
-        add(inputPanel, BorderLayout.SOUTH);
+        // Input panel with text field and arrow up button
+       JPanel inputPanel = new JPanel(new BorderLayout(5, 5));
+       inputField = new JTextField();
+       inputField.setFont(new Font("SansSerif", Font.PLAIN, 14));
+       inputField.setBorder(BorderFactory.createCompoundBorder(
+         BorderFactory.createLineBorder(new Color(200, 200, 200)),
+         new EmptyBorder(5, 10, 5, 10)
+         ));
+       // Create arrow up button instead of a send button
+       sendButton = new form.FancyHoverButton("\u2191"); // Unicode for up arrow
+       sendButton.setFont(new Font("SansSerif", Font.BOLD, 18));
+       sendButton.setBackground(new Color(66, 133, 244));
+       //sendButton.setForeground(Color.WHITE);
+       sendButton.setFocusPainted(false);
+       sendButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
+       sendButton.setToolTipText("Send message");
+       inputPanel.add(inputField, BorderLayout.CENTER);
+       inputPanel.add(sendButton, BorderLayout.EAST);
+       add(inputPanel, BorderLayout.SOUTH);
 
-        // Listeners for sending messages
-        sendButton.addActionListener(e -> processInput());
-        inputField.addActionListener(e -> processInput());
+      // Listeners for sending messages remain the same
+      sendButton.addActionListener(e -> processInput());
+      inputField.addActionListener(e -> processInput());
 
         // Update classId when selection changes
         classComboBox.addActionListener(e -> {
@@ -93,43 +95,57 @@ public class ChatDialog extends JDialog {
 
     // Load professor classes from backend 
     private void loadProfessorClasses() {
-        try {
-            String urlString = "http://cm8tes.com/getClasses.php?professor_id=" +
-                    URLEncoder.encode(professor.getProfessorID(), StandardCharsets.UTF_8.toString());
-            URL url = new URL(urlString);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = in.readLine()) != null) {
-                response.append(line);
-            }
-            in.close();
-            JSONObject json = new JSONObject(response.toString());
-            if ("success".equalsIgnoreCase(json.optString("status"))) {
-                JSONArray classesArray = json.getJSONArray("classes");
-                for (int i = 0; i < classesArray.length(); i++) {
-                    JSONObject obj = classesArray.getJSONObject(i);
-                    int id = obj.optInt("class_id");
-                    String name = obj.optString("className");
-                    String section = obj.optString("section");
-                    // Create a display text, e.g., "Math 101 - A"
-                    String display = name + " - " + section;
-                    classComboBox.addItem(new ClassItem(id, display));
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                String urlString = "";
+                try {
+                    urlString = "http://cm8tes.com/getClasses.php?professor_id=" +
+                            URLEncoder.encode(professor.getProfessorID(), StandardCharsets.UTF_8.toString());
+                    URL url = new URL(urlString);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setConnectTimeout(5000);
+                    conn.setReadTimeout(5000);
+                    // Using try-with-resources to ensure streams are closed properly
+                    try (BufferedReader in = new BufferedReader(
+                            new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                        StringBuilder response = new StringBuilder();
+                        String line;
+                        while ((line = in.readLine()) != null) {
+                            response.append(line);
+                        }
+                        JSONObject json = new JSONObject(response.toString());
+                        if ("success".equalsIgnoreCase(json.optString("status"))) {
+                            JSONArray classesArray = json.getJSONArray("classes");
+                            SwingUtilities.invokeLater(() -> {
+                                for (int i = 0; i < classesArray.length(); i++) {
+                                    JSONObject obj = classesArray.getJSONObject(i);
+                                    int id = obj.optInt("class_id");
+                                    String name = obj.optString("className");
+                                    String section = obj.optString("section");
+                                    String display = name + " - " + section;
+                                    classComboBox.addItem(new ClassItem(id, display));
+                                }
+                                if (classComboBox.getItemCount() > 0) {
+                                    ClassItem selected = (ClassItem) classComboBox.getItemAt(0);
+                                    classId = selected.id;
+                                }
+                            });
+                        } else {
+                            SwingUtilities.invokeLater(() ->
+                                    JOptionPane.showMessageDialog(ChatDialog.this, "Failed to load classes."));
+                        }
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    SwingUtilities.invokeLater(() ->
+                            JOptionPane.showMessageDialog(ChatDialog.this, "Error loading classes: " + ex.getMessage()));
                 }
-                if (classComboBox.getItemCount() > 0) {
-                    ClassItem selected = (ClassItem) classComboBox.getItemAt(0);
-                    classId = selected.id;
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to load classes.");
+                return null;
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
-        }
+        };
+        worker.execute();
     }
 
     // Process input text and send to ChatProcess along with the selected class_id and its context string
@@ -139,27 +155,41 @@ public class ChatDialog extends JDialog {
         appendChat("You: " + userText);
         inputField.setText("");
 
-        // Retrieve the selected class to get both ID and display text
         ClassItem selected = (ClassItem) classComboBox.getSelectedItem();
-        int selectedClassId = selected != null ? selected.id : classId;
-        String classContext = selected != null ? selected.toString() : "Unknown Class";
+        int selectedClassId = (selected != null) ? selected.id : classId;
+        String classContext = (selected != null) ? selected.toString() : "Unknown Class";
 
-        new Thread(() -> {
-            String response = ChatProcess.processUserMessage(userText, selectedClassId, classContext);
-            SwingUtilities.invokeLater(() -> appendChat("Saki: " + response));
-        }).start();
+        // Use SwingWorker for background processing
+        SwingWorker<String, Void> worker = new SwingWorker<>() {
+            @Override
+            protected String doInBackground() {
+                // ChatProcess should handle network calls or heavy lifting
+                return ChatProcess.processUserMessage(userText, selectedClassId, classContext);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    String response = get();
+                    appendChat("Saki: " + response);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    appendChat("Saki: [Error processing message]");
+                }
+            }
+        };
+        worker.execute();
     }
 
     public void appendChat(String message) {
         chatArea.append(message + "\n\n");
-        // Auto-scroll to the bottom
         chatArea.setCaretPosition(chatArea.getDocument().getLength());
     }
 
     // Inner class to hold class details for the combo box
-    private class ClassItem {
-        int id;
-        String display;
+    private static class ClassItem {
+        final int id;
+        final String display;
 
         public ClassItem(int id, String display) {
             this.id = id;
@@ -172,4 +202,3 @@ public class ChatDialog extends JDialog {
         }
     }
 }
-//April 3: 6-19pm
