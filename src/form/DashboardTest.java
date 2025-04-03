@@ -29,6 +29,12 @@ class DashboardTest {
     });
 
     }
+    @AfterEach
+    void tearDown() {
+        SwingUtilities.invokeLater(() -> {
+            if (testDashboard != null) testDashboard.dispose();
+        });
+    }
 
     @Test
     void testUIInitialization() {
