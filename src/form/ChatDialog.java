@@ -31,6 +31,8 @@ public class ChatDialog extends JDialog {
 
         // Apply padding around the dialog content
         ((JComponent) getContentPane()).setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        getContentPane().setBackground(Color.WHITE);
 
         // Top panel for class selection
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -51,7 +53,7 @@ public class ChatDialog extends JDialog {
         chatArea.setFont(new Font("SansSerif", Font.PLAIN, 14));
         chatArea.setLineWrap(true);
         chatArea.setWrapStyleWord(true);
-        chatArea.setBackground(new Color(245, 245, 245));
+        chatArea.setBackground(new Color(255, 255, 255));
         chatArea.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220)),
                 new EmptyBorder(10, 10, 10, 10)
@@ -65,20 +67,25 @@ public class ChatDialog extends JDialog {
        inputField = new JTextField();
        inputField.setFont(new Font("SansSerif", Font.PLAIN, 14));
        inputField.setBorder(BorderFactory.createCompoundBorder(
-         BorderFactory.createLineBorder(new Color(200, 200, 200)),
+         BorderFactory.createLineBorder(new Color(255, 255, 255)),
          new EmptyBorder(5, 10, 5, 10)
          ));
+       
        // Create arrow up button instead of a send button
        sendButton = new form.FancyHoverButton("\u2191"); // Unicode for up arrow
        sendButton.setFont(new Font("SansSerif", Font.BOLD, 18));
-       sendButton.setBackground(new Color(66, 133, 244));
+       sendButton.setBackground(new Color(255, 255, 255));
        //sendButton.setForeground(Color.WHITE);
        sendButton.setFocusPainted(false);
        sendButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
        sendButton.setToolTipText("Send message");
        inputPanel.add(inputField, BorderLayout.CENTER);
+       inputPanel.setBackground(new Color(255, 255, 255));
        inputPanel.add(sendButton, BorderLayout.EAST);
        add(inputPanel, BorderLayout.SOUTH);
+       
+       
+
 
       // Listeners for sending messages remain the same
       sendButton.addActionListener(e -> processInput());
