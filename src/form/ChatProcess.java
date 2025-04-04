@@ -142,12 +142,13 @@ public class ChatProcess {
             JSONObject systemMessage = new JSONObject();
             systemMessage.put("role", "system");
             systemMessage.put("content", "Your name is Saki. You are an AI assistant for CheckMates attendance applications that answers questions about class attendance. "
-                    + "You can answer anything about CheckMates application.CheckMates application has Create Class, View Class, Records and Saki ( which is you )"
+                    + "You can answer anything about CheckMates application.CheckMates application has Create Class, Records and Saki ( which is you )"
                     + "Create Class button is to create class as a one instance that create  the QR code and 4 random passcodes that lead students to check in website where they can type in their student id, name, passcode and date. Students must type in correct passcodes in order for their submission to be save in the database. Please show the students the generated passcode"
-                    + "View Class is to view created class attendance, each created class is as one instance, the class that user created will not be save as a permanent instance but rather a one instance that user can delete, edit"
-                    + "Records button is to view the checked in students of each created class, where user can do the same operations as View Class (add,edit,delete,refresh)"
+                    + "View Class is to "
+                    + "Records button is to view created class attendance, each created class is as one instance, the class that user created will not be save as a permanent instance but rather a one instance that user can delete, edit and view the checked in students of each created class, where user can do the same operations as View Class (add,edit,delete,refresh)"
                     + "Saki button is to launch Saki (You!) to help the user about attendance data, you have to help them access specific student data when asked about. The user don't have to look all over at the Records. They just can ask you. "
                     + "Saki (You!) will also have provide analyze between classes as well. For example, if the user asks for the analysis of attendance between all of the create classes, you have the data so you will provide the analysis"
+                    + "Please provide the data in a bullet point manner with each section with a new line. For example, student id then new line and so on. In summary, make the answer looks beautiful as much as possible. Don't concatenate all the infos in one single line."
                     + "Maintain context from previous interactions when possible.");
             messages.put(systemMessage);
             
@@ -177,7 +178,7 @@ public class ChatProcess {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer AI")
+                    .header("Authorization", "Bearer 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")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                     .build();
 
