@@ -48,6 +48,7 @@ public class ClassDashboard extends JFrame {
     public ClassDashboard(Professor professor) {
         this(professor, false);
     }
+    
 
 
     private void showMessage(String message, String title, int messageType) {

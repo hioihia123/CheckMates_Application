@@ -56,6 +56,7 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 public class Dashboard extends javax.swing.JFrame {
 
     private Professor professor;  // Store professor-specific info
+    private ClassDashboard dashboard;
 
     /**
      * Creates new form Dashboard with a Professor object.
@@ -164,8 +165,11 @@ public class Dashboard extends javax.swing.JFrame {
         // Add some vertical spacing so the button doesn't overlap the label
         topSection.add(javax.swing.Box.createVerticalStrut(60));
 
-        // Put the button in a small panel (FlowLayout) if you want it left-aligned
+        // Put the button in a small panel (FlowLayout) 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER,0, 0));
+        //buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 185, 0, 0));
+
+
         buttonPanel.setOpaque(false);
         buttonPanel.add(fancyButton);
         topSection.add(buttonPanel);
@@ -206,6 +210,9 @@ public class Dashboard extends javax.swing.JFrame {
             ChatDialog chatDialog = new ChatDialog(Dashboard.this, professor);
             chatDialog.setVisible(true);
         });
+        
+     
+        
 
         // Add spacing before adding the additional button
         additionalButtonsPanel.add(Box.createHorizontalStrut(20)); // 20-pixel space
@@ -216,6 +223,8 @@ public class Dashboard extends javax.swing.JFrame {
         */
         additionalButtonsPanel.add(Box.createHorizontalStrut(20));
         additionalButtonsPanel.add(AIbutton);
+        
+        additionalButtonsPanel.add(Box.createHorizontalStrut(20));
 
         // Then, add the additionalButtonsPanel to the main button panel that already contains the Create Class button.
         buttonPanel.add(additionalButtonsPanel);
