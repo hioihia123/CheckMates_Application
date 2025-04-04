@@ -67,16 +67,18 @@ public class oldDashboard extends javax.swing.JFrame {
     }
 
     private void initializeUI() {
-        // Load background image for old-timey mode
-        try {
-            backgroundImage = ImageIO.read(getClass().getResource("parchmentColor.jpg"));
-        } catch (IOException | IllegalArgumentException e) {
-            backgroundImage = null;
+    // Load background image for old-timey mode from Github
+    try {
+            URL backgroundUrl = new URL("https://raw.githubusercontent.com/hioihia123/CheckMates_Application/refs/heads/master/oldTime3.jpg");
+            backgroundImage =  ImageIO.read(backgroundUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        setupLookAndFeel();
-        createOldTimeyUI();
-    }
+    setupLookAndFeel();
+    createOldTimeyUI();
+}
+
 
     private void setupLookAndFeel() {
         try {
