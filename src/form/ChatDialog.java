@@ -43,6 +43,7 @@ public class ChatDialog extends JDialog {
 
         classComboBox = new JComboBox<>();
         classComboBox.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        classComboBox.setBackground(Color.WHITE);
         topPanel.add(classComboBox);
         add(topPanel, BorderLayout.NORTH);
         loadProfessorClasses();
@@ -64,7 +65,7 @@ public class ChatDialog extends JDialog {
 
         // Input panel with text field and arrow up button
        JPanel inputPanel = new JPanel(new BorderLayout(5, 5));
-       inputField = new JTextField();
+       inputField = new HintTextField("Chat With Saki Here");
        inputField.setFont(new Font("SansSerif", Font.PLAIN, 14));
        inputField.setBorder(BorderFactory.createCompoundBorder(
          BorderFactory.createLineBorder(new Color(255, 255, 255)),
