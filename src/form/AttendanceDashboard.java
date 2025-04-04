@@ -213,7 +213,7 @@ public class AttendanceDashboard extends JFrame {
         exportButton.addActionListener(new ActionListener() {
             @Override
            public void actionPerformed(ActionEvent e) {
-             exportSelectedRowsToPDF();
+             exportTableToPDF();
            }
         });
         // Then add the button to an appropriate panel
@@ -281,15 +281,16 @@ public class AttendanceDashboard extends JFrame {
             JSONObject json = new JSONObject(response.toString());
             if ("success".equalsIgnoreCase(json.optString("status"))) {
                 JSONArray recordsArray = json.getJSONArray("records");
-                String[] columnNames = {"Student ID", "Name", "Date", "Time"};
+                String[] columnNames = {"No.","Student ID", "Name", "Date", "Time"};
                 ArrayList<String[]> rowData = new ArrayList<>();
                 for (int i = 0; i < recordsArray.length(); i++) {
+                    String displayNo = String.valueOf(i + 1);
                     JSONObject record = recordsArray.getJSONObject(i);
                     String studentId = record.optString("studentId");
                     String name = record.optString("name");
                     String date = record.optString("date");
                     String time = record.optString("time");
-                    rowData.add(new String[]{studentId, name, date, time});
+                    rowData.add(new String[]{displayNo,studentId, name, date, time});
                 }
                 String[][] data = rowData.toArray(new String[0][]);
                 DefaultTableModel model = new DefaultTableModel(data, columnNames);
@@ -396,7 +397,7 @@ public class AttendanceDashboard extends JFrame {
             
             // Add selected rows
             for (int rowIndex : selectedRows) {
-                // If your table has been sorted, convert the view index to the model index:
+               // convert the view index to the model index:
                 int modelRow = recordsTable.convertRowIndexToModel(rowIndex);
                 for (int col = 0; col < numColumns; col++) {
                     Object cellValue = recordsTable.getModel().getValueAt(modelRow, col);
@@ -404,6 +405,49 @@ public class AttendanceDashboard extends JFrame {
                 }
             }
             
+            document.add(pdfTable);
+            document.close();
+            showMessage("PDF exported successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (DocumentException | java.io.FileNotFoundException ex) {
+            ex.printStackTrace();
+            showMessage("Error exporting PDF: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+}
+
+    private void exportTableToPDF() {
+    // Let the user choose where to save the PDF file
+    JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setDialogTitle("Save PDF");
+    int userSelection = fileChooser.showSaveDialog(this);
+    if (userSelection == JFileChooser.APPROVE_OPTION) {
+        File fileToSave = fileChooser.getSelectedFile();
+        try {
+            // Create a new document and writer
+            Document document = new Document();
+            PdfWriter.getInstance(document, new FileOutputStream(fileToSave));
+            document.open();
+
+            // Create a table with the same number of columns as the JTable
+            int numColumns = recordsTable.getColumnCount();
+            PdfPTable pdfTable = new PdfPTable(numColumns);
+
+            // Add table headers
+            for (int i = 0; i < numColumns; i++) {
+                pdfTable.addCell(new PdfPCell(new Phrase(recordsTable.getColumnName(i))));
+            }
+
+            // Add all rows from the table
+            for (int rowIndex = 0; rowIndex < recordsTable.getRowCount(); rowIndex++) {
+                // Convert the view index to the model index 
+                int modelRow = recordsTable.convertRowIndexToModel(rowIndex);
+                
+                for (int col = 0; col < numColumns; col++) {
+                    Object cellValue = recordsTable.getModel().getValueAt(modelRow, col);
+                    pdfTable.addCell(new PdfPCell(new Phrase(cellValue != null ? cellValue.toString() : "")));
+                }
+            }
+
             document.add(pdfTable);
             document.close();
             showMessage("PDF exported successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
