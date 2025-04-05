@@ -19,6 +19,7 @@ public class TestRunner {
                 .selectors(
                         selectClass(LoginTest.class),
                         selectClass(SignUpTest.class)
+                        //add more tests here.
                 )
                 .build();
 
