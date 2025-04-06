@@ -6,6 +6,8 @@ package form;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.io.*;
+
 
 import com.formdev.flatlaf.FlatLightLaf;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -413,58 +415,91 @@ public class Dashboard extends javax.swing.JFrame {
     }
     //
 
-    private void saveClassToDatabase(String professorId, String className, String section, int passcode, int expirationMinutes) {
-        new Thread(() -> {
-            try {
-                String urlString = "http://cm8tes.com/createClass.php"; // Student check in php file
-                String urlParameters = "professor_id=" + URLEncoder.encode(professorId, "UTF-8") +
-                        "&class=" + URLEncoder.encode(className, "UTF-8") +
-                        "&section=" + URLEncoder.encode(section, "UTF-8") +
-                        "&expiration=" + expirationMinutes +
-                        "&passcode=" + passcode;
-                byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
+    private void saveClassToDatabase(String professorId,
+                                 String className,
+                                 String section,
+                                 int    passcode,
+                                 int    expirationMinutes) {
+    new Thread(() -> {
+        try {
+            // 1) build & POST the data from the database
+            String urlString = "http://cm8tes.com/createClass.php";
+            String params = "professor_id=" + URLEncoder.encode(professorId, StandardCharsets.UTF_8.name())
+                          + "&class="        + URLEncoder.encode(className, StandardCharsets.UTF_8.name())
+                          + "&section="      + URLEncoder.encode(section, StandardCharsets.UTF_8.name())
+                          + "&expiration="   + expirationMinutes
+                          + "&passcode="     + passcode;
+            byte[] postData = params.getBytes(StandardCharsets.UTF_8);
 
-                URL url = new URL(urlString);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                conn.setDoOutput(true);
+            HttpURLConnection conn = (HttpURLConnection) new URL(urlString).openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setDoOutput(true);
 
-                try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
-                    out.write(postData);
-                }
-
-                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                JSONObject json = new JSONObject(response.toString());
-                if ("success".equalsIgnoreCase(json.optString("status"))) {
-                    SwingUtilities.invokeLater(() -> {
-                        JOptionPane.showMessageDialog(Dashboard.this,
-                                "Class created successfully!\nPasscode: " + json.optInt("passcode") +
-                                        "\nExpires: " + json.optString("passcode_expires"),
-                                "Success",
-                                JOptionPane.INFORMATION_MESSAGE);
-                    });
-                } else {
-                    String errMsg = json.optString("message", "Error creating class");
-                    SwingUtilities.invokeLater(() -> {
-                        JOptionPane.showMessageDialog(Dashboard.this, errMsg, "Error", JOptionPane.ERROR_MESSAGE);
-                    });
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                SwingUtilities.invokeLater(() -> {
-                    JOptionPane.showMessageDialog(Dashboard.this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                });
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(postData);
             }
-        }).start();
-    }
+
+            // 2) read response
+            InputStream  is       = conn.getInputStream();
+            BufferedReader in      = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            StringBuilder  sb      = new StringBuilder();
+            String         line;
+            while ((line = in.readLine()) != null) {
+                sb.append(line);
+            }
+            in.close();
+            conn.disconnect();
+
+            JSONObject json = new JSONObject(sb.toString());
+
+            // 3)UI
+            SwingUtilities.invokeLater(() -> {
+                if ("success".equalsIgnoreCase(json.optString("status"))) {
+                    JPanel panel = new JPanel(new BorderLayout());
+                    panel.setBackground(Color.WHITE);
+                    panel.setBorder(BorderFactory.createEmptyBorder(15,15,15,15));
+
+                    String html = "<html>"
+                        + "Class created successfully!<br/>"
+                        + "Passcode: " + json.optInt("passcode") + "<br/>"
+                        + "Expires: "  + json.optString("passcode_expires")
+                        + "</html>";
+                    JLabel message = new JLabel(html, SwingConstants.CENTER);
+                    message.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+                    panel.add(message, BorderLayout.CENTER);
+
+                    FancyHoverButton ok = new FancyHoverButton("OK");
+                    ok.addActionListener(e -> SwingUtilities.getWindowAncestor(panel).dispose());
+
+                    JPanel btnPanel = new JPanel();
+                    btnPanel.setBackground(Color.WHITE);
+                    btnPanel.add(ok);
+                    panel.add(btnPanel, BorderLayout.SOUTH);
+
+                    JDialog dlg = new JDialog(Dashboard.this, "Success", true);
+                    dlg.setContentPane(panel);
+                    dlg.pack();
+                    dlg.setLocationRelativeTo(Dashboard.this);
+                    dlg.setVisible(true);
+
+                } else {
+                    JOptionPane.showMessageDialog(Dashboard.this,
+                        "Error: " + json.optString("message"),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(Dashboard.this,
+                    "Error creating class: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            });
+        }
+    }).start();
+}
+
 
     /**
      * This method is called from within the constructor to initialize the form.
