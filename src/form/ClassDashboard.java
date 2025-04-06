@@ -835,7 +835,8 @@ public class ClassDashboard extends JFrame {
                         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
                         // Create message label
-                        JLabel message = new JLabel("<html><center>Class created successfully!<br>Passcode: " + passcode + "</center></html>");
+                        JLabel message = new JLabel("Class created successfully!\nPasscode: " + json.optInt("passcode") +
+                                        "\nExpires: " + json.optString("passcode_expires"));
                         message.setFont(oldTimeyMode ? typewriterFont : modernFont);
                         message.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
                         message.setHorizontalAlignment(SwingConstants.CENTER);

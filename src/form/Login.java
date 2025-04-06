@@ -37,6 +37,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONObject; // Make sure to include a JSON library
+import java.net.URI;
+
 
 
 /**
@@ -523,7 +525,9 @@ public void paint(Graphics g) {
 
         byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
 
-        URL url = new URL(urlString);
+        URI uri = URI.create(urlString);
+        URL url = uri.toURL();
+
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
