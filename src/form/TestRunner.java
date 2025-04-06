@@ -18,7 +18,10 @@ public class TestRunner {
         LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
                 .selectors(
                         selectClass(LoginTest.class),
-                        selectClass(SignUpTest.class)
+                        selectClass(SignUpTest.class),
+                        selectClass(AttendanceDashboardTest.class),
+                        selectClass(ClassDashboardTest.class),
+                        selectClass(DashboardTest.class)
                         //add more tests here.
                 )
                 .build();
