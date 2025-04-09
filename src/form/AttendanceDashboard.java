@@ -33,6 +33,8 @@ public class AttendanceDashboard extends JFrame {
     private JTextField searchField;
     private TableRowSorter<TableModel> rowSorter;
     private boolean oldTimeyMode;
+    private String className;
+    private String section;
 
     // Old-timey style properties
     private Color typewriterInk = new Color(50, 40, 30);
@@ -47,8 +49,10 @@ public class AttendanceDashboard extends JFrame {
     private Font modernTitleFont = new Font("Helvetica Neue", Font.BOLD, 24);
     private Color modernBackground = Color.WHITE;
 
-    public AttendanceDashboard(int classId, boolean oldTimeyMode) {
+    public AttendanceDashboard(int classId, String className,String section,boolean oldTimeyMode) {
         this.classId = classId;
+        this.className = className;
+        this.section = section;
         this.oldTimeyMode = oldTimeyMode;
         setTitle("Attendance Records for Class " + classId);
         setSize(800, 600);
@@ -431,6 +435,21 @@ public class AttendanceDashboard extends JFrame {
             // Create a table with the same number of columns as the JTable
             int numColumns = recordsTable.getColumnCount();
             PdfPTable pdfTable = new PdfPTable(numColumns);
+            // Assuming 'pdfTable' is an instance of PdfPTable and 'classId' contains your class name or identifier
+
+           // Create a header cell with the classes
+           PdfPCell headerCell = new PdfPCell(new Phrase(className + " "+section));
+
+           // Set the cell to span all columns in the table
+           headerCell.setColspan(pdfTable.getNumberOfColumns());
+
+           // Add the header cell to the table
+           pdfTable.addCell(headerCell);
+
+           //Mark the header row so that it repeats on each page (if necessary)
+           pdfTable.setHeaderRows(1);
+
+
 
             // Add table headers
             for (int i = 0; i < numColumns; i++) {
@@ -460,6 +479,6 @@ public class AttendanceDashboard extends JFrame {
 
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new AttendanceDashboard(1, true).setVisible(true));
+        SwingUtilities.invokeLater(() -> new AttendanceDashboard(1,"abc", "007",true).setVisible(true));
     }
 }

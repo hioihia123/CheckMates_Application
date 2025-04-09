@@ -304,7 +304,7 @@ public class ClassDashboard extends JFrame {
             protected Void doInBackground() throws Exception {
                 SwingUtilities.invokeLater(() -> {
                     AttendanceDashboard attDash = new AttendanceDashboard(
-                            classId, oldTimeyMode);
+                            classId, className,section,oldTimeyMode);
                     attDash.setTitle(className + " - " + section + " Attendance");
                     attDash.setVisible(true);
                 });
