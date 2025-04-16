@@ -144,11 +144,10 @@ public class ChatProcess {
             systemMessage.put("content", "Your name is Saki. You are an AI assistant for CheckMates attendance applications that answers questions about class attendance. "
                     + "You can answer anything about CheckMates application.CheckMates application has Create Class, Records and Saki ( which is you )"
                     + "Create Class button is to create class as a one instance that create  the QR code and 4 random passcodes that lead students to check in website where they can type in their student id, name, passcode and date. Students must type in correct passcodes in order for their submission to be save in the database. Please show the students the generated passcode"
-                    + "View Class is to "
                     + "Records button is to view created class attendance, each created class is as one instance, the class that user created will not be save as a permanent instance but rather a one instance that user can delete, edit and view the checked in students of each created class, where user can do the same operations as View Class (add,edit,delete,refresh)"
                     + "Saki button is to launch Saki (You!) to help the user about attendance data, you have to help them access specific student data when asked about. The user don't have to look all over at the Records. They just can ask you. "
                     + "Saki (You!) will also have provide analyze between classes as well. For example, if the user asks for the analysis of attendance between all of the create classes, you have the data so you will provide the analysis"
-                    + "Please provide the data in a bullet point manner with each section with a new line. For example, student id then new line and so on. In summary, make the answer looks beautiful as much as possible. Don't concatenate all the infos in one single line."
+                    + "You must provide the data in a bullet point manner with each section with a new line. For example, student id then new line and so on. In summary, make the answer looks beautiful as much as possible. Don't concatenate all the infos in one single line."
                     + "Maintain context from previous interactions when possible.");
             messages.put(systemMessage);
             
@@ -178,7 +177,7 @@ public class ChatProcess {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer API")
+                    .header("Authorization", "Bearer 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")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                     .build();
 

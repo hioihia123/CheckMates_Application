@@ -59,6 +59,8 @@ public class Dashboard extends javax.swing.JFrame {
 
     private Professor professor;  // Store professor-specific info
     private ClassDashboard dashboard;
+    private JCheckBox chkIP;
+    boolean isIPRTurnOn;
 
     /**
      * Creates new form Dashboard with a Professor object.
@@ -240,12 +242,30 @@ public class Dashboard extends javax.swing.JFrame {
         panel.add(topSection, BorderLayout.NORTH);
 
         // --- Bottom: Create the text version label ---
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setOpaque(false);
+        
+         JLabel ipStatusLabel;
+        if(isIPRTurnOn){
+            ipStatusLabel = new JLabel("IP Restriction: ON");
+        
+        }
+        else{
+            ipStatusLabel = new JLabel("IP Restriction: OFF");
+        }
+        ipStatusLabel.setFont(new Font("Roboto", Font.PLAIN, 12));
+        ipStatusLabel.setForeground(new Color(50, 50, 50));
+
+        bottomPanel.add(ipStatusLabel, BorderLayout.WEST);
+        
         JLabel textLogoLabel = new JLabel("CheckMates Version 1.0");
         textLogoLabel.setFont(new Font("Roboto", Font.PLAIN, 12));
         textLogoLabel.setForeground(new Color(50, 50, 50));
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        bottomPanel.setOpaque(false);
-        bottomPanel.add(textLogoLabel);
+      
+        bottomPanel.add(textLogoLabel, BorderLayout.EAST);
+
+       
+
 
         panel.add(bottomPanel, BorderLayout.SOUTH);
         panel.setPreferredSize(new Dimension(1200, 1000));
@@ -318,6 +338,31 @@ public class Dashboard extends javax.swing.JFrame {
         gbc.gridy = 2;
         gbc.weightx = 1.0;
         contentPanel.add(expirationField, gbc);
+        
+        // IP Restriction
+        gbc.gridx = 0;
+        gbc.gridy = 3; // new row for the checkbox
+        gbc.gridwidth = 2; // let it span both columns for better visibility
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.EAST;  // align to the left 
+        chkIP = new JCheckBox("IP restriction");
+        
+        //Turn on IP Restriction Mode
+        chkIP.addActionListener(new ActionListener(){
+           
+            @Override
+            public void actionPerformed(ActionEvent e){
+                if(chkIP.isSelected()){
+                    // FIX ME: call getIPAddress function, 
+                    isIPRTurnOn = true;
+                }
+                else{
+                    isIPRTurnOn = false; 
+                }
+            }
+            
+        });
+        contentPanel.add(chkIP, gbc);
 
         // Row 3: Create button (spanning two columns)
         FancyHoverButton createButton = new FancyHoverButton("Create");
@@ -364,7 +409,7 @@ public class Dashboard extends javax.swing.JFrame {
         });
 
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.weightx = 0;
         gbc.anchor = GridBagConstraints.CENTER;
@@ -413,7 +458,13 @@ public class Dashboard extends javax.swing.JFrame {
         qrDialog.add(contentPanel);
         qrDialog.setVisible(true);
     }
-    //
+    //FIX ME: Get professsor's ip address upon they check the box
+    //Then store in the database
+    //Write another php to do that
+    public void getIPAddress(String professorId, String ipAddress){
+        
+    }
+    
 
     private void saveClassToDatabase(String professorId,
                                  String className,
