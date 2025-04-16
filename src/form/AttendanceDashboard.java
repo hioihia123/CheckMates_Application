@@ -520,6 +520,7 @@ public class AttendanceDashboard extends JFrame {
             document.add(pdfTable);
             document.close();
             showMessage("PDF exported successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            
         } catch (DocumentException | java.io.FileNotFoundException ex) {
             ex.printStackTrace();
             showMessage("Error exporting PDF: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

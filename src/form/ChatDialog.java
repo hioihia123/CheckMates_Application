@@ -45,9 +45,9 @@ public class ChatDialog extends JDialog {
         classComboBox.setFont(new Font("SansSerif", Font.PLAIN, 14));
         classComboBox.setBackground(Color.WHITE);
         topPanel.add(classComboBox);
-        add(topPanel, BorderLayout.NORTH);
+        add(topPanel, BorderLayout.NORTH);   
         loadProfessorClasses();
-
+     
         // Chat area with modern styling
         chatArea = new JTextArea();
         chatArea.setEditable(false);
@@ -135,7 +135,8 @@ public class ChatDialog extends JDialog {
                                     String display = name + " - " + section;
                                     classComboBox.addItem(new ClassItem(id, display));
                                 }
-                                if (classComboBox.getItemCount() > 0) {
+                                
+                               if (classComboBox.getItemCount() > 0) {
                                     ClassItem selected = (ClassItem) classComboBox.getItemAt(0);
                                     classId = selected.id;
                                 }
