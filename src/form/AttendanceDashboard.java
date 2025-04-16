@@ -33,6 +33,8 @@ public class AttendanceDashboard extends JFrame {
     private JTextField searchField;
     private TableRowSorter<TableModel> rowSorter;
     private boolean oldTimeyMode;
+    private String className;
+    private String section;
 
     // Old-timey style properties
     private Color typewriterInk = new Color(50, 40, 30);
@@ -47,8 +49,10 @@ public class AttendanceDashboard extends JFrame {
     private Font modernTitleFont = new Font("Helvetica Neue", Font.BOLD, 24);
     private Color modernBackground = Color.WHITE;
 
-    public AttendanceDashboard(int classId, boolean oldTimeyMode) {
+    public AttendanceDashboard(int classId, String className,String section,boolean oldTimeyMode) {
         this.classId = classId;
+        this.className = className;
+        this.section = section;
         this.oldTimeyMode = oldTimeyMode;
         setTitle("Attendance Records for Class " + classId);
         setSize(800, 600);
@@ -159,12 +163,13 @@ public class AttendanceDashboard extends JFrame {
         recordsTable.setSelectionForeground(typewriterInk);
         recordsTable.setBorder(BorderFactory.createLineBorder(typewriterInk));
 
+    
         JTableHeader header = recordsTable.getTableHeader();
         header.setFont(typewriterFont);
         header.setForeground(typewriterInk);
         header.setBackground(new Color(253, 245, 230, 220));
         header.setOpaque(false);
-
+        
         JScrollPane scrollPane = new JScrollPane(recordsTable);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
@@ -201,6 +206,8 @@ public class AttendanceDashboard extends JFrame {
         headerLabel.setFont(modernTitleFont);
         headerLabel.setForeground(modernTextColor);
         mainPanel.add(headerLabel, BorderLayout.NORTH);
+        
+      
 
         // Create a search panel with a label and a text field
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -224,6 +231,46 @@ public class AttendanceDashboard extends JFrame {
         recordsTable = new JTable();
         recordsTable.setFont(modernFont);
         recordsTable.setRowHeight(25);
+        recordsTable.setBackground(Color.WHITE);
+        
+        recordsTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
+            final Color alterColor = new Color(255, 255, 255);
+            
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, 
+                    boolean hasFocus, int row, int column){
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                
+                // Zebra striping effect
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : alterColor);
+                } else {
+                    c.setBackground(Color.RED);
+                }
+                return c;
+            }
+        });
+        
+        // Modern header customization
+        JTableHeader header = recordsTable.getTableHeader();
+        header.setFont(modernFont.deriveFont(Font.BOLD));
+        header.setForeground(modernTextColor);
+        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200))); // Flat bottom border
+ 
+
+        // customize header renderer for centered text and extra padding
+        header.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+                JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                label.setHorizontalAlignment(SwingConstants.CENTER);
+                label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                return label;
+            }
+        });
+
         JScrollPane scrollPane = new JScrollPane(recordsTable);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
        
@@ -295,6 +342,14 @@ public class AttendanceDashboard extends JFrame {
                 String[][] data = rowData.toArray(new String[0][]);
                 DefaultTableModel model = new DefaultTableModel(data, columnNames);
                 recordsTable.setModel(model);
+                
+                //Move the entries in the center
+                DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+                centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+                for (int i = 0; i < recordsTable.getColumnCount(); i++) {
+                  recordsTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+                }
 
                 rowSorter = new TableRowSorter<>(model);
                 recordsTable.setRowSorter(rowSorter);
@@ -432,6 +487,20 @@ public class AttendanceDashboard extends JFrame {
             int numColumns = recordsTable.getColumnCount();
             PdfPTable pdfTable = new PdfPTable(numColumns);
 
+           // Create a header cell with the classes
+           PdfPCell headerCell = new PdfPCell(new Phrase(className + "----" + section));
+
+           // Set the cell to span all columns in the table
+           headerCell.setColspan(pdfTable.getNumberOfColumns());
+
+           // Add the header cell to the table
+           pdfTable.addCell(headerCell);
+
+           //Mark the header row so that it repeats on each page 
+           pdfTable.setHeaderRows(1);
+
+
+
             // Add table headers
             for (int i = 0; i < numColumns; i++) {
                 pdfTable.addCell(new PdfPCell(new Phrase(recordsTable.getColumnName(i))));
@@ -460,6 +529,6 @@ public class AttendanceDashboard extends JFrame {
 
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new AttendanceDashboard(1, true).setVisible(true));
+        SwingUtilities.invokeLater(() -> new AttendanceDashboard(1,"abc", "007",true).setVisible(true));
     }
 }

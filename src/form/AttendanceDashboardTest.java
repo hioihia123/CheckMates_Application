@@ -16,7 +16,7 @@ public class AttendanceDashboardTest {
     @Before
     public void setUp() throws Exception {
         SwingUtilities.invokeAndWait(() -> {
-            dashboard = new AttendanceDashboard(1, false); // classId = 1, modern mode
+            dashboard = new AttendanceDashboard(1, "abc","007",false); // classId = 1, modern mode
             dashboard.setVisible(false); // Don't show the GUI during tests
         });
     }

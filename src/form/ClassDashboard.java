@@ -304,7 +304,7 @@ public class ClassDashboard extends JFrame {
             protected Void doInBackground() throws Exception {
                 SwingUtilities.invokeLater(() -> {
                     AttendanceDashboard attDash = new AttendanceDashboard(
-                            classId, oldTimeyMode);
+                            classId, className,section,oldTimeyMode);
                     attDash.setTitle(className + " - " + section + " Attendance");
                     attDash.setVisible(true);
                 });
@@ -343,36 +343,78 @@ public class ClassDashboard extends JFrame {
 */
 
     private void customizeTable(boolean oldTimey) {
-        if (oldTimey) {
-            classesTable.setFont(typewriterFont);
-            classesTable.setForeground(typewriterInk);
-            classesTable.setOpaque(false);
-            classesTable.setGridColor(typewriterInk);
-            classesTable.setRowHeight(30);
-            classesTable.setSelectionBackground(new Color(200, 180, 150, 200));
-            classesTable.setSelectionForeground(typewriterInk);
-            classesTable.setBorder(BorderFactory.createLineBorder(typewriterInk));
+    if (oldTimey) {
+        // Old-time styling remains unchanged
+        classesTable.setFont(typewriterFont);
+        classesTable.setForeground(typewriterInk);
+        classesTable.setOpaque(false);
+        classesTable.setGridColor(typewriterInk);
+        classesTable.setRowHeight(30);
+        classesTable.setSelectionBackground(new Color(200, 180, 150, 200));
+        classesTable.setSelectionForeground(typewriterInk);
+        classesTable.setBorder(BorderFactory.createLineBorder(typewriterInk));
 
-            JTableHeader header = classesTable.getTableHeader();
-            header.setFont(typewriterFont);
-            header.setForeground(typewriterInk);
-            header.setBackground(new Color(253, 245, 230, 220));
-            header.setOpaque(false);
-        } else {
-            classesTable.setFont(modernFont);
-            classesTable.setForeground(modernTextColor);
-            classesTable.setRowHeight(30);
-            classesTable.setSelectionBackground(modernHighlightColor);
-            classesTable.setSelectionForeground(modernTextColor);
-            classesTable.setGridColor(new Color(220, 220, 220));
+        JTableHeader header = classesTable.getTableHeader();
+        header.setFont(typewriterFont);
+        header.setForeground(typewriterInk);
+        header.setBackground(new Color(253, 245, 230, 220));
+        header.setOpaque(false);
+    } else {
+        // Modern look
+        classesTable.setFont(modernFont);
+        classesTable.setForeground(modernTextColor);
+        classesTable.setRowHeight(30);
+        classesTable.setSelectionBackground(modernHighlightColor);
+        classesTable.setSelectionForeground(modernTextColor);
+        classesTable.setGridColor(new Color(220, 220, 220));
 
-            JTableHeader header = classesTable.getTableHeader();
-            header.setFont(modernFont.deriveFont(Font.BOLD));
-            header.setForeground(modernTextColor);
-            header.setBackground(modernPanelColor);
-            header.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
-        }
+        // Set table background to white 
+        classesTable.setBackground(Color.WHITE);
+
+
+        // Custom renderer to create zebra striping (alternating row colors)
+        classesTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            final Color alternateColor = new Color(255, 255, 255); // Light gray alternative
+
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // Zebra striping effect
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : alternateColor);
+                } else {
+                    c.setBackground(modernHighlightColor);
+                }
+                return c;
+            }
+        });
+
+        // Modern header customization
+        JTableHeader header = classesTable.getTableHeader();
+        header.setFont(modernFont.deriveFont(Font.BOLD));
+        header.setForeground(modernTextColor);
+        header.setBackground(modernPanelColor);
+        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200))); // Flat bottom border
+ 
+
+        // Optional: customize header renderer for centered text and extra padding
+        header.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+                JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                label.setHorizontalAlignment(SwingConstants.CENTER);
+                label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                return label;
+            }
+        });
     }
+}
+
 
     private void addOldTimeyButton(JPanel panel, String text, ActionListener action) {
         JButton button = new JButton(text) {
@@ -825,6 +867,13 @@ public class ClassDashboard extends JFrame {
 
                 SwingUtilities.invokeLater(() -> {
                     if ("success".equalsIgnoreCase(json.optString("status"))) {
+                        // Create message label
+                        JLabel message = new JLabel("Class created successfully! \n Passcode: " + json.optInt("passcode") +
+                                        "\nExpires: " + json.optString("passcode_expires"));
+                        message.setFont(oldTimeyMode ? typewriterFont : modernFont);
+                        message.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+                        message.setHorizontalAlignment(SwingConstants.CENTER);
+                        
                         // Generate and show QR code
                         Image qrImage = generateQRCodeImage(checkInUrl, 200, 200);
                         showQRCodeDialog(qrImage, checkInUrl, passcode, expirationMinutes);
@@ -833,14 +882,10 @@ public class ClassDashboard extends JFrame {
                         JPanel panel = new JPanel(new BorderLayout());
                         panel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
                         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-                        // Create message label
-                        JLabel message = new JLabel("Class created successfully!\nPasscode: " + json.optInt("passcode") +
-                                        "\nExpires: " + json.optString("passcode_expires"));
-                        message.setFont(oldTimeyMode ? typewriterFont : modernFont);
-                        message.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
-                        message.setHorizontalAlignment(SwingConstants.CENTER);
                         panel.add(message, BorderLayout.CENTER);
+
+
+                        
 
                         // Create OK button
                         JButton okButton = oldTimeyMode ?
@@ -1141,6 +1186,13 @@ public class ClassDashboard extends JFrame {
 
             classesTable.setModel(model);
             classesTable.removeColumn(classesTable.getColumnModel().getColumn(1)); // Hide Class ID column
+            DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+            centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+            for (int i = 0; i < classesTable.getColumnCount(); i++) {
+                classesTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            }
+
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this,
