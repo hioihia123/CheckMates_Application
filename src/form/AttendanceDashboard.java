@@ -172,7 +172,26 @@ public class AttendanceDashboard extends JFrame {
         scrollPane.getViewport().setOpaque(false);
         scrollPane.setBorder(BorderFactory.createLineBorder(typewriterInk));
 
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                g.setColor(parchmentColor);
+                g.fillRect(0, 0, getWidth(), getHeight());
+                super.paintComponent(g);
+            }
+        };
+        buttonPanel.setOpaque(false);
+        buttonPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, typewriterInk));
+
+        addOldTimeyButton(buttonPanel, "Add Class", e -> addNewStudent());
+        addOldTimeyButton(buttonPanel, "Edit Selected", e -> editSelectedStudent());
+        addOldTimeyButton(buttonPanel, "Delete Selected", e -> deleteSelectedStudent());
+        addOldTimeyButton(buttonPanel, "Export PDF", e -> exportTableToPDF());
+
+        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+
         mainPanel.add(scrollPane, BorderLayout.CENTER);
+
 
         getContentPane().add(mainPanel);
 
@@ -212,6 +231,7 @@ public class AttendanceDashboard extends JFrame {
         searchField = new JTextField(20);
         searchPanel.add(searchField);
         mainPanel.add(searchPanel, BorderLayout.SOUTH);
+
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setBackground(Color.WHITE);
 
@@ -324,6 +344,32 @@ public class AttendanceDashboard extends JFrame {
             }
         });
 
+    }
+    private void addOldTimeyButton(JPanel panel, String text, ActionListener action) {
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                if (getModel().isPressed()) {
+                    g.setColor(new Color(220, 200, 180));
+                } else if (getModel().isRollover()) {
+                    g.setColor(new Color(240, 230, 210));
+                } else {
+                    g.setColor(parchmentColor);
+                }
+                g.fillRect(0, 0, getWidth(), getHeight());
+                super.paintComponent(g);
+            }
+        };
+        button.setFont(typewriterFont);
+        button.setForeground(typewriterInk);
+        button.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(typewriterInk),
+                BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        ));
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        button.addActionListener(action);
+        panel.add(button);
     }
 
     private void updateFilter() {
@@ -620,12 +666,10 @@ public class AttendanceDashboard extends JFrame {
             if (window != null) window.dispose();
 
             int classId = this.classId;
-            //deleteClassFromDatabase(classId);
             String studentId = ((DefaultTableModel)recordsTable.getModel())
                     .getValueAt(selectedRow, 1).toString();
             deleteStudentFromDatabase(this.classId, studentId);
 
-           // deleteStudentFromDatabase(classId,studentId);
         });
 
         JButton noButton = oldTimeyMode ?
@@ -731,6 +775,14 @@ public class AttendanceDashboard extends JFrame {
                 });
             }
         }).start();
+    }
+
+    private void addNewStudent() {
+
+    }
+
+    private void editSelectedStudent() {
+
     }
 
     public static void main(String[] args) {
