@@ -131,7 +131,7 @@ public class SignUp extends JFrame {
     chkTerms = new JCheckBox("I agree to the ");
     termsPanel.add(chkTerms);
 
-    JLabel lblTerms = new JLabel("<html><a href='https://www.google.com'>Terms and Conditions</a></html>");
+    JLabel lblTerms = new JLabel("<html><a href=''>Terms and Conditions</a></html>");
     lblTerms.setCursor(new Cursor(Cursor.HAND_CURSOR));
     lblTerms.setForeground(Color.BLUE);
     termsPanel.add(lblTerms);
