@@ -4,9 +4,9 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import javax.imageio.ImageIO;
-import java.io.IOException;
 
 // Import iText classes
 import com.itextpdf.text.Document;
@@ -23,8 +22,6 @@ import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-import java.io.File;
-import java.io.FileOutputStream;
 
 
 public class AttendanceDashboard extends JFrame {
@@ -215,8 +212,37 @@ public class AttendanceDashboard extends JFrame {
         searchField = new JTextField(20);
         searchPanel.add(searchField);
         mainPanel.add(searchPanel, BorderLayout.SOUTH);
-        
-        FancyHoverButton2 exportButton = new FancyHoverButton2("Export to PDF");
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        buttonPanel.setBackground(Color.WHITE);
+
+        // Add Student button
+        form.FancyHoverButton addButton = new form.FancyHoverButton("Add");
+        addButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        //addButton.addActionListener(e -> addNewStudent());
+        buttonPanel.add(addButton);
+
+        // Edit Student button
+        form.FancyHoverButton editButton = new form.FancyHoverButton("Edit");
+        editButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        // editButton.addActionListener(e -> editSelectedStudent());
+        buttonPanel.add(editButton);
+
+        // Delete Student button
+        form.FancyHoverButton deleteButton = new form.FancyHoverButton("Delete ");
+        deleteButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        deleteButton.addActionListener(e -> {
+            deleteSelectedStudent();
+        });
+        buttonPanel.add(deleteButton);
+
+        form.FancyHoverButton exportButton = new form.FancyHoverButton("Export to PDF ");
+        exportButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        buttonPanel.add(exportButton);
+
+        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+
+
+        //FancyHoverButton2 exportButton = new FancyHoverButton2("Export to PDF");
         exportButton.addActionListener(new ActionListener() {
             @Override
            public void actionPerformed(ActionEvent e) {
@@ -224,9 +250,12 @@ public class AttendanceDashboard extends JFrame {
            }
         });
         // Then add the button to an appropriate panel
+        /*
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomPanel.add(exportButton);
         getContentPane().add(bottomPanel, BorderLayout.SOUTH);
+        */
+
 
         recordsTable = new JTable();
         recordsTable.setFont(modernFont);
@@ -294,6 +323,7 @@ public class AttendanceDashboard extends JFrame {
                 updateFilter();
             }
         });
+
     }
 
     private void updateFilter() {
@@ -395,7 +425,13 @@ public class AttendanceDashboard extends JFrame {
             JOptionPane.showMessageDialog(this, message, title, messageType);
         }
     }
-
+    private JButton createModernButton(String text) {
+        ClassDashboard.FancyHoverButton button = new ClassDashboard.FancyHoverButton(text);
+        button.setFont(modernFont);
+        button.setForeground(Color.WHITE);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+        return button;
+    }
     private JButton createTypewriterButton(String text) {
         JButton button = new JButton(text) {
             @Override
@@ -526,7 +562,175 @@ public class AttendanceDashboard extends JFrame {
         }
     }
 }
+    private void deleteSelectedStudent() {
+        int selectedRow = recordsTable.getSelectedRow();
+        if (selectedRow == -1) {
+            // Custom "no selection" notification
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+            panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
+            JLabel message = new JLabel("Please select a student to delete");
+            message.setFont(oldTimeyMode ? typewriterFont : modernFont);
+            message.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+            message.setHorizontalAlignment(SwingConstants.CENTER);
+            panel.add(message, BorderLayout.CENTER);
+
+            JButton okButton = oldTimeyMode ?
+                    createTypewriterButton("OK") :
+                    createModernButton("OK");
+            okButton.addActionListener(e -> {
+                Window window = SwingUtilities.getWindowAncestor(panel);
+                if (window != null) window.dispose();
+            });
+
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+            buttonPanel.add(okButton);
+            panel.add(buttonPanel, BorderLayout.SOUTH);
+
+            JDialog dialog = new JDialog(this, "No Selection", true);
+            dialog.setContentPane(panel);
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+            return;
+        }
+
+        // Custom delete confirmation dialog
+        JPanel confirmPanel = new JPanel(new BorderLayout());
+        confirmPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+        confirmPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        JLabel confirmMessage = new JLabel("Are you sure you want to delete this student?");
+        confirmMessage.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        confirmMessage.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        confirmMessage.setHorizontalAlignment(SwingConstants.CENTER);
+        confirmPanel.add(confirmMessage, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        buttonPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+
+        JButton yesButton = oldTimeyMode ?
+                createTypewriterButton("Yes") :
+                createModernButton("Yes");
+        yesButton.addActionListener(e -> {
+            Window window = SwingUtilities.getWindowAncestor(confirmPanel);
+            if (window != null) window.dispose();
+
+            int classId = this.classId;
+            //deleteClassFromDatabase(classId);
+            String studentId = ((DefaultTableModel)recordsTable.getModel())
+                    .getValueAt(selectedRow, 1).toString();
+            deleteStudentFromDatabase(this.classId, studentId);
+
+           // deleteStudentFromDatabase(classId,studentId);
+        });
+
+        JButton noButton = oldTimeyMode ?
+                createTypewriterButton("No") :
+                createModernButton("No");
+        noButton.addActionListener(e -> {
+            Window window = SwingUtilities.getWindowAncestor(confirmPanel);
+            if (window != null) window.dispose();
+        });
+
+        buttonPanel.add(yesButton);
+        buttonPanel.add(noButton);
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(25, 0, 25, 0));
+
+        confirmPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        JDialog confirmDialog = new JDialog(this, "Confirm Deletion", true);
+        confirmDialog.setContentPane(confirmPanel);
+        confirmDialog.pack();
+        confirmDialog.setLocationRelativeTo(this);
+        confirmDialog.setVisible(true);
+
+    }
+
+    private void deleteStudentFromDatabase(int classId, String studentId) {
+        new Thread(() -> {
+            try {
+                String urlString = "http://cm8tes.com/deleteStudent.php";
+                String urlParameters = "class_id=" + classId +"&studentId=" + URLEncoder.encode(studentId, StandardCharsets.UTF_8);
+
+                URI uri = new URI(urlString);
+                URL url = uri.toURL();
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+
+                try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
+                    out.writeBytes(urlParameters);
+                }
+
+                // Read response
+                StringBuilder responseBuilder = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        responseBuilder.append(inputLine);
+                    }
+                }
+                final String response = responseBuilder.toString();
+                final JSONObject json = new JSONObject(response);
+
+                SwingUtilities.invokeLater(() -> {
+                    if ("success".equalsIgnoreCase(json.optString("status"))) {
+                        // Create custom notification panel
+                        JPanel panel = new JPanel(new BorderLayout());
+                        panel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+                        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+                        // Create message label
+                        JLabel message = new JLabel("Class deleted successfully");
+                        message.setFont(oldTimeyMode ? typewriterFont : modernFont);
+                        message.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+                        message.setHorizontalAlignment(SwingConstants.CENTER);
+                        panel.add(message, BorderLayout.CENTER);
+
+                        // Create OK button
+                        JButton okButton = oldTimeyMode ?
+                                createTypewriterButton("OK") :
+                                createModernButton("OK");
+                        okButton.addActionListener(e -> {
+                            Window window = SwingUtilities.getWindowAncestor(panel);
+                            if (window != null) {
+                                window.dispose();
+                            }
+                        });
+
+                        JPanel buttonPanel = new JPanel();
+                        buttonPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+                        buttonPanel.add(okButton);
+                        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+                        // Create and show custom dialog
+                        JDialog dialog = new JDialog(this, "Success", true);
+                        dialog.setContentPane(panel);
+                        dialog.pack();
+                        dialog.setLocationRelativeTo(this);
+                        dialog.setVisible(true);
+
+                        loadAttendanceRecordsByClass();
+                    } else {
+                        // Error handling
+                        JOptionPane.showMessageDialog(this,
+                                "Error: " + json.optString("message"),
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(this,
+                            "Error deleting student: " + e.getMessage(),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                });
+            }
+        }).start();
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new AttendanceDashboard(1,"abc", "007",true).setVisible(true));
