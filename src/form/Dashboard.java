@@ -7,6 +7,11 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
+
+
 
 
 import com.formdev.flatlaf.FlatLightLaf;
@@ -43,6 +48,17 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONObject; // Make sure to include a JSON library
+import java.net.NetworkInterface;
+import java.net.InetAddress;
+import java.net.Inet6Address;
+import java.net.Inet4Address;
+import java.net.SocketException;
+
+import java.util.Enumeration;
+import java.util.Collections;
+import java.util.List;
+import java.util.ArrayList;
+
 
 // Import ZXing libraries for QR code generation
 import com.google.zxing.BarcodeFormat;
@@ -61,6 +77,9 @@ public class Dashboard extends javax.swing.JFrame {
     private ClassDashboard dashboard;
     private JCheckBox chkIP;
     boolean isIPRTurnOn;
+    private String collectedIPv6 = "";
+    JLabel ipStatusLabel;
+
 
     /**
      * Creates new form Dashboard with a Professor object.
@@ -245,14 +264,7 @@ public class Dashboard extends javax.swing.JFrame {
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setOpaque(false);
         
-         JLabel ipStatusLabel;
-        if(isIPRTurnOn){
-            ipStatusLabel = new JLabel("IP Restriction: ON");
-        
-        }
-        else{
-            ipStatusLabel = new JLabel("IP Restriction: OFF");
-        }
+        ipStatusLabel = new JLabel("IP Restriction: OFF");
         ipStatusLabel.setFont(new Font("Roboto", Font.PLAIN, 12));
         ipStatusLabel.setForeground(new Color(50, 50, 50));
 
@@ -340,29 +352,71 @@ public class Dashboard extends javax.swing.JFrame {
         contentPanel.add(expirationField, gbc);
         
         // IP Restriction
-        gbc.gridx = 0;
-        gbc.gridy = 3; // new row for the checkbox
-        gbc.gridwidth = 2; // let it span both columns for better visibility
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.EAST;  // align to the left 
-        chkIP = new JCheckBox("IP restriction");
-        
-        //Turn on IP Restriction Mode
-        chkIP.addActionListener(new ActionListener(){
-           
-            @Override
-            public void actionPerformed(ActionEvent e){
-                if(chkIP.isSelected()){
-                    // FIX ME: call getIPAddress function, 
-                    isIPRTurnOn = true;
-                }
-                else{
-                    isIPRTurnOn = false; 
-                }
-            }
-            
+       JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+       centerPanel.setBackground(Color.WHITE);
+       chkIP = new JCheckBox("IP Restriction");
+       chkIP.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+       chkIP.setBackground(Color.WHITE);
+       
+       chkIP.addActionListener(e -> {
+  if (chkIP.isSelected()) {
+      isIPRTurnOn = true;
+    new Thread(() -> {
+      try {
+          
+        String[] ips = fetchBothPublicIPs();
+        String ipv4 = ips[0], ipv6 = ips[1];
+        // after fetchBothPublicIPs():
+        String rawV6 = ips[1];              // full IPv6
+        String prefix = prefix64(rawV6);    // "0000:0000:00f0:0000"
+        collectedIPv6 = prefix;
+        SwingUtilities.invokeLater(() ->
+          ipStatusLabel.setText(String.format(
+            "IP Restriction: ON  v4=%s  v6=%s",
+            ipv4.isEmpty() ? "n/a" : ipv4,
+            ipv6.isEmpty() ? "n/a" : ipv6
+          ))
+        );
+      } catch(Exception ex) {
+        SwingUtilities.invokeLater(() -> {
+          chkIP.setSelected(false);
+          JOptionPane.showMessageDialog(this,
+            "Failed to fetch IPs: "+ex.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
         });
-        contentPanel.add(chkIP, gbc);
+      }
+    }).start();
+  } else {
+    isIPRTurnOn = false;
+    String collectedIPv4 = "";
+    String collectedIPv6 = "";
+    ipStatusLabel.setText("IP Restriction: OFF");
+  }
+});
+
+       
+       /*chkIP.addActionListener(e -> {
+          isIPRTurnOn = chkIP.isSelected();
+          ipStatusLabel.setText(
+          "IP Restriction: " + (
+                  isIPRTurnOn ? "ON" : "OFF")
+          );
+          ipStatusLabel.revalidate();
+          ipStatusLabel.repaint();
+       });
+       */
+       
+       centerPanel.add(chkIP);
+
+       gbc.gridx = 0;
+       gbc.gridy = 3;
+       gbc.gridwidth = 2;
+       gbc.fill = GridBagConstraints.HORIZONTAL;
+       gbc.anchor = GridBagConstraints.CENTER;
+       gbc.insets = new Insets(10, 0, 0, 0);
+       contentPanel.add(centerPanel, gbc);
+
+        
 
         // Row 3: Create button (spanning two columns)
         FancyHoverButton createButton = new FancyHoverButton("Create");
@@ -418,6 +472,37 @@ public class Dashboard extends javax.swing.JFrame {
         dialog.add(contentPanel);
         dialog.setVisible(true);
     }
+    
+    private String fetchURL(String urlStr) throws IOException {
+    URL url = new URL(urlStr);
+    HttpURLConnection c = (HttpURLConnection) url.openConnection();
+    c.setConnectTimeout(3_000);
+    c.setReadTimeout(3_000);
+    try (BufferedReader in = new BufferedReader(
+             new InputStreamReader(c.getInputStream()))) {
+        return in.readLine().trim();
+    }
+}
+
+/** Returns a 2‑element String[]: [0]=IPv4, [1]=IPv6 (or empty if none) */
+private String[] fetchBothPublicIPs() {
+    String v4 = "", v6 = "";
+    try { v4 = fetchURL("https://api.ipify.org?format=text"); } catch(Exception e){ }
+    try { v6 = fetchURL("https://api6.ipify.org?format=text"); } catch(Exception e){ }
+    return new String[]{ v4, v6 };
+}
+
+private String prefix64(String rawIp) {
+    String noZone = rawIp.split("%")[0];
+    String[] parts = noZone.split(":");
+    // pad to 8 parts
+    List<String> p = new ArrayList<>(Arrays.asList(parts));
+    while (p.size() < 8) p.add("0");
+    // return first 4 hextets
+    return String.join(":", p.subList(0, 4));
+}
+
+
 
     // Method to generate a QR code image using ZXing
     private Image generateQRCodeImage(String text, int width, int height) {
@@ -461,10 +546,8 @@ public class Dashboard extends javax.swing.JFrame {
     //FIX ME: Get professsor's ip address upon they check the box
     //Then store in the database
     //Write another php to do that
-    public void getIPAddress(String professorId, String ipAddress){
-        
-    }
     
+
 
     private void saveClassToDatabase(String professorId,
                                  String className,
@@ -479,7 +562,13 @@ public class Dashboard extends javax.swing.JFrame {
                           + "&class="        + URLEncoder.encode(className, StandardCharsets.UTF_8.name())
                           + "&section="      + URLEncoder.encode(section, StandardCharsets.UTF_8.name())
                           + "&expiration="   + expirationMinutes
-                          + "&passcode="     + passcode;
+                          + "&passcode="     + passcode
+                          + "&ip_restriction=" + (isIPRTurnOn ? "1" : "0");
+                          
+            if(isIPRTurnOn == true){
+                params += "&ip_address_v6=" + URLEncoder.encode(collectedIPv6, StandardCharsets.UTF_8.name());                
+            }
+            
             byte[] postData = params.getBytes(StandardCharsets.UTF_8);
 
             HttpURLConnection conn = (HttpURLConnection) new URL(urlString).openConnection();
