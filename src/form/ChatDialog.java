@@ -12,6 +12,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import com.formdev.flatlaf.FlatLightLaf;
+import javax.swing.UIManager;
+
 
 public class ChatDialog extends JDialog {
     private final JTextArea chatArea;
@@ -19,7 +22,7 @@ public class ChatDialog extends JDialog {
     private final JButton sendButton;
     private int classId; // Current selected class ID
     private final Professor professor;
-    private final JComboBox<ClassItem> classComboBox; // To let professor choose a class
+    public final JComboBox<ClassItem> classComboBox; // To let professor choose a class
 
     public ChatDialog(JFrame parent, Professor professor) {
         super(parent, "Saki Chat", true);
@@ -59,9 +62,48 @@ public class ChatDialog extends JDialog {
                 BorderFactory.createLineBorder(new Color(220, 220, 220)),
                 new EmptyBorder(10, 10, 10, 10)
         ));
-        JScrollPane scrollPane = new JScrollPane(chatArea);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        add(scrollPane, BorderLayout.CENTER);
+        
+        // after classComboBox…
+       JButton summaryBtn = new JButton("📊 Summary");
+       summaryBtn.setFont(new Font("SansSerif", Font.PLAIN, 14));
+       summaryBtn.setBackground(Color.WHITE);
+       summaryBtn.setFocusPainted(false);
+       topPanel.add(summaryBtn);
+
+      // listener
+      summaryBtn.addActionListener(e -> {
+      appendChat("You: [Requested summary of all classes]");
+
+    new SwingWorker<String,Void>() {
+        @Override
+        protected String doInBackground() {
+            return ChatProcess.summarizeAllClasses(professor.getProfessorID());
+        }
+        @Override
+        protected void done() {
+            try {
+                String summary = get();
+                appendChat("Saki (All‑Classes Summary):\n" + summary);
+            } catch (Exception ex) {
+                appendChat("Saki: [Error fetching summary]");
+            }
+        }
+    }.execute();
+});
+
+        // after classComboBox…
+       JButton tips = new JButton("😎 Tips");
+       tips.setFont(new Font("SansSerif", Font.PLAIN, 14));
+       tips.setBackground(Color.WHITE);
+       tips.setFocusPainted(false);
+       topPanel.add(tips);
+       
+      JScrollPane scrollPane = new JScrollPane(chatArea);
+      scrollPane.setBorder(null);
+      scrollPane.getVerticalScrollBar().setUI(new ModernScrollBarUI());
+      scrollPane.getHorizontalScrollBar().setUI(new ModernScrollBarUI());
+
+       add(scrollPane, BorderLayout.CENTER);
 
         // Input panel with text field and arrow up button
        JPanel inputPanel = new JPanel(new BorderLayout(5, 5));
@@ -194,9 +236,11 @@ public class ChatDialog extends JDialog {
         chatArea.append(message + "\n\n");
         chatArea.setCaretPosition(chatArea.getDocument().getLength());
     }
+    
+    
 
     // Inner class to hold class details for the combo box
-    private static class ClassItem {
+    public static class ClassItem {
         final int id;
         final String display;
 
@@ -210,4 +254,31 @@ public class ChatDialog extends JDialog {
             return display;
         }
     }
+    
+    public static void main(String[] args) {
+    // 1) set FlatLaf globally
+    FlatLightLaf.setup();
+    
+    // 2) tweak scrollbar to be thin, rounded, no arrows
+    UIManager.put("ScrollBar.width",     6);
+    UIManager.put("ScrollBar.thumbArc", 999);
+    UIManager.put("ScrollBar.trackArc", 999);
+    UIManager.put("ScrollBar.showButtons", false);
+
+    Professor professor = new Professor("Dr Smith", "example@123.com", "dsmith");
+    // 3) Prepare the objects that ChatDialog needs:
+    //    a) A parent frame (could be your Dashboard window or null)
+    JFrame parentFrame = null; // or: new Dashboard();
+
+    //    b) A Professor object (however you load it in your app)
+   
+
+    // 4) Launch the dialog on the EDT
+    SwingUtilities.invokeLater(() -> {
+      ChatDialog chat = new ChatDialog(parentFrame, professor);
+      chat.setVisible(true);
+    });
+  }
+
+
 }
