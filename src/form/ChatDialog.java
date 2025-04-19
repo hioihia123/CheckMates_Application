@@ -96,6 +96,26 @@ public class ChatDialog extends JDialog {
        tips.setFont(new Font("SansSerif", Font.PLAIN, 14));
        tips.setBackground(Color.WHITE);
        tips.setFocusPainted(false);
+       
+       tips.addActionListener(e -> {
+           appendChat("You: [Want tips from Saki]");
+           new SwingWorker<String,Void>(){
+               @Override
+               protected String doInBackground() {
+                  return ChatProcess.giveTips(professor.getProfessorID());
+               }
+               @Override
+               protected void done() {
+                 try {
+                     String summary = get();
+                     appendChat("Saki (Tips on classes summary):\n" + summary);
+                 } catch (Exception ex) {
+                     appendChat("Saki: [Error fetching tips]");
+                 }
+               }
+          }.execute();
+   });
+       
        topPanel.add(tips);
        
       JScrollPane scrollPane = new JScrollPane(chatArea);
@@ -267,10 +287,10 @@ public class ChatDialog extends JDialog {
 
     Professor professor = new Professor("Dr Smith", "example@123.com", "dsmith");
     // 3) Prepare the objects that ChatDialog needs:
-    //    a) A parent frame (could be your Dashboard window or null)
+    //    a) A parent frame 
     JFrame parentFrame = null; // or: new Dashboard();
 
-    //    b) A Professor object (however you load it in your app)
+    //    b) A Professor object 
    
 
     // 4) Launch the dialog on the EDT
