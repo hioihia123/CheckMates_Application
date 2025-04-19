@@ -17,6 +17,18 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import static java.util.stream.Collectors.joining;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors;               // for Collectors.joining()
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+
+
 
 public class ChatProcess {
     
@@ -177,7 +189,7 @@ public class ChatProcess {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer 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")
+                    .header("Authorization", "Bearer API")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                     .build();
 
@@ -211,6 +223,63 @@ public class ChatProcess {
         System.out.println("User Feedback: " + feedback);
         conversationHistory.add("Feedback: " + feedback);
     }
+   
+  public static String summarizeAllClasses(String professorId) {
+    try {
+        var classes = fetchAllClasses(professorId);
+        StringBuilder agg = new StringBuilder();
+        for (var cl : classes) {
+            agg.append("Class: ").append(cl.display).append("\n");
+            agg.append(getAttendanceSummary(cl.id)).append("\n\n");
+        }
+
+        // Ask ChatGPT to summarize and analyze
+        String prompt = """
+            Here is the attendance data for all my classes:
+
+            %s
+
+            Please provide:
+            1. A concise summary (per‑class totals, trends).
+            2. Analysis across classes (e.g. which class has highest/lowest check‑in rates, patterns).
+            """.formatted(agg);
+
+        return getChatGPTResponse(prompt);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return "Unable to summarize classes: " + e.getMessage();
+    }
+}
+
+    /**
+ * Returns an array of ClassItem for this professor.
+ */
+public static List<ChatDialog.ClassItem> fetchAllClasses(String professorId) throws IOException {
+    String urlString = "http://cm8tes.com/getClasses.php?professor_id=" +
+        URLEncoder.encode(professorId, StandardCharsets.UTF_8.toString());
+    HttpURLConnection conn = (HttpURLConnection) new URL(urlString).openConnection();
+    conn.setConnectTimeout(5000);
+    conn.setReadTimeout(5000);
+
+    try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8.toString()))) {
+        JSONObject json = new JSONObject(in.lines().collect(joining()));
+        List<ChatDialog.ClassItem> list = new ArrayList<>();
+        if ("success".equalsIgnoreCase(json.optString("status"))) {
+            JSONArray classesArray = json.getJSONArray("classes");
+            for (int i = 0; i < classesArray.length(); i++) {
+             JSONObject obj = classesArray.getJSONObject(i);
+             int id        = obj.getInt("class_id");
+             String name   = obj.getString("className");
+             String section= obj.getString("section");
+             String display= name + " – " + section;
+             list.add(new ChatDialog.ClassItem(id, display));
+}
+
+        }
+        return list;
+    }
+}
+
 
     // For testing purposes
     public static void main(String[] args) {
