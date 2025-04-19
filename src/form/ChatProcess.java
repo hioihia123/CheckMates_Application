@@ -189,7 +189,7 @@ public class ChatProcess {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer API")
+                    .header("Authorization", "Bearer AAAA")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                     .build();
 
@@ -248,6 +248,32 @@ public class ChatProcess {
     } catch (Exception e) {
         e.printStackTrace();
         return "Unable to summarize classes: " + e.getMessage();
+    }
+}
+   public static String giveTips(String professorId) {
+    try {
+        var classes = fetchAllClasses(professorId);
+        StringBuilder agg = new StringBuilder();
+        for (var cl : classes) {
+            agg.append("Class: ").append(cl.display).append("\n");
+            agg.append(getAttendanceSummary(cl.id)).append("\n\n");
+        }
+
+        // Ask ChatGPT to summarize and analyze
+        String prompt = """
+            Here is the attendance data for all my classes:
+
+            %s
+
+            Please provide:
+            1. Tips on how to improve attendance of each class based on the class data.
+            2. Analysis across classes, then give tips in detail and in friendly manner.
+            """.formatted(agg);
+
+        return getChatGPTResponse(prompt);
+    } catch (Exception e) {
+        e.printStackTrace();
+        return "Unable to give tips: " + e.getMessage();
     }
 }
 
