@@ -23,7 +23,6 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
-
 public class AttendanceDashboard extends JFrame {
     private int classId;
     private JTable recordsTable;
@@ -46,12 +45,12 @@ public class AttendanceDashboard extends JFrame {
     private Font modernTitleFont = new Font("Helvetica Neue", Font.BOLD, 24);
     private Color modernBackground = Color.WHITE;
 
-    public AttendanceDashboard(int classId, String className,String section,boolean oldTimeyMode) {
+    public AttendanceDashboard(int classId, String className, String section, boolean oldTimeyMode) {
         this.classId = classId;
         this.className = className;
         this.section = section;
         this.oldTimeyMode = oldTimeyMode;
-        setTitle("Attendance Records for Class " + classId);
+        setTitle("Attendance Records for " + className + " - " + section);
         setSize(800, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -112,7 +111,7 @@ public class AttendanceDashboard extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Header label
-        JLabel headerLabel = new JLabel("Attendance Records", SwingConstants.CENTER);
+        JLabel headerLabel = new JLabel("Attendance Records for " + className + " - " + section, SwingConstants.CENTER);
         headerLabel.setFont(titleFont);
         headerLabel.setForeground(typewriterInk);
         headerLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, typewriterInk));
@@ -160,13 +159,12 @@ public class AttendanceDashboard extends JFrame {
         recordsTable.setSelectionForeground(typewriterInk);
         recordsTable.setBorder(BorderFactory.createLineBorder(typewriterInk));
 
-    
         JTableHeader header = recordsTable.getTableHeader();
         header.setFont(typewriterFont);
         header.setForeground(typewriterInk);
         header.setBackground(new Color(253, 245, 230, 220));
         header.setOpaque(false);
-        
+
         JScrollPane scrollPane = new JScrollPane(recordsTable);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);
@@ -183,15 +181,15 @@ public class AttendanceDashboard extends JFrame {
         buttonPanel.setOpaque(false);
         buttonPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, typewriterInk));
 
-        addOldTimeyButton(buttonPanel, "Add Class", e -> addNewStudent());
+        addOldTimeyButton(buttonPanel, "Add Student", e -> addNewStudent());
         addOldTimeyButton(buttonPanel, "Edit Selected", e -> editSelectedStudent());
         addOldTimeyButton(buttonPanel, "Delete Selected", e -> deleteSelectedStudent());
         addOldTimeyButton(buttonPanel, "Export PDF", e -> exportTableToPDF());
+        addOldTimeyButton(buttonPanel, "Close", e -> dispose());
 
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
         mainPanel.add(scrollPane, BorderLayout.CENTER);
-
 
         getContentPane().add(mainPanel);
 
@@ -218,12 +216,10 @@ public class AttendanceDashboard extends JFrame {
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
 
-        JLabel headerLabel = new JLabel("Attendance Records", SwingConstants.CENTER);
+        JLabel headerLabel = new JLabel("Attendance Records for " + className + " - " + section, SwingConstants.CENTER);
         headerLabel.setFont(modernTitleFont);
         headerLabel.setForeground(modernTextColor);
         mainPanel.add(headerLabel, BorderLayout.NORTH);
-        
-      
 
         // Create a search panel with a label and a text field
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -236,76 +232,64 @@ public class AttendanceDashboard extends JFrame {
         buttonPanel.setBackground(Color.WHITE);
 
         // Add Student button
-        form.FancyHoverButton addButton = new form.FancyHoverButton("Add");
+        form.FancyHoverButton addButton = new form.FancyHoverButton("Add Student");
         addButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        //addButton.addActionListener(e -> addNewStudent());
+        addButton.addActionListener(e -> addNewStudent());
         buttonPanel.add(addButton);
 
         // Edit Student button
         form.FancyHoverButton editButton = new form.FancyHoverButton("Edit");
         editButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        // editButton.addActionListener(e -> editSelectedStudent());
+        editButton.addActionListener(e -> editSelectedStudent());
         buttonPanel.add(editButton);
 
         // Delete Student button
-        form.FancyHoverButton deleteButton = new form.FancyHoverButton("Delete ");
+        form.FancyHoverButton deleteButton = new form.FancyHoverButton("Delete");
         deleteButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        deleteButton.addActionListener(e -> {
-            deleteSelectedStudent();
-        });
+        deleteButton.addActionListener(e -> deleteSelectedStudent());
         buttonPanel.add(deleteButton);
 
-        form.FancyHoverButton exportButton = new form.FancyHoverButton("Export to PDF ");
+        form.FancyHoverButton exportButton = new form.FancyHoverButton("Export PDF");
         exportButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        exportButton.addActionListener(e -> exportTableToPDF());
         buttonPanel.add(exportButton);
 
+        form.FancyHoverButton closeButton = new form.FancyHoverButton("Close");
+        closeButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        closeButton.addActionListener(e -> dispose());
+        buttonPanel.add(closeButton);
+
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-
-
-        //FancyHoverButton2 exportButton = new FancyHoverButton2("Export to PDF");
-        exportButton.addActionListener(new ActionListener() {
-            @Override
-           public void actionPerformed(ActionEvent e) {
-             exportTableToPDF();
-           }
-        });
-        // Then add the button to an appropriate panel
-        /*
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        bottomPanel.add(exportButton);
-        getContentPane().add(bottomPanel, BorderLayout.SOUTH);
-        */
-
 
         recordsTable = new JTable();
         recordsTable.setFont(modernFont);
         recordsTable.setRowHeight(25);
         recordsTable.setBackground(Color.WHITE);
-        
+
         recordsTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer(){
-            final Color alterColor = new Color(255, 255, 255);
-            
+            final Color alterColor = new Color(240, 240, 240);
+
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, 
-                    boolean hasFocus, int row, int column){
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                           boolean hasFocus, int row, int column){
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                
+
                 // Zebra striping effect
                 if (!isSelected) {
                     c.setBackground(row % 2 == 0 ? Color.WHITE : alterColor);
                 } else {
-                    c.setBackground(Color.RED);
+                    c.setBackground(new Color(100, 149, 237));
+                    c.setForeground(Color.WHITE);
                 }
                 return c;
             }
         });
-        
+
         // Modern header customization
         JTableHeader header = recordsTable.getTableHeader();
         header.setFont(modernFont.deriveFont(Font.BOLD));
         header.setForeground(modernTextColor);
-        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200))); // Flat bottom border
- 
+        header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(200, 200, 200)));
 
         // customize header renderer for centered text and extra padding
         header.setDefaultRenderer(new DefaultTableCellRenderer() {
@@ -322,7 +306,6 @@ public class AttendanceDashboard extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(recordsTable);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
-       
 
         getContentPane().add(mainPanel);
 
@@ -343,8 +326,8 @@ public class AttendanceDashboard extends JFrame {
                 updateFilter();
             }
         });
-
     }
+
     private void addOldTimeyButton(JPanel panel, String text, ActionListener action) {
         JButton button = new JButton(text) {
             @Override
@@ -418,13 +401,13 @@ public class AttendanceDashboard extends JFrame {
                 String[][] data = rowData.toArray(new String[0][]);
                 DefaultTableModel model = new DefaultTableModel(data, columnNames);
                 recordsTable.setModel(model);
-                
+
                 //Move the entries in the center
                 DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
                 centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
                 for (int i = 0; i < recordsTable.getColumnCount(); i++) {
-                  recordsTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+                    recordsTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
                 }
 
                 rowSorter = new TableRowSorter<>(model);
@@ -432,8 +415,7 @@ public class AttendanceDashboard extends JFrame {
             } else {
                 showMessage("Error: " + json.optString("message"), "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (Exception ex) {////comment
-
+        } catch (Exception ex) {
             ex.printStackTrace();
             showMessage("Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -471,13 +453,7 @@ public class AttendanceDashboard extends JFrame {
             JOptionPane.showMessageDialog(this, message, title, messageType);
         }
     }
-    private JButton createModernButton(String text) {
-        ClassDashboard.FancyHoverButton button = new ClassDashboard.FancyHoverButton(text);
-        button.setFont(modernFont);
-        button.setForeground(Color.WHITE);
-        button.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
-        return button;
-    }
+
     private JButton createTypewriterButton(String text) {
         JButton button = new JButton(text) {
             @Override
@@ -503,144 +479,59 @@ public class AttendanceDashboard extends JFrame {
         button.setFocusPainted(false);
         return button;
     }
-    
-    private void exportSelectedRowsToPDF() {
-    int[] selectedRows = recordsTable.getSelectedRows();
-    if (selectedRows.length == 0) {
-        showMessage("Please select at least one record to export.", "No Selection", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    
-    // Let the user choose where to save the PDF file
-    JFileChooser fileChooser = new JFileChooser();
-    fileChooser.setDialogTitle("Save PDF");
-    int userSelection = fileChooser.showSaveDialog(this);
-    if (userSelection == JFileChooser.APPROVE_OPTION) {
-        File fileToSave = fileChooser.getSelectedFile();
-        try {
-            // Create a new document and writer
-            Document document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream(fileToSave));
-            document.open();
-            
-            // Create a table with the same number of columns as the JTable
-            int numColumns = recordsTable.getColumnCount();
-            PdfPTable pdfTable = new PdfPTable(numColumns);
-            
-            // Add table headers
-            for (int i = 0; i < numColumns; i++) {
-                pdfTable.addCell(new PdfPCell(new Phrase(recordsTable.getColumnName(i))));
-            }
-            
-            // Add selected rows
-            for (int rowIndex : selectedRows) {
-               // convert the view index to the model index:
-                int modelRow = recordsTable.convertRowIndexToModel(rowIndex);
-                for (int col = 0; col < numColumns; col++) {
-                    Object cellValue = recordsTable.getModel().getValueAt(modelRow, col);
-                    pdfTable.addCell(new PdfPCell(new Phrase(cellValue != null ? cellValue.toString() : "")));
-                }
-            }
-            
-            document.add(pdfTable);
-            document.close();
-            showMessage("PDF exported successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-        } catch (DocumentException | java.io.FileNotFoundException ex) {
-            ex.printStackTrace();
-            showMessage("Error exporting PDF: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-}
 
     private void exportTableToPDF() {
-    // Let the user choose where to save the PDF file
-    JFileChooser fileChooser = new JFileChooser();
-    fileChooser.setDialogTitle("Save PDF");
-    int userSelection = fileChooser.showSaveDialog(this);
-    if (userSelection == JFileChooser.APPROVE_OPTION) {
-        File fileToSave = fileChooser.getSelectedFile();
-        try {
-            // Create a new document and writer
-            Document document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream(fileToSave));
-            document.open();
+        // Let the user choose where to save the PDF file
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save PDF");
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            try {
+                // Create a new document and writer
+                Document document = new Document();
+                PdfWriter.getInstance(document, new FileOutputStream(fileToSave));
+                document.open();
 
-            // Create a table with the same number of columns as the JTable
-            int numColumns = recordsTable.getColumnCount();
-            PdfPTable pdfTable = new PdfPTable(numColumns);
+                // Create a table with the same number of columns as the JTable
+                int numColumns = recordsTable.getColumnCount();
+                PdfPTable pdfTable = new PdfPTable(numColumns);
 
-           // Create a header cell with the classes
-           PdfPCell headerCell = new PdfPCell(new Phrase(className + "----" + section));
+                // Create a header cell with the classes
+                PdfPCell headerCell = new PdfPCell(new Phrase(className + " - " + section));
+                headerCell.setColspan(pdfTable.getNumberOfColumns());
+                pdfTable.addCell(headerCell);
+                pdfTable.setHeaderRows(1);
 
-           // Set the cell to span all columns in the table
-           headerCell.setColspan(pdfTable.getNumberOfColumns());
-
-           // Add the header cell to the table
-           pdfTable.addCell(headerCell);
-
-           //Mark the header row so that it repeats on each page 
-           pdfTable.setHeaderRows(1);
-
-
-
-            // Add table headers
-            for (int i = 0; i < numColumns; i++) {
-                pdfTable.addCell(new PdfPCell(new Phrase(recordsTable.getColumnName(i))));
-            }
-
-            // Add all rows from the table
-            for (int rowIndex = 0; rowIndex < recordsTable.getRowCount(); rowIndex++) {
-                // Convert the view index to the model index 
-                int modelRow = recordsTable.convertRowIndexToModel(rowIndex);
-                
-                for (int col = 0; col < numColumns; col++) {
-                    Object cellValue = recordsTable.getModel().getValueAt(modelRow, col);
-                    pdfTable.addCell(new PdfPCell(new Phrase(cellValue != null ? cellValue.toString() : "")));
+                // Add table headers
+                for (int i = 0; i < numColumns; i++) {
+                    pdfTable.addCell(new PdfPCell(new Phrase(recordsTable.getColumnName(i))));
                 }
-            }
 
-            document.add(pdfTable);
-            document.close();
-            showMessage("PDF exported successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            
-        } catch (DocumentException | java.io.FileNotFoundException ex) {
-            ex.printStackTrace();
-            showMessage("Error exporting PDF: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                // Add all rows from the table
+                for (int rowIndex = 0; rowIndex < recordsTable.getRowCount(); rowIndex++) {
+                    int modelRow = recordsTable.convertRowIndexToModel(rowIndex);
+                    for (int col = 0; col < numColumns; col++) {
+                        Object cellValue = recordsTable.getModel().getValueAt(modelRow, col);
+                        pdfTable.addCell(new PdfPCell(new Phrase(cellValue != null ? cellValue.toString() : "")));
+                    }
+                }
+
+                document.add(pdfTable);
+                document.close();
+                showMessage("PDF exported successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (DocumentException | java.io.FileNotFoundException ex) {
+                ex.printStackTrace();
+                showMessage("Error exporting PDF: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
-}
+
     private void deleteSelectedStudent() {
         int selectedRow = recordsTable.getSelectedRow();
         if (selectedRow == -1) {
-            // Custom "no selection" notification
-            JPanel panel = new JPanel(new BorderLayout());
-            panel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
-            panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-            JLabel message = new JLabel("Please select a student to delete");
-            message.setFont(oldTimeyMode ? typewriterFont : modernFont);
-            message.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
-            message.setHorizontalAlignment(SwingConstants.CENTER);
-            panel.add(message, BorderLayout.CENTER);
-
-            JButton okButton = oldTimeyMode ?
-                    createTypewriterButton("OK") :
-                    createModernButton("OK");
-            okButton.addActionListener(e -> {
-                Window window = SwingUtilities.getWindowAncestor(panel);
-                if (window != null) window.dispose();
-            });
-
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
-            buttonPanel.add(okButton);
-            panel.add(buttonPanel, BorderLayout.SOUTH);
-
-            JDialog dialog = new JDialog(this, "No Selection", true);
-            dialog.setContentPane(panel);
-            dialog.pack();
-            dialog.setLocationRelativeTo(this);
-            dialog.setVisible(true);
+            showMessage("Please select a student to delete", "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -658,9 +549,7 @@ public class AttendanceDashboard extends JFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         buttonPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
 
-        JButton yesButton = oldTimeyMode ?
-                createTypewriterButton("Yes") :
-                createModernButton("Yes");
+        JButton yesButton = oldTimeyMode ? createTypewriterButton("Yes") : createModernButton("Yes");
         yesButton.addActionListener(e -> {
             Window window = SwingUtilities.getWindowAncestor(confirmPanel);
             if (window != null) window.dispose();
@@ -669,12 +558,9 @@ public class AttendanceDashboard extends JFrame {
             String studentId = ((DefaultTableModel)recordsTable.getModel())
                     .getValueAt(selectedRow, 1).toString();
             deleteStudentFromDatabase(this.classId, studentId);
-
         });
 
-        JButton noButton = oldTimeyMode ?
-                createTypewriterButton("No") :
-                createModernButton("No");
+        JButton noButton = oldTimeyMode ? createTypewriterButton("No") : createModernButton("No");
         noButton.addActionListener(e -> {
             Window window = SwingUtilities.getWindowAncestor(confirmPanel);
             if (window != null) window.dispose();
@@ -691,7 +577,6 @@ public class AttendanceDashboard extends JFrame {
         confirmDialog.pack();
         confirmDialog.setLocationRelativeTo(this);
         confirmDialog.setVisible(true);
-
     }
 
     private void deleteStudentFromDatabase(int classId, String studentId) {
@@ -723,69 +608,289 @@ public class AttendanceDashboard extends JFrame {
 
                 SwingUtilities.invokeLater(() -> {
                     if ("success".equalsIgnoreCase(json.optString("status"))) {
-                        // Create custom notification panel
-                        JPanel panel = new JPanel(new BorderLayout());
-                        panel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
-                        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-                        // Create message label
-                        JLabel message = new JLabel("Class deleted successfully");
-                        message.setFont(oldTimeyMode ? typewriterFont : modernFont);
-                        message.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
-                        message.setHorizontalAlignment(SwingConstants.CENTER);
-                        panel.add(message, BorderLayout.CENTER);
-
-                        // Create OK button
-                        JButton okButton = oldTimeyMode ?
-                                createTypewriterButton("OK") :
-                                createModernButton("OK");
-                        okButton.addActionListener(e -> {
-                            Window window = SwingUtilities.getWindowAncestor(panel);
-                            if (window != null) {
-                                window.dispose();
-                            }
-                        });
-
-                        JPanel buttonPanel = new JPanel();
-                        buttonPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
-                        buttonPanel.add(okButton);
-                        panel.add(buttonPanel, BorderLayout.SOUTH);
-
-                        // Create and show custom dialog
-                        JDialog dialog = new JDialog(this, "Success", true);
-                        dialog.setContentPane(panel);
-                        dialog.pack();
-                        dialog.setLocationRelativeTo(this);
-                        dialog.setVisible(true);
-
+                        showMessage("Student deleted successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                         loadAttendanceRecordsByClass();
                     } else {
-                        // Error handling
-                        JOptionPane.showMessageDialog(this,
-                                "Error: " + json.optString("message"),
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        showMessage("Error: " + json.optString("message"), "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 });
             } catch (Exception e) {
                 e.printStackTrace();
                 SwingUtilities.invokeLater(() -> {
-                    JOptionPane.showMessageDialog(this,
-                            "Error deleting student: " + e.getMessage(),
-                            "Error", JOptionPane.ERROR_MESSAGE);
+                    showMessage("Error deleting student: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 });
             }
         }).start();
     }
 
     private void addNewStudent() {
+        JDialog dialog = new JDialog(this, "Add New Student", true);
+        dialog.setSize(400, 250);
+        dialog.setLocationRelativeTo(this);
 
+        // Use GridBagLayout for more control
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        contentPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 8, 8, 8);  // spacing between components
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Student ID
+        JLabel idLabel = new JLabel("Student ID:");
+        idLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        idLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0.3;
+        contentPanel.add(idLabel, gbc);
+
+        JTextField idField = new JTextField(20);
+        idField.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        idField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        idField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
+        idField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 0.7;
+        contentPanel.add(idField, gbc);
+
+        // Student Name
+        JLabel nameLabel = new JLabel("Student Name:");
+        nameLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        nameLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0.3;
+        contentPanel.add(nameLabel, gbc);
+
+        JTextField nameField = new JTextField(20);
+        nameField.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        nameField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        nameField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
+        nameField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.weightx = 0.7;
+        contentPanel.add(nameField, gbc);
+
+        // Add button
+        JButton addButton = oldTimeyMode ? createTypewriterButton("Add") : createModernButton("Add");
+        addButton.setPreferredSize(new Dimension(150, 40));
+        addButton.addActionListener(e -> {
+            String studentId = idField.getText().trim();
+            String studentName = nameField.getText().trim();
+
+            if (studentId.isEmpty() || studentName.isEmpty()) {
+                showMessage("Please fill in both Student ID and Name.", "Incomplete Form", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            addStudentToDatabase(studentId, studentName);
+            dialog.dispose();
+        });
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        contentPanel.add(addButton, gbc);
+
+        dialog.add(contentPanel);
+        dialog.setVisible(true);
+    }
+
+    private void addStudentToDatabase(String studentId, String studentName) {
+        new Thread(() -> {
+            try {
+                String urlString = "http://cm8tes.com/addStudent.php";
+                String urlParameters = "class_id=" + classId +
+                        "&studentId=" + URLEncoder.encode(studentId, "UTF-8") +
+                        "&name=" + URLEncoder.encode(studentName, "UTF-8");
+
+                URI uri = new URI(urlString);
+                URL url = uri.toURL();
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+
+                try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
+                    out.writeBytes(urlParameters);
+                }
+
+                // Read response
+                StringBuilder responseBuilder = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        responseBuilder.append(inputLine);
+                    }
+                }
+                final String response = responseBuilder.toString();
+                final JSONObject json = new JSONObject(response);
+
+                SwingUtilities.invokeLater(() -> {
+                    if ("success".equalsIgnoreCase(json.optString("status"))) {
+                        showMessage("Student added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        loadAttendanceRecordsByClass();
+                    } else {
+                        showMessage("Error: " + json.optString("message"), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                SwingUtilities.invokeLater(() -> {
+                    showMessage("Error adding student: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                });
+            }
+        }).start();
     }
 
     private void editSelectedStudent() {
+        int selectedRow = recordsTable.getSelectedRow();
+        if (selectedRow == -1) {
+            showMessage("Please select a student from the table.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
+        DefaultTableModel model = (DefaultTableModel) recordsTable.getModel();
+        String studentId = model.getValueAt(selectedRow, 1).toString();
+        String currentName = model.getValueAt(selectedRow, 2).toString();
+
+        showEditStudentDialog(studentId, currentName);
+    }
+
+    private void showEditStudentDialog(String studentId, String currentName) {
+        JDialog dialog = new JDialog(this, "Edit Student", true);
+        dialog.setSize(400, 250);
+        dialog.setLocationRelativeTo(this);
+        dialog.getContentPane().setBackground(oldTimeyMode ? parchmentColor : modernBackground);
+
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+        contentPanel.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Student ID (display only)
+        JLabel idLabel = new JLabel("Student ID:");
+        idLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        idLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0.3;
+        contentPanel.add(idLabel, gbc);
+
+        JLabel idValueLabel = new JLabel(studentId);
+        idValueLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        idValueLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 0.7;
+        contentPanel.add(idValueLabel, gbc);
+
+        // Student Name
+        JLabel nameLabel = new JLabel("Student Name:");
+        nameLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        nameLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0.3;
+        contentPanel.add(nameLabel, gbc);
+
+        JTextField nameField = new JTextField(currentName, 20);
+        nameField.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        nameField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        nameField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
+        nameField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.weightx = 0.7;
+        contentPanel.add(nameField, gbc);
+
+        // Update button
+        JButton updateButton = oldTimeyMode ? createTypewriterButton("Update") : createModernButton("Update");
+        updateButton.setPreferredSize(new Dimension(150, 40));
+        updateButton.addActionListener(e -> {
+            String newName = nameField.getText().trim();
+
+            if (newName.isEmpty()) {
+                showMessage("Please enter a student name.", "Incomplete Form", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            updateStudentInDatabase(studentId, newName);
+            dialog.dispose();
+        });
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        contentPanel.add(updateButton, gbc);
+
+        dialog.add(contentPanel);
+        dialog.setVisible(true);
+    }
+
+    private void updateStudentInDatabase(String studentId, String newName) {
+        new Thread(() -> {
+            try {
+                String urlString = "http://cm8tes.com/updateStudent.php";
+                String urlParameters = "class_id=" + classId +
+                        "&studentId=" + URLEncoder.encode(studentId, "UTF-8") +
+                        "&name=" + URLEncoder.encode(newName, "UTF-8");
+
+                URI uri = new URI(urlString);
+                URL url = uri.toURL();
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+
+                try (DataOutputStream out = new DataOutputStream(conn.getOutputStream())) {
+                    out.writeBytes(urlParameters);
+                }
+
+                // Read response
+                StringBuilder responseBuilder = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        responseBuilder.append(inputLine);
+                    }
+                }
+                final String response = responseBuilder.toString();
+                final JSONObject json = new JSONObject(response);
+
+                SwingUtilities.invokeLater(() -> {
+                    if ("success".equalsIgnoreCase(json.optString("status"))) {
+                        showMessage("Student updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        loadAttendanceRecordsByClass();
+                    } else {
+                        showMessage("Error: " + json.optString("message"), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                SwingUtilities.invokeLater(() -> {
+                    showMessage("Error updating student: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                });
+            }
+        }).start();
+    }
+
+    private JButton createModernButton(String text) {
+        ClassDashboard.FancyHoverButton button = new ClassDashboard.FancyHoverButton(text);
+        button.setFont(modernFont);
+        button.setForeground(Color.WHITE);
+        button.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+        return button;
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new AttendanceDashboard(1,"abc", "007",true).setVisible(true));
+        SwingUtilities.invokeLater(() -> new AttendanceDashboard(1, "Test Class", "007", false).setVisible(true));
     }
 }
