@@ -28,6 +28,8 @@ public class ClassDashboard extends JFrame {
     private Professor professor;
     private JTable classesTable;
     private boolean oldTimeyMode;
+    private JTextField searchField;
+    private TableRowSorter<TableModel> rowSorter;
 
     // Old-timey style properties
     private Color typewriterInk = new Color(50, 40, 30);
@@ -237,6 +239,31 @@ public class ClassDashboard extends JFrame {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setBackground(Color.WHITE);
+        
+        // Create a search panel with a label and a text field
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        searchPanel.add(new JLabel("Search: "));
+        searchField = new JTextField(20);
+        searchPanel.add(searchField);
+        
+        // Add a listener to the search field to filter table data
+        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                updateFilter();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                updateFilter();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                updateFilter();
+            }
+        });
+    
 
         // Add Class button
         form.FancyHoverButton addButton = new form.FancyHoverButton("Add");
@@ -274,14 +301,37 @@ public class ClassDashboard extends JFrame {
             }
         });
         buttonPanel.add(viewAttendanceBtn);
+        
+        // Create a container panel for both search and buttons
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BorderLayout());
+        bottomPanel.setBackground(Color.WHITE);
+
+       //Put search on top (right-aligned), buttons on bottom (centered)
+        bottomPanel.add(searchPanel, BorderLayout.NORTH);
+        bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+       //add bottomPanel to SOUTH once
+       mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
 
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
 
         getContentPane().add(mainPanel);
         loadClassesForProfessor();
+    }
+    
+    private void updateFilter() {
+        String text = searchField.getText();
+        if (rowSorter != null) {
+            if (text.trim().length() == 0) {
+                rowSorter.setRowFilter(null);
+            } else {
+                rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+            }
+        }
     }
 
     private void viewAttendanceForSelectedClass() {
@@ -1192,6 +1242,8 @@ public class ClassDashboard extends JFrame {
             for (int i = 0; i < classesTable.getColumnCount(); i++) {
                 classesTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
             }
+            rowSorter = new TableRowSorter<>(model);
+            classesTable.setRowSorter(rowSorter);
 
         } catch (Exception ex) {
             ex.printStackTrace();
