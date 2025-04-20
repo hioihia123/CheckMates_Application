@@ -83,7 +83,8 @@ public class ChatDialog extends JDialog {
         protected void done() {
             try {
                 String summary = get();
-                appendChat("Saki (All‑Classes Summary):\n" + summary);
+                appendChat("Saki (All‑Classes Summary):\n");
+                displayWithTypingEffect(summary);
             } catch (Exception ex) {
                 appendChat("Saki: [Error fetching summary]");
             }
@@ -108,7 +109,8 @@ public class ChatDialog extends JDialog {
                protected void done() {
                  try {
                      String summary = get();
-                     appendChat("Saki (Tips on classes summary):\n" + summary);
+                     appendChat("Saki (Tips on classes summary):\n");
+                     displayWithTypingEffect(summary);
                  } catch (Exception ex) {
                      appendChat("Saki: [Error fetching tips]");
                  }
@@ -218,6 +220,37 @@ public class ChatDialog extends JDialog {
         };
         worker.execute();
     }
+    
+    private void displayWithTypingEffect(String fullText) {
+        // Disable input while “typing”
+        sendButton.setEnabled(false);
+        inputField.setEnabled(false);
+
+        // Prefix “Saki: ” and then the real content
+        chatArea.append("Saki: ");
+        chatArea.setCaretPosition(chatArea.getDocument().getLength());
+        
+        final char[] chars = fullText.toCharArray();
+        final int delayMs = 20;                // adjust for speed
+        final int[] idx = { 0 };
+
+        Timer timer = new Timer(delayMs, null);
+        timer.addActionListener(e -> {
+            // append next character
+            chatArea.append(String.valueOf(chars[idx[0]++]));
+            chatArea.setCaretPosition(chatArea.getDocument().getLength());
+
+            if (idx[0] >= chars.length) {
+                timer.stop();
+                chatArea.append("\n\n");
+                // re‑enable input
+                sendButton.setEnabled(true);
+                inputField.setEnabled(true);
+                inputField.requestFocusInWindow();
+            }
+        });
+        timer.start();
+    }
 
     // Process input text and send to ChatProcess along with the selected class_id and its context string
     private void processInput() {
@@ -240,13 +273,12 @@ public class ChatDialog extends JDialog {
 
             @Override
             protected void done() {
-                try {
-                    String response = get();
-                    appendChat("Saki: " + response);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    appendChat("Saki: [Error processing message]");
-                }
+                 try {
+                  String response = get();
+                  displayWithTypingEffect(response);
+                } catch (Exception ex) {
+                  appendChat("Saki: [Error processing message]");
+                 }
             }
         };
         worker.execute();

@@ -154,6 +154,8 @@ public class ChatProcess {
             JSONObject systemMessage = new JSONObject();
             systemMessage.put("role", "system");
             systemMessage.put("content", "Your name is Saki. You are an AI assistant for CheckMates attendance applications that answers questions about class attendance. "
+                    + "Whenever you reply, please include appropriate emojis (😀,😃,😄,😁,😆,😅,😂,🤣,😊,😇,🙂,🙃,😉,😌,😍,🥰,😘,😗,😙,😚,🤪,😜,😝,😛,🤑,🤗,🤭,🤫,🤔,🤐,😐,😑,😶,😏,😒,🙄,😬,🤥,😌,😔,😪,😴,😷,🤒,🤕,🤢,🤮,🥵,🥶,😵‍💫,😵,🥴,🤯,🤠,🥳,😎,🤓,🧐,😕,😟,🙁,☹️,😮,😯,😲,😳,🥺,😦,😧,😨,😰,😥,😢,😭,😱,😖,😣,😞,😓,😩,😫,🥱,😤,😡,😠,🤬,😈,👿,💀,👻,👽,🤖,🎃,😺,😸,😹,😻,😼,😽,🙀,😿,😾,👋,🤚,🖐️,✋,🖖,👌,🤌,🤏,✌️,🤞,🫰,🤟,🤘,🤙,👈,👉,👆,🖕,👇,☝️,👍,👎,✊,👊,🤛,🤜,👏,🙌,🫶,👐,🤲,🙏,✍️,💅,🤳,💪,🦾,🦿,🦵,🦶,👂,🦻,👃,🧠,🫀,🫁,🦷,🦴,👀,👁️,👅,👄,🫦,💋,👶,🧒,👦,👧,🧑,👱,👨,👩,🧔‍,🧔‍,👨‍🦰,👩‍🦰,👨‍🦱,👩‍🦱,👨‍🦳,👩‍🦳,👨‍🦲,👩‍🦲,🧓,👴,👵,🙍‍,🙍‍,🙎‍,🙎‍,🙅‍,🙅‍,"
+                    + "🙆,🙆‍,💁‍,💁‍,🙋‍,🙋,🧏‍,🧏‍,🙇‍,🙇‍,🤦‍,🤦,🤷‍) to make your answers more friendly and expressive according to the users' requests."
                     + "You can answer anything about CheckMates application.CheckMates application has Create Class, Records and Saki ( which is you )"
                     + "Create Class button is to create class as a one instance that create  the QR code and 4 random passcodes that lead students to check in website where they can type in their student id, name, passcode and date. Students must type in correct passcodes in order for their submission to be save in the database. Please show the students the generated passcode"
                     + "Records button is to view created class attendance, each created class is as one instance, the class that user created will not be save as a permanent instance but rather a one instance that user can delete, edit and view the checked in students of each created class, where user can do the same operations as View Class (add,edit,delete,refresh)"
@@ -189,7 +191,7 @@ public class ChatProcess {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer AAAA")
+                    .header("Authorization", "Bearer OH SAYYYYYY CANNNN YOU SEEEEE")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                     .build();
 
