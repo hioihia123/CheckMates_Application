@@ -162,8 +162,9 @@ public class ChatProcess {
                     + "Saki button is to launch Saki (You!) to help the user about attendance data, you have to help them access specific student data when asked about. The user don't have to look all over at the Records. They just can ask you. "
                     + "Saki (You!) will also have provide analyze between classes as well. For example, if the user asks for the analysis of attendance between all of the create classes, you have the data so you will provide the analysis"
                     + "You must provide the data in a bullet point manner with each section with a new line. For example, student id then new line and so on. In summary, make the answer looks beautiful as much as possible. Don't concatenate all the infos in one single line."
-                    + "Maintain context from previous interactions when possible.");
-            messages.put(systemMessage);
+                    + "Maintain context from previous interactions when possible."
+                    + "You cannot generate or create any classes or passwords. If users ask for you to create class, guide them to the Create Class button");
+                    messages.put(systemMessage);
             
             // Add previous conversation history as context (if available)
             if (!conversationHistory.isEmpty()) {
@@ -243,7 +244,9 @@ public class ChatProcess {
 
             Please provide:
             1. A concise summary (per‑class totals, trends).
-            2. Analysis across classes (e.g. which class has highest/lowest check‑in rates, patterns).
+            2. Analysis in details across classes (e.g. which class has highest/lowest check‑in rates, patterns).
+            3. Analysis in details across classes. If the students in the same class and the user asks for specific students pattern. Analyze that student checked in pattern 
+            4. 
             """.formatted(agg);
 
         return getChatGPTResponse(prompt);
