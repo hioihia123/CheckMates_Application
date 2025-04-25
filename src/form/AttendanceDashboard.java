@@ -490,7 +490,7 @@ public class AttendanceDashboard extends JFrame {
             try {
                 // Create a new document and writer
                 Document document = new Document();
-                PdfWriter.getInstance(document, new FileOutputStream(fileToSave));
+                PdfWriter.getInstance(document, new FileOutputStream(fileToSave+".pdf"));//+".pdf" to automatically make it download as a pdf
                 document.open();
 
                 // Create a table with the same number of columns as the JTable
