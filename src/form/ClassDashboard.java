@@ -582,7 +582,7 @@ public class ClassDashboard extends JFrame {
 
     private void showEditDialog(int classId, String currentClassName, String currentSection, String expiresAt) {
         JDialog dialog = new JDialog(this, "Edit Class", true);
-        dialog.setSize(600, 350);
+        dialog.setSize(600, 400); // Increased height to accommodate new field
         dialog.setLocationRelativeTo(this);
         dialog.getContentPane().setBackground(oldTimeyMode ? parchmentColor : modernBackground);
 
@@ -633,22 +633,42 @@ public class ClassDashboard extends JFrame {
         gbc.weightx = 0.7;
         contentPanel.add(sectionField, gbc);
 
-        // Expiration (display only)
-        JLabel expirationLabel = new JLabel("Current Expiration:");
-        expirationLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
-        expirationLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        // Current Expiration (display only)
+        JLabel currentExpirationLabel = new JLabel("Current Expiration:");
+        currentExpirationLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        currentExpirationLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.weightx = 0.3;
-        contentPanel.add(expirationLabel, gbc);
+        contentPanel.add(currentExpirationLabel, gbc);
 
-        JLabel expirationValueLabel = new JLabel(expiresAt);
-        expirationValueLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
-        expirationValueLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        JLabel currentExpirationValueLabel = new JLabel(expiresAt);
+        currentExpirationValueLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        currentExpirationValueLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.weightx = 0.7;
-        contentPanel.add(expirationValueLabel, gbc);
+        contentPanel.add(currentExpirationValueLabel, gbc);
+
+        // New Expiration Time
+        JLabel newExpirationLabel = new JLabel("New Expiration (minutes):");
+        newExpirationLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        newExpirationLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.weightx = 0.3;
+        contentPanel.add(newExpirationLabel, gbc);
+
+        JTextField newExpirationField = new JTextField("60", 40);
+        newExpirationField.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        newExpirationField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        newExpirationField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
+        newExpirationField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
+        newExpirationField.setPreferredSize(new Dimension(350, 30));
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.weightx = 0.7;
+        contentPanel.add(newExpirationField, gbc);
 
         // Update button
         JButton updateButton = oldTimeyMode ? createTypewriterButton("Update") : createModernButton("Update");
@@ -656,6 +676,7 @@ public class ClassDashboard extends JFrame {
         updateButton.addActionListener(e -> {
             String newClassName = classNameField.getText().trim();
             String newSection = sectionField.getText().trim();
+            String expirationText = newExpirationField.getText().trim();
 
             if (newClassName.isEmpty() || newSection.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog,
@@ -664,12 +685,27 @@ public class ClassDashboard extends JFrame {
                 return;
             }
 
-            updateClassInDatabase(classId, newClassName, newSection);
+            int expirationMinutes = 60; // default
+            try {
+                if (!expirationText.isEmpty()) {
+                    expirationMinutes = Integer.parseInt(expirationText);
+                    if (expirationMinutes <= 0) {
+                        throw new NumberFormatException();
+                    }
+                }
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Expiration must be a positive number (minutes). Using default of 60 minutes.",
+                        "Invalid Input", JOptionPane.WARNING_MESSAGE);
+                expirationMinutes = 60;
+            }
+
+            updateClassInDatabase(classId, newClassName, newSection, expirationMinutes);
             dialog.dispose();
         });
 
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
@@ -679,14 +715,15 @@ public class ClassDashboard extends JFrame {
         dialog.setVisible(true);
     }
 
-    private void updateClassInDatabase(int classId, String newClassName, String newSection) {
+    private void updateClassInDatabase(int classId, String newClassName, String newSection, int expirationMinutes) {
         new Thread(() -> {
             try {
                 String urlString = "http://cm8tes.com/updateClass.php";
                 String urlParameters = "class_id=" + classId +
                         "&professor_id=" + URLEncoder.encode(professor.getProfessorID(), "UTF-8") +
                         "&class=" + URLEncoder.encode(newClassName, "UTF-8") +
-                        "&section=" + URLEncoder.encode(newSection, "UTF-8");
+                        "&section=" + URLEncoder.encode(newSection, "UTF-8") +
+                        "&expiration=" + expirationMinutes;
 
                 URI uri = new URI(urlString);
                 URL url = uri.toURL();
@@ -711,41 +748,8 @@ public class ClassDashboard extends JFrame {
 
                 SwingUtilities.invokeLater(() -> {
                     if ("success".equalsIgnoreCase(json.optString("status"))) {
-                        // Create custom notification panel
-                        JPanel panel = new JPanel(new BorderLayout());
-                        panel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
-                        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-                        // Create message label
-                        JLabel message = new JLabel("Class updated successfully");
-                        message.setFont(oldTimeyMode ? typewriterFont : modernFont);
-                        message.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
-                        message.setHorizontalAlignment(SwingConstants.CENTER);
-                        panel.add(message, BorderLayout.CENTER);
-
-                        // Create OK button
-                        JButton okButton = oldTimeyMode ?
-                                createTypewriterButton("OK") :
-                                createModernButton("OK");
-                        okButton.addActionListener(e -> {
-                            Window window = SwingUtilities.getWindowAncestor(panel);
-                            if (window != null) {
-                                window.dispose();
-                            }
-                        });
-
-                        JPanel buttonPanel = new JPanel();
-                        buttonPanel.setBackground(oldTimeyMode ? parchmentColor : Color.WHITE);
-                        buttonPanel.add(okButton);
-                        panel.add(buttonPanel, BorderLayout.SOUTH);
-
-                        // Create and show custom dialog
-                        JDialog dialog = new JDialog(this, "Success", true);
-                        dialog.setContentPane(panel);
-                        dialog.pack();
-                        dialog.setLocationRelativeTo(this);
-                        dialog.setVisible(true);
-
+                        // Success message and reload
+                        showMessage("Class updated successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                         loadClassesForProfessor();
                     } else {
                         // Error handling
