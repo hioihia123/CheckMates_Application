@@ -53,7 +53,8 @@ public class ChatProcess {
             String attendanceData = getAttendanceSummary(class_id);
             String prompt = "For class " + classContext + ", here is the attendance data:\n" 
                             + attendanceData +
-                            "\nNow answer the following question: " + message;
+                            "\nNow answer the following question: " + message
+                            +"Give detailed analysis of class " + classContext;
             String response = getChatGPTResponse(prompt);
             conversationHistory.add("Saki: " + response);
             return response;
@@ -146,7 +147,7 @@ public class ChatProcess {
             
             // Build the JSON payload using org.json
             JSONObject payload = new JSONObject();
-            payload.put("model", "gpt-3.5-turbo");
+            payload.put("model", "gpt-4-0125-preview");
             
             JSONArray messages = new JSONArray();
             
@@ -192,7 +193,7 @@ public class ChatProcess {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer OH SAYYYYYY CANNNN YOU SEEEEE")
+                    .header("Authorization", "Bearer API")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                     .build();
 
@@ -244,9 +245,8 @@ public class ChatProcess {
 
             Please provide:
             1. A concise summary (per‑class totals, trends).
-            2. Analysis in details across classes (e.g. which class has highest/lowest check‑in rates, patterns).
-            3. Analysis in details across classes. If the students in the same class and the user asks for specific students pattern. Analyze that student checked in pattern 
-            4. 
+            2. Analysis in details across classes (give the total checks in of each class in details, analyze the patterns in details, if the same class name, section and time, analyze as one).
+            
             """.formatted(agg);
 
         return getChatGPTResponse(prompt);
