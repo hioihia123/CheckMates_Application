@@ -262,11 +262,11 @@ chkTerms.addActionListener(new ActionListener() {
         }
         in.close();
 
-        // Optionally, you can parse the JSON response here using a JSON library
+        // Optionally, parse the JSON response here using a JSON library
         return response.toString();
     }
 
-    // For testing, you can run this class directly
+    // For testing, run this class directly
     public static void main(String[] args) {
         new SignUp().setVisible(true);
     }
