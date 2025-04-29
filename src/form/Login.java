@@ -74,13 +74,13 @@ public class Login extends javax.swing.JFrame {
             }
         };
 
-        // Set a layout for your custom panel
+        // Set a layout for custom panel
         backgroundPanel.setLayout(null); // or any other layout
 
         // 3) Make this custom panel the frame's content pane
         setContentPane(backgroundPanel);
 
-        // 4) Now call the auto-generated initComponents() to add your UI elements
+        // 4) Now call the auto-generated initComponents() to add UI elements
         initComponents();
 
         // 5) Then call custom styling
@@ -111,7 +111,7 @@ public void paint(Graphics g) {
     g2.setColor(Color.WHITE);
     g2.fillRect(0, 0, getWidth(), getHeight());
 
-    // 2) Then draw your round rectangle (if you want)
+    // 2) Then draw  round rectangle 
     g2.setColor(Color.WHITE); // or any other color
     g2.fillRoundRect(20, 20, getWidth() - 40, getHeight() - 40, 50, 50);
 }
