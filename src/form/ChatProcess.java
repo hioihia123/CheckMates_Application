@@ -53,7 +53,8 @@ public class ChatProcess {
             String attendanceData = getAttendanceSummary(class_id);
             String prompt = "For class " + classContext + ", here is the attendance data:\n" 
                             + attendanceData +
-                            "\nNow answer the following question: " + message;
+                            "\nNow answer the following question: " + message
+                            +"Give detailed analysis of class " + classContext;
             String response = getChatGPTResponse(prompt);
             conversationHistory.add("Saki: " + response);
             return response;
@@ -146,7 +147,7 @@ public class ChatProcess {
             
             // Build the JSON payload using org.json
             JSONObject payload = new JSONObject();
-            payload.put("model", "gpt-3.5-turbo");
+            payload.put("model", "gpt-4-0125-preview");
             
             JSONArray messages = new JSONArray();
             
@@ -162,8 +163,9 @@ public class ChatProcess {
                     + "Saki button is to launch Saki (You!) to help the user about attendance data, you have to help them access specific student data when asked about. The user don't have to look all over at the Records. They just can ask you. "
                     + "Saki (You!) will also have provide analyze between classes as well. For example, if the user asks for the analysis of attendance between all of the create classes, you have the data so you will provide the analysis"
                     + "You must provide the data in a bullet point manner with each section with a new line. For example, student id then new line and so on. In summary, make the answer looks beautiful as much as possible. Don't concatenate all the infos in one single line."
-                    + "Maintain context from previous interactions when possible.");
-            messages.put(systemMessage);
+                    + "Maintain context from previous interactions when possible."
+                    + "You cannot generate or create any classes or passwords. If users ask for you to create class, guide them to the Create Class button");
+                    messages.put(systemMessage);
             
             // Add previous conversation history as context (if available)
             if (!conversationHistory.isEmpty()) {
@@ -191,7 +193,7 @@ public class ChatProcess {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://api.openai.com/v1/chat/completions"))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer OH SAYYYYYY CANNNN YOU SEEEEE")
+                    .header("Authorization", "Bearer API")
                     .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                     .build();
 
@@ -243,7 +245,8 @@ public class ChatProcess {
 
             Please provide:
             1. A concise summary (per‑class totals, trends).
-            2. Analysis across classes (e.g. which class has highest/lowest check‑in rates, patterns).
+            2. Analysis in details across classes (give the total checks in of each class in details, analyze the patterns in details, if the same class name, section and time, analyze as one).
+            
             """.formatted(agg);
 
         return getChatGPTResponse(prompt);

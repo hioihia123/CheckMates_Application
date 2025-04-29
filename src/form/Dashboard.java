@@ -69,7 +69,6 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
  *
  * @author nguyenp
  */
-// Import your Professor class. Adjust the package if needed.
 
 public class Dashboard extends javax.swing.JFrame {
 

@@ -38,7 +38,7 @@ class ModernButton extends JButton {
         });
     }
     
-    // No custom painting is needed, we simply use the standard JButton painting
+    // No custom painting is needed,  simply use the standard JButton painting
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);

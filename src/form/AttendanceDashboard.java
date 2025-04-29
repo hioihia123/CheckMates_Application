@@ -181,11 +181,10 @@ public class AttendanceDashboard extends JFrame {
         buttonPanel.setOpaque(false);
         buttonPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, typewriterInk));
 
-        addOldTimeyButton(buttonPanel, "Add Student", e -> addNewStudent());
+        addOldTimeyButton(buttonPanel, "Add", e -> addNewStudent());
         addOldTimeyButton(buttonPanel, "Edit Selected", e -> editSelectedStudent());
         addOldTimeyButton(buttonPanel, "Delete Selected", e -> deleteSelectedStudent());
         addOldTimeyButton(buttonPanel, "Export PDF", e -> exportTableToPDF());
-        addOldTimeyButton(buttonPanel, "Close", e -> dispose());
 
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
@@ -232,7 +231,7 @@ public class AttendanceDashboard extends JFrame {
         buttonPanel.setBackground(Color.WHITE);
 
         // Add Student button
-        form.FancyHoverButton addButton = new form.FancyHoverButton("Add Student");
+        form.FancyHoverButton addButton = new form.FancyHoverButton("Add");
         addButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         addButton.addActionListener(e -> addNewStudent());
         buttonPanel.add(addButton);
@@ -249,15 +248,10 @@ public class AttendanceDashboard extends JFrame {
         deleteButton.addActionListener(e -> deleteSelectedStudent());
         buttonPanel.add(deleteButton);
 
-        form.FancyHoverButton exportButton = new form.FancyHoverButton("Export PDF");
+        FancyHoverButton2 exportButton = new FancyHoverButton2("Export PDF");
         exportButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
         exportButton.addActionListener(e -> exportTableToPDF());
         buttonPanel.add(exportButton);
-
-        form.FancyHoverButton closeButton = new form.FancyHoverButton("Close");
-        closeButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        closeButton.addActionListener(e -> dispose());
-        buttonPanel.add(closeButton);
 
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
