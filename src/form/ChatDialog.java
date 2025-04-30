@@ -308,24 +308,24 @@ public class ChatDialog extends JDialog {
     }
     
     public static void main(String[] args) {
-    // 1) set FlatLaf globally
+    // set FlatLaf globally
     FlatLightLaf.setup();
     
-    // 2) tweak scrollbar to be thin, rounded, no arrows
+    // tweak scrollbar to be thin, rounded, no arrows
     UIManager.put("ScrollBar.width",     6);
     UIManager.put("ScrollBar.thumbArc", 999);
     UIManager.put("ScrollBar.trackArc", 999);
     UIManager.put("ScrollBar.showButtons", false);
 
     Professor professor = new Professor("Dr Smith", "example@123.com", "dsmith");
-    // 3) Prepare the objects that ChatDialog needs:
+    // Prepare the objects that ChatDialog needs:
     //    a) A parent frame 
     JFrame parentFrame = null; // or: new Dashboard();
 
     //    b) A Professor object 
    
 
-    // 4) Launch the dialog on the EDT
+    // Launch the dialog on the EDT
     SwingUtilities.invokeLater(() -> {
       ChatDialog chat = new ChatDialog(parentFrame, professor);
       chat.setVisible(true);
