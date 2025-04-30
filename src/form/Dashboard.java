@@ -234,7 +234,13 @@ public class Dashboard extends javax.swing.JFrame {
         });
         
      
-        
+        FancyHoverButton emailButton = new FancyHoverButton("Email");
+        emailButton.setFont(new Font ("Helvetica Neueu", Font.BOLD, 24));
+        emailButton.setPreferredSize(new Dimension(180,50));
+        emailButton.setMaximumSize(new Dimension(180, 50));
+        emailButton.addActionListener(e -> sendEmail(professor.getProfessorID()));
+      
+        //
 
         // Add spacing before adding the additional button
         additionalButtonsPanel.add(Box.createHorizontalStrut(20)); // 20-pixel space
@@ -247,6 +253,7 @@ public class Dashboard extends javax.swing.JFrame {
         additionalButtonsPanel.add(AIbutton);
         
         additionalButtonsPanel.add(Box.createHorizontalStrut(20));
+        additionalButtonsPanel.add(emailButton);
 
         // Then, add the additionalButtonsPanel to the main button panel that already contains the Create Class button.
         buttonPanel.add(additionalButtonsPanel);
@@ -289,6 +296,46 @@ public class Dashboard extends javax.swing.JFrame {
         repaint();
     }
 
+  private void sendEmail(String professorId){
+      
+    // send HTTP request to  PHP endpoint
+    new Thread(() -> {
+      try {
+        URL url = new URL("https://cm8tes.com/emailAbsentees.php");
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        // include professor_id
+        String params = "professor_id=" + URLEncoder.encode(professorId,"UTF-8");
+
+        try(OutputStream os = conn.getOutputStream()) {
+          os.write(params.getBytes(StandardCharsets.UTF_8));
+        }
+        int code = conn.getResponseCode();
+        if (code==200) {
+          // Optionally read response and show success
+          SwingUtilities.invokeLater(() ->
+            JOptionPane.showMessageDialog(this,
+              "Reminder emails sent!",
+              "Done", JOptionPane.INFORMATION_MESSAGE)
+          );
+        } else {
+          SwingUtilities.invokeLater(() ->
+            JOptionPane.showMessageDialog(this,
+              "Error sending emails: HTTP "+code,
+              "Error", JOptionPane.ERROR_MESSAGE)
+          );
+        }
+      } catch(Exception ex) {
+        SwingUtilities.invokeLater(() ->
+          JOptionPane.showMessageDialog(this,
+            "Failed: "+ex.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE)
+        );
+      }
+    }).start();
+
+  }
     private void openCreateClassDialog() {
         JDialog dialog = new JDialog(this, "Create New Class", true);
         dialog.setSize(400, 250);
