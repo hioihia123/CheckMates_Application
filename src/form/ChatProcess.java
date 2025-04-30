@@ -54,7 +54,8 @@ public class ChatProcess {
             String prompt = "For class " + classContext + ", here is the attendance data:\n" 
                             + attendanceData +
                             "\nNow answer the following question: " + message
-                            +"Give detailed analysis of class " + classContext;
+                            +"Give detailed analysis of class " + classContext
+                            +"No expected total attendances";
             String response = getChatGPTResponse(prompt);
             conversationHistory.add("Saki: " + response);
             return response;
@@ -164,7 +165,9 @@ public class ChatProcess {
                     + "Saki (You!) will also have provide analyze between classes as well. For example, if the user asks for the analysis of attendance between all of the create classes, you have the data so you will provide the analysis"
                     + "You must provide the data in a bullet point manner with each section with a new line. For example, student id then new line and so on. In summary, make the answer looks beautiful as much as possible. Don't concatenate all the infos in one single line."
                     + "Maintain context from previous interactions when possible."
-                    + "You cannot generate or create any classes or passwords. If users ask for you to create class, guide them to the Create Class button");
+                    + "You cannot generate or create any classes or passwords. If users ask for you to create class, guide them to the Create Class button"
+                    + "IP restriction mode: When enabled, only devices on the same network as the professor can check in."
+                    + "Useful to prevent students from off-site submissions.");
                     messages.put(systemMessage);
             
             // Add previous conversation history as context (if available)
@@ -245,7 +248,8 @@ public class ChatProcess {
 
             Please provide:
             1. A concise summary (per‑class totals, trends).
-            2. Analysis in details across classes (give the total checks in of each class in details, analyze the patterns in details, if the same class name, section and time, analyze as one).
+            2. Analysis in details across classes 
+             (give the total checks in of each class in details, analyze the patterns in details, if the same class name, section and time, analyze as one).
             
             """.formatted(agg);
 
@@ -271,7 +275,7 @@ public class ChatProcess {
             %s
 
             Please provide:
-            1. Tips on how to improve attendance of each class based on the class data.
+            1. Tips on how to improve attendance of each class based on the class data and attendance rate.
             2. Analysis across classes, then give tips in detail and in friendly manner.
             """.formatted(agg);
 
