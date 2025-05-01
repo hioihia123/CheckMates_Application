@@ -312,20 +312,45 @@ public class Dashboard extends javax.swing.JFrame {
           os.write(params.getBytes(StandardCharsets.UTF_8));
         }
         int code = conn.getResponseCode();
-        if (code==200) {
-          // Optionally read response and show success
-          SwingUtilities.invokeLater(() ->
-            JOptionPane.showMessageDialog(this,
-              "Reminder emails sent!",
-              "Done", JOptionPane.INFORMATION_MESSAGE)
-          );
-        } else {
-          SwingUtilities.invokeLater(() ->
-            JOptionPane.showMessageDialog(this,
-              "Error sending emails: HTTP "+code,
-              "Error", JOptionPane.ERROR_MESSAGE)
-          );
-        }
+        
+    if (code == 200) {
+        SwingUtilities.invokeLater(() -> {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createEmptyBorder(15,15,15,15));
+
+        String html = "<html>Reminder email sent successfully<br/></html>";
+        JLabel message = new JLabel(html, SwingConstants.CENTER);
+        message.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        panel.add(message, BorderLayout.CENTER);
+
+        FancyHoverButton ok = new FancyHoverButton("OK");
+        ok.addActionListener(e ->
+            SwingUtilities.getWindowAncestor(panel).dispose()
+        );        
+
+        JPanel btnPanel = new JPanel();
+        btnPanel.setBackground(Color.WHITE);
+        btnPanel.add(ok);
+        panel.add(btnPanel, BorderLayout.SOUTH);
+
+        JDialog dlg = new JDialog(Dashboard.this, "Success", true);
+        dlg.setContentPane(panel);
+        dlg.pack();
+        dlg.setLocationRelativeTo(Dashboard.this);
+        dlg.setVisible(true);
+    });
+} else {
+    SwingUtilities.invokeLater(() ->
+        JOptionPane.showMessageDialog(
+            Dashboard.this,
+            "Error sending emails: HTTP " + code,
+            "Error",
+            JOptionPane.ERROR_MESSAGE
+        )
+    );
+}
+
       } catch(Exception ex) {
         SwingUtilities.invokeLater(() ->
           JOptionPane.showMessageDialog(this,
