@@ -234,7 +234,7 @@ public class Dashboard extends javax.swing.JFrame {
         });
         
      
-        FancyHoverButton emailButton = new FancyHoverButton("Email");
+        FancyHoverButton emailButton = new FancyHoverButton("Notify");
         emailButton.setFont(new Font ("Helvetica Neueu", Font.BOLD, 24));
         emailButton.setPreferredSize(new Dimension(180,50));
         emailButton.setMaximumSize(new Dimension(180, 50));
