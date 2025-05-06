@@ -10,54 +10,24 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
-
-
-
-
 import com.formdev.flatlaf.FlatLightLaf;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
-
 import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.Dimension;
-
-
 import javax.swing.UIManager;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.UIManager;
 import javax.swing.JTextField;
-import javax.swing.JButton;
-
-import javax.imageio.ImageIO;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONObject; // Make sure to include a JSON library
-import java.net.NetworkInterface;
-import java.net.InetAddress;
-import java.net.Inet6Address;
-import java.net.Inet4Address;
-import java.net.SocketException;
 
-import java.util.Enumeration;
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
 
 
 // Import ZXing libraries for QR code generation
