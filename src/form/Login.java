@@ -7,17 +7,11 @@ package form;
 //
 import java.awt.Color;
 import java.awt.Dimension;
-
 import java.awt.Font;
 import java.awt.Graphics;
-
-
 import javax.swing.*;
 import javax.swing.UIManager;
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.UIManager;
-import javax.swing.JTextField;
 import javax.swing.JButton;
 
 import javax.imageio.ImageIO;
@@ -140,6 +134,8 @@ public void paint(Graphics g) {
 
         jUserName = new javax.swing.JTextField();
         btnLogin = new JButton("LOGIN");
+
+        jUserName.addActionListener(e -> PasswordField.requestFocusInWindow());
 
         jButton1.setText("jButton1");
 
@@ -459,12 +455,7 @@ public void paint(Graphics g) {
         // Create an PasswordField for the password
         PasswordField = new JPasswordField(34);
         PasswordField.setEchoChar('*');
-        PasswordField.setBackground(Color.WHITE);
-        PasswordField.setForeground(Color.BLACK);
-        PasswordField.setMinimumSize(new Dimension(8, 26));
-        PasswordField.setFont(new Font("Arial", Font.PLAIN, 16));
-
-
+        PasswordField.addActionListener(e -> btnLogin.doClick());  // Submit on Enter
 
         // Create an  JButton for toggling the password visibility
         FancyHoverButton btnTogglePassword = new FancyHoverButton("Show");

@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/core-3.5.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/json-20250107.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/mysql-connector-j-9.2.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/javase-3.5.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
