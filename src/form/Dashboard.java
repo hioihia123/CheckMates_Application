@@ -391,73 +391,70 @@ public class Dashboard extends javax.swing.JFrame {
         gbc.gridy = 2;
         gbc.weightx = 1.0;
         contentPanel.add(expirationField, gbc);
-        
+
+        // Add ActionListeners for Enter key navigation
+        classNameField.addActionListener(e -> sectionField.requestFocusInWindow());
+        sectionField.addActionListener(e -> expirationField.requestFocusInWindow());
+        expirationField.addActionListener(e -> chkIP.requestFocusInWindow());
+
         // IP Restriction
-       JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-       centerPanel.setBackground(Color.WHITE);
-       chkIP = new JCheckBox("IP Restriction");
-       chkIP.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-       chkIP.setBackground(Color.WHITE);
-       
-       chkIP.addActionListener(e -> {
-  if (chkIP.isSelected()) {
-      isIPRTurnOn = true;
-    new Thread(() -> {
-      try {
-          
-        String[] ips = fetchBothPublicIPs();
-        String ipv4 = ips[0], ipv6 = ips[1];
-        // after fetchBothPublicIPs():
-        String rawV6 = ips[1];              // full IPv6
-        String prefix = prefix64(rawV6);    // "0000:0000:00f0:0000"
-        collectedIPv6 = prefix;
-        SwingUtilities.invokeLater(() ->
-          ipStatusLabel.setText(String.format(
-            "IP Restriction: ON  v4=%s  v6=%s",
-            ipv4.isEmpty() ? "n/a" : ipv4,
-            ipv6.isEmpty() ? "n/a" : ipv6
-          ))
-        );
-      } catch(Exception ex) {
-        SwingUtilities.invokeLater(() -> {
-          chkIP.setSelected(false);
-          JOptionPane.showMessageDialog(this,
-            "Failed to fetch IPs: "+ex.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE);
+        JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        centerPanel.setBackground(Color.WHITE);
+        chkIP = new JCheckBox("IP Restriction");
+        chkIP.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        chkIP.setBackground(Color.WHITE);
+
+        // Make the checkbox respond to Enter key (toggle state)
+        chkIP.addActionListener(e -> {
+            if (e.getSource() == chkIP) {
+                chkIP.setSelected(!chkIP.isSelected());
+            }
         });
-      }
-    }).start();
-  } else {
-    isIPRTurnOn = false;
-    String collectedIPv4 = "";
-    String collectedIPv6 = "";
-    ipStatusLabel.setText("IP Restriction: OFF");
-  }
-});
 
-       
-       /*chkIP.addActionListener(e -> {
-          isIPRTurnOn = chkIP.isSelected();
-          ipStatusLabel.setText(
-          "IP Restriction: " + (
-                  isIPRTurnOn ? "ON" : "OFF")
-          );
-          ipStatusLabel.revalidate();
-          ipStatusLabel.repaint();
-       });
-       */
-       
-       centerPanel.add(chkIP);
+        chkIP.addActionListener(e -> {
+            if (chkIP.isSelected()) {
+                isIPRTurnOn = true;
+                new Thread(() -> {
+                    try {
+                        String[] ips = fetchBothPublicIPs();
+                        String ipv4 = ips[0], ipv6 = ips[1];
+                        // after fetchBothPublicIPs():
+                        String rawV6 = ips[1];              // full IPv6
+                        String prefix = prefix64(rawV6);    // "0000:0000:00f0:0000"
+                        collectedIPv6 = prefix;
+                        SwingUtilities.invokeLater(() ->
+                                ipStatusLabel.setText(String.format(
+                                        "IP Restriction: ON  v4=%s  v6=%s",
+                                        ipv4.isEmpty() ? "n/a" : ipv4,
+                                        ipv6.isEmpty() ? "n/a" : ipv6
+                                ))
+                        );
+                    } catch(Exception ex) {
+                        SwingUtilities.invokeLater(() -> {
+                            chkIP.setSelected(false);
+                            JOptionPane.showMessageDialog(this,
+                                    "Failed to fetch IPs: "+ex.getMessage(),
+                                    "Error", JOptionPane.ERROR_MESSAGE);
+                        });
+                    }
+                }).start();
+            } else {
+                isIPRTurnOn = false;
+                String collectedIPv4 = "";
+                String collectedIPv6 = "";
+                ipStatusLabel.setText("IP Restriction: OFF");
+            }
+        });
 
-       gbc.gridx = 0;
-       gbc.gridy = 3;
-       gbc.gridwidth = 2;
-       gbc.fill = GridBagConstraints.HORIZONTAL;
-       gbc.anchor = GridBagConstraints.CENTER;
-       gbc.insets = new Insets(10, 0, 0, 0);
-       contentPanel.add(centerPanel, gbc);
+        centerPanel.add(chkIP);
 
-        
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(10, 0, 0, 0);
+        contentPanel.add(centerPanel, gbc);
 
         // Row 3: Create button (spanning two columns)
         FancyHoverButton createButton = new FancyHoverButton("Create");
@@ -465,6 +462,9 @@ public class Dashboard extends javax.swing.JFrame {
         createButton.setBackground(new Color(0, 100, 0));  // modern blue
         createButton.setFocusPainted(false);
         createButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+
+        // Make the create button the default button for the dialog
+        dialog.getRootPane().setDefaultButton(createButton);
 
         createButton.addActionListener(new ActionListener() {
             @Override

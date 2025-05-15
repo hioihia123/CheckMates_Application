@@ -384,10 +384,23 @@ public class oldDashboard extends javax.swing.JFrame {
         gbc.weightx = 1.0;
         contentPanel.add(expirationField, gbc);
 
-        // Row 3: Create button (spanning two columns)
+        // Add Enter key navigation between fields
+        classNameField.addActionListener(e -> sectionField.requestFocusInWindow());
+        sectionField.addActionListener(e -> expirationField.requestFocusInWindow());
         JButton createButton = createTypewriterButton("Create");
         createButton.setFont(new Font("Courier New", Font.BOLD, 16));
         createButton.setFocusPainted(false);
+
+        expirationField.addActionListener(e -> {
+            // When pressing Enter in the last field, trigger the Create button
+            createButton.doClick();
+        });
+
+        // Row 3: Create button (spanning two columns)
+
+
+        // Make this the default button (responds to Enter when no field has focus)
+        dialog.getRootPane().setDefaultButton(createButton);
 
         createButton.addActionListener(new ActionListener() {
             @Override

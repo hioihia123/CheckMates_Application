@@ -671,6 +671,14 @@ public class AttendanceDashboard extends JFrame {
         // Add button
         JButton addButton = oldTimeyMode ? createTypewriterButton("Add") : createModernButton("Add");
         addButton.setPreferredSize(new Dimension(150, 40));
+
+        // Add Enter key navigation
+        idField.addActionListener(e -> nameField.requestFocusInWindow());
+        nameField.addActionListener(e -> addButton.doClick());
+
+        // Make Add button the default button
+        dialog.getRootPane().setDefaultButton(addButton);
+
         addButton.addActionListener(e -> {
             String studentId = idField.getText().trim();
             String studentName = nameField.getText().trim();
@@ -690,6 +698,88 @@ public class AttendanceDashboard extends JFrame {
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
         contentPanel.add(addButton, gbc);
+
+        dialog.add(contentPanel);
+        dialog.setVisible(true);
+    }
+
+    private void showEditStudentDialog(String studentId, String currentName) {
+        JDialog dialog = new JDialog(this, "Edit Student", true);
+        dialog.setSize(400, 250);
+        dialog.setLocationRelativeTo(this);
+        dialog.getContentPane().setBackground(oldTimeyMode ? parchmentColor : modernBackground);
+
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
+        contentPanel.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Student ID (display only)
+        JLabel idLabel = new JLabel("Student ID:");
+        idLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        idLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0.3;
+        contentPanel.add(idLabel, gbc);
+
+        JLabel idValueLabel = new JLabel(studentId);
+        idValueLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        idValueLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.weightx = 0.7;
+        contentPanel.add(idValueLabel, gbc);
+
+        // Student Name
+        JLabel nameLabel = new JLabel("Student Name:");
+        nameLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        nameLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0.3;
+        contentPanel.add(nameLabel, gbc);
+
+        JTextField nameField = new JTextField(currentName, 20);
+        nameField.setFont(oldTimeyMode ? typewriterFont : modernFont);
+        nameField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
+        nameField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
+        nameField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.weightx = 0.7;
+        contentPanel.add(nameField, gbc);
+
+        // Update button
+        JButton updateButton = oldTimeyMode ? createTypewriterButton("Update") : createModernButton("Update");
+        updateButton.setPreferredSize(new Dimension(150, 40));
+
+        // Add Enter key navigation
+        nameField.addActionListener(e -> updateButton.doClick());
+
+        // Make Update button the default button
+        dialog.getRootPane().setDefaultButton(updateButton);
+
+        updateButton.addActionListener(e -> {
+            String newName = nameField.getText().trim();
+
+            if (newName.isEmpty()) {
+                showMessage("Please enter a student name.", "Incomplete Form", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            updateStudentInDatabase(studentId, newName);
+            dialog.dispose();
+        });
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        contentPanel.add(updateButton, gbc);
 
         dialog.add(contentPanel);
         dialog.setVisible(true);
@@ -755,80 +845,7 @@ public class AttendanceDashboard extends JFrame {
         showEditStudentDialog(studentId, currentName);
     }
 
-    private void showEditStudentDialog(String studentId, String currentName) {
-        JDialog dialog = new JDialog(this, "Edit Student", true);
-        dialog.setSize(400, 250);
-        dialog.setLocationRelativeTo(this);
-        dialog.getContentPane().setBackground(oldTimeyMode ? parchmentColor : modernBackground);
 
-        JPanel contentPanel = new JPanel(new GridBagLayout());
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
-        contentPanel.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        // Student ID (display only)
-        JLabel idLabel = new JLabel("Student ID:");
-        idLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
-        idLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 0.3;
-        contentPanel.add(idLabel, gbc);
-
-        JLabel idValueLabel = new JLabel(studentId);
-        idValueLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
-        idValueLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.weightx = 0.7;
-        contentPanel.add(idValueLabel, gbc);
-
-        // Student Name
-        JLabel nameLabel = new JLabel("Student Name:");
-        nameLabel.setFont(oldTimeyMode ? typewriterFont : modernFont);
-        nameLabel.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weightx = 0.3;
-        contentPanel.add(nameLabel, gbc);
-
-        JTextField nameField = new JTextField(currentName, 20);
-        nameField.setFont(oldTimeyMode ? typewriterFont : modernFont);
-        nameField.setForeground(oldTimeyMode ? typewriterInk : modernTextColor);
-        nameField.setBackground(oldTimeyMode ? parchmentColor : modernBackground);
-        nameField.setBorder(BorderFactory.createLineBorder(oldTimeyMode ? typewriterInk : new Color(200, 200, 200)));
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.weightx = 0.7;
-        contentPanel.add(nameField, gbc);
-
-        // Update button
-        JButton updateButton = oldTimeyMode ? createTypewriterButton("Update") : createModernButton("Update");
-        updateButton.setPreferredSize(new Dimension(150, 40));
-        updateButton.addActionListener(e -> {
-            String newName = nameField.getText().trim();
-
-            if (newName.isEmpty()) {
-                showMessage("Please enter a student name.", "Incomplete Form", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            updateStudentInDatabase(studentId, newName);
-            dialog.dispose();
-        });
-
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridwidth = 2;
-        gbc.weightx = 1.0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        contentPanel.add(updateButton, gbc);
-
-        dialog.add(contentPanel);
-        dialog.setVisible(true);
-    }
 
     private void updateStudentInDatabase(String studentId, String newName) {
         new Thread(() -> {
