@@ -35,6 +35,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
+import java.util.Iterator;
 /**
  *
  * @author nguyenp
@@ -50,6 +51,7 @@ public class Dashboard extends javax.swing.JFrame {
     JLabel ipStatusLabel;
 
 
+
     /**
      * Creates new form Dashboard with a Professor object.
      */
@@ -61,7 +63,7 @@ public class Dashboard extends javax.swing.JFrame {
 
         // Explicitly set the size of the JFrame
         setSize(1200, 1000);
-        // (Optional) Center the window on the screen
+        // Center the window on the screen
         setLocationRelativeTo(null);
     }
 
@@ -182,16 +184,6 @@ public class Dashboard extends javax.swing.JFrame {
             classDash.setVisible(true);
         });
 
-        /*create a "View Attendance" button
-        FancyHoverButton viewAttendanceButton = new FancyHoverButton("Records");
-        viewAttendanceButton.setFont(new Font("Helvetica Neue", Font.BOLD, 24));
-        viewAttendanceButton.setPreferredSize(new Dimension(180, 50));
-        viewAttendanceButton.setMaximumSize(new Dimension(180,50));
-        viewAttendanceButton.addActionListener(e -> {
-            ClassSelectionDashboard csd = new ClassSelectionDashboard(professor);
-            csd.setVisible(true);
-        });
-        */
 
         //create a "Saki" button for Saki AI Agent
         FancyHoverButton AIbutton = new FancyHoverButton("Saki");
@@ -203,22 +195,16 @@ public class Dashboard extends javax.swing.JFrame {
             chatDialog.setVisible(true);
         });
         
-     
         FancyHoverButton emailButton = new FancyHoverButton("Notify");
         emailButton.setFont(new Font ("Helvetica Neueu", Font.BOLD, 24));
         emailButton.setPreferredSize(new Dimension(180,50));
         emailButton.setMaximumSize(new Dimension(180, 50));
         emailButton.addActionListener(e -> sendEmail(professor.getProfessorID()));
-      
-        //
 
         // Add spacing before adding the additional button
         additionalButtonsPanel.add(Box.createHorizontalStrut(20)); // 20-pixel space
         additionalButtonsPanel.add(viewClassButton);
-        /*
-        additionalButtonsPanel.add(Box.createHorizontalStrut(20));
-        additionalButtonsPanel.add(viewAttendanceButton);
-        */
+       
         additionalButtonsPanel.add(Box.createHorizontalStrut(20));
         additionalButtonsPanel.add(AIbutton);
         
@@ -227,7 +213,29 @@ public class Dashboard extends javax.swing.JFrame {
 
         // Then, add the additionalButtonsPanel to the main button panel that already contains the Create Class button.
         buttonPanel.add(additionalButtonsPanel);
+        
+         // Add some vertical spacing so the button doesn't overlap the note
+        topSection.add(javax.swing.Box.createVerticalStrut(40));
+        
+        // inside your Dashboard constructor or initComponents()
+        ModernSeparator sep = new ModernSeparator(
+            true,                       // horizontal
+            new Color(180, 180, 180),   // light gray
+            new Color(100, 100, 100)    // darker gray
+        );
+        topSection.add(sep);
 
+        // Add some vertical spacing so the button doesn't overlap the note
+        topSection.add(javax.swing.Box.createVerticalStrut(20));
+        
+        JPanel notePanel = new JPanel(new FlowLayout(FlowLayout.LEFT,200, 0));
+        notePanel.setOpaque(false);
+        FancyHoverButton plusButton = new FancyHoverButton("+");
+        plusButton.setToolTipText("Hello");
+
+        notePanel.add(plusButton);
+        topSection.add(notePanel);
+        
         // --- Main panel setup ---
         GradientPanel panel = new GradientPanel();
         panel.setLayout(new BorderLayout());
@@ -252,8 +260,31 @@ public class Dashboard extends javax.swing.JFrame {
       
         bottomPanel.add(textLogoLabel, BorderLayout.EAST);
 
-       
+        // Start the tour after the frame is shown
+            SwingUtilities.invokeLater(() -> GuideTour.startTour(this,
+                List.of(
+                        
+                    new GuideStep(fancyButton,    
+                   "1) Click here to create class to take attendance."),
+                        
+                    new GuideStep(viewClassButton,    
+                   "2) Click here to view created classes and attendance records."),
+                    
+                    new GuideStep(AIbutton,    
+                   "3) Click here to chat with Saki."),
+                    
+                    new GuideStep(emailButton,    
+                   "4) Click here to notify missing students."),
+                    
+                    new GuideStep(plusButton,    
+                   "5) Click here to create notes.")
+                    
+                    
+                )
+                   
+            ));
 
+        JLabel lblTerms = new JLabel("<html><a href=''>Terms and Conditions</a></html>");
 
         panel.add(bottomPanel, BorderLayout.SOUTH);
         panel.setPreferredSize(new Dimension(1200, 1000));
@@ -770,6 +801,113 @@ private String prefix64(String rawIp) {
             }
         });
     }
+ 
+    /**
+ * Represents a single step in the coach-mark tour.
+ */
+static class GuideStep {
+    final JComponent target;
+    final String message;
+    GuideStep(JComponent target, String message) {
+        this.target = target;
+        this.message = message;
+    }
+}
+
+/**
+ * Manages the sequence and display of guide steps.
+ */
+static class GuideTour {
+    /**
+     * Kick off the tour on the given frame with a list of steps.
+     */
+    public static void startTour(JFrame frame, List<GuideStep> steps) {
+        Iterator<GuideStep> it = steps.iterator();
+        showNext(frame, it);
+    }
+
+    private static void showNext(JFrame frame, Iterator<GuideStep> it) {
+        if (!it.hasNext()) {
+            // Tour finished; clear any glass pane
+            frame.getGlassPane().setVisible(false);
+            return;
+        }
+        GuideStep step = it.next();
+
+        // 1) Set up overlay (glass pane)
+        GuideOverlay overlay = new GuideOverlay(step);
+        frame.setGlassPane(overlay);
+        overlay.setVisible(true);
+
+        // 2) Create a small tip dialog near the target
+        Point targetOnScreen = step.target.getLocationOnScreen();
+        JDialog tip = new JDialog(frame, false);
+        tip.setUndecorated(true);
+        tip.getContentPane().setLayout(new BorderLayout(5,5));        
+        
+        JLabel msg = new JLabel("<html><b>" + step.message + "</b><br/><i>Click \u2192 to continue</i></html>");
+        msg.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        tip.getContentPane().add(msg, BorderLayout.CENTER);
+       
+        FancyHoverButton2 next = new FancyHoverButton2("\u2192");
+        ModernButton xButton = new ModernButton("X");
+
+
+        next.addActionListener((ActionEvent e) -> {
+            tip.dispose();
+            overlay.setVisible(false);
+            showNext(frame, it);
+        });
+        xButton.addActionListener((ActionEvent e) -> {
+            overlay.setVisible(false);
+            tip.dispose();
+        
+        });
+        // top panel just for the X, right‐aligned
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        topPanel.setOpaque(false);
+        topPanel.add(xButton);
+        tip.getContentPane().add(topPanel, BorderLayout.NORTH);
+        
+        JPanel btnPanel = new JPanel();
+        btnPanel.add(next);
+        
+        tip.getContentPane().add(btnPanel, BorderLayout.SOUTH);
+        tip.pack();
+
+        // Position the tip just below the target component
+        tip.setLocation(targetOnScreen.x, targetOnScreen.y + step.target.getHeight() + 8);
+        tip.setVisible(true);
+    }
+}
+
+/**
+ * A glass-pane overlay that dims the entire frame and "spotlights" the target component.
+ */
+static class GuideOverlay extends JComponent {
+    private final GuideStep step;
+
+    GuideOverlay(GuideStep step) {
+        this.step = step;
+        setOpaque(false);
+        // Capture mouse events so underlying components are not clickable
+        addMouseListener(new java.awt.event.MouseAdapter() {});
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        int w = getWidth(), h = getHeight();
+        Graphics2D g2 = (Graphics2D) g.create();
+
+        // 1) Dim the entire area
+        g2.setColor(new Color(0, 0, 0, 120));
+        g2.fillRect(0, 0, w, h);
+
+        
+
+        g2.dispose();
+    }
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel greetingLabel;
