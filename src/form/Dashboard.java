@@ -36,6 +36,8 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import java.util.Iterator;
+import java.util.prefs.Preferences;
+
 /**
  *
  * @author nguyenp
@@ -49,6 +51,12 @@ public class Dashboard extends javax.swing.JFrame {
     boolean isIPRTurnOn;
     private String collectedIPv6 = "";
     JLabel ipStatusLabel;
+     // user prefs to remember if they’ve turned the tour off
+    private static final Preferences PREFS = 
+        Preferences.userNodeForPackage(Dashboard.class);
+
+    private static final String KEY_SHOW_TOUR = "showCoachMarkTour";
+    static boolean show;
 
 
 
@@ -229,9 +237,15 @@ public class Dashboard extends javax.swing.JFrame {
         topSection.add(javax.swing.Box.createVerticalStrut(20));
         
         JPanel notePanel = new JPanel(new FlowLayout(FlowLayout.LEFT,200, 0));
+        
         notePanel.setOpaque(false);
-        FancyHoverButton plusButton = new FancyHoverButton("+");
-        plusButton.setToolTipText("Hello");
+        
+        FancyHoverButton3 plusButton = new FancyHoverButton3("\u270e");
+        
+        plusButton.setFont(new Font("Helvetica Neue", Font.BOLD, 25));
+        
+        plusButton.setPreferredSize(new Dimension(60, 50));
+        
 
         notePanel.add(plusButton);
         topSection.add(notePanel);
@@ -259,10 +273,15 @@ public class Dashboard extends javax.swing.JFrame {
         textLogoLabel.setForeground(new Color(50, 50, 50));
       
         bottomPanel.add(textLogoLabel, BorderLayout.EAST);
+        
+        boolean show = PREFS.getBoolean(KEY_SHOW_TOUR, true);
 
         // Start the tour after the frame is shown
-            SwingUtilities.invokeLater(() -> GuideTour.startTour(this,
+        if(show){
+            SwingUtilities.invokeLater(() -> GuideTour.startTour(Dashboard.this,
                 List.of(
+                    new GuideStep(questionHeader,    
+                   "Hello! \n Welcome to CheckMates. This is a short tour of the program. You can close the tour at anytime."),
                         
                     new GuideStep(fancyButton,    
                    "1) Click here to create class to take attendance."),
@@ -283,6 +302,7 @@ public class Dashboard extends javax.swing.JFrame {
                 )
                    
             ));
+        }
 
         JLabel lblTerms = new JLabel("<html><a href=''>Terms and Conditions</a></html>");
 
@@ -851,6 +871,7 @@ static class GuideTour {
        
         FancyHoverButton2 next = new FancyHoverButton2("\u2192");
         ModernButton xButton = new ModernButton("X");
+        ModernButton doNotShow = new ModernButton("Do Not Show This Again");
 
 
         next.addActionListener((ActionEvent e) -> {
@@ -863,6 +884,11 @@ static class GuideTour {
             tip.dispose();
         
         });
+        doNotShow.addActionListener((ActionEvent e) -> {
+            PREFS.putBoolean(KEY_SHOW_TOUR, false);
+            overlay.setVisible(false); 
+            tip.dispose();
+        });
         // top panel just for the X, right‐aligned
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         topPanel.setOpaque(false);
@@ -871,6 +897,7 @@ static class GuideTour {
         
         JPanel btnPanel = new JPanel();
         btnPanel.add(next);
+        btnPanel.add(doNotShow);
         
         tip.getContentPane().add(btnPanel, BorderLayout.SOUTH);
         tip.pack();
