@@ -60,7 +60,7 @@ public class Note {
         frame.setLocationRelativeTo(null);
         frame.setLayout(new BorderLayout(10, 10));
                
-        frame.getContentPane().setBackground(new Color(240, 240, 255));  // pale periwinkle
+        frame.getContentPane().setBackground(new Color(255, 255, 255));  
 ;
 
         // 1) Top toolbar
@@ -85,7 +85,7 @@ public class Note {
         scroll.getVerticalScrollBar().setUI(new ModernScrollBarUI());
         scroll.getHorizontalScrollBar().setUI(new ModernScrollBarUI());
         
-        notesContainer.setBackground(new Color(240, 240, 255)); 
+        notesContainer.setBackground(new Color(255, 255, 255)); 
         scroll.setOpaque(false);
         scroll.setBackground(new Color(0,0,0,0));
 
@@ -123,7 +123,7 @@ public class Note {
 
     private static void showNoteDialog(JFrame parent, JPanel container, List<RealisticNotePanel> notes) {
         JDialog dialog = new JDialog(parent, "New Note", true);
-        dialog.setLayout(new BorderLayout(10, 10));
+        dialog.setLayout(new BorderLayout(0, 0));
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         JTextArea inputArea = new JTextArea(5, 20);
@@ -136,11 +136,12 @@ public class Note {
         
         dialog.add(inputScroll, BorderLayout.CENTER);
 
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 8));
-        JButton saveBtn = new JButton("Save");
-        JButton cancelBtn = new JButton("Cancel");
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
+        FancyHoverButton saveBtn = new FancyHoverButton("Save");
+        FancyHoverButton cancelBtn = new FancyHoverButton("Cancel");
         btnPanel.add(saveBtn);
         btnPanel.add(cancelBtn);
+        btnPanel.setBackground(new Color(255,255,255));
         dialog.add(btnPanel, BorderLayout.SOUTH);
 
         saveBtn.addActionListener((ActionEvent ev) -> {
