@@ -129,29 +129,14 @@ public class Dashboard extends javax.swing.JFrame {
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.setOpaque(false);
         
-        //FIX ME- WILL FIX IT LATER - DO NOT DELETE
-        /* Add Old-Timey Style button that will open oldDashboard.java
-        FancyHoverButton oldTimeyButton = new FancyHoverButton("Old-Timey Style");
-        oldTimeyButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        oldTimeyButton.addActionListener(e -> {
-            this.dispose();
-            new oldDashboard(professor).setVisible(true);
-        });
-        */
+       
         ModernButton setting = new ModernButton("\u2699", false);
         //setting.setPreferredSize(new Dimension(30,50));
         setting.setFont(new Font("Helvetica Neue", Font.BOLD, 50));
+        setting.addActionListener(e -> openSetting());
         rightPanel.add(setting);
 
-        //FIX ME - WILL FIX IT LATER - DO NOT DELETE
-        /*
-        ModernButton logOffButton = new ModernButton("d", false);
-        logOffButton.addActionListener(e -> {
-            this.dispose();
-            new Login().setVisible(true);
-        });
-        rightPanel.add(logOffButton);
-        */
+        
         topBar.add(leftPanel, BorderLayout.WEST);
         topBar.add(rightPanel, BorderLayout.EAST);
 
@@ -300,7 +285,9 @@ public class Dashboard extends javax.swing.JFrame {
                 List.of(
                     new GuideStep(questionHeader,    
                    "Hello! \n Welcome to CheckMates. This is a short tour of the program. You can close the tour at anytime."),
-                        
+                    
+                    new GuideStep(setting, "Click here to view setting or log out."),
+                    
                     new GuideStep(fancyButton,    
                    "1) Click here to create class to take attendance."),
                         
@@ -399,6 +386,38 @@ public class Dashboard extends javax.swing.JFrame {
     }).start();
 
   }
+    private void openSetting(){
+        JFrame frame = new JFrame("Setting");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(600, 550);
+        frame.setLocationRelativeTo(null);
+        frame.setLayout(new BorderLayout(10, 10));
+               
+        frame.getContentPane().setBackground(new Color(255, 255, 255));  
+        frame.setVisible(true);
+        
+        // 1) Top toolbar
+        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 20));
+        topPanel.setOpaque(false);
+
+         ModernButton logOffButton = new ModernButton("Log Off", false);
+        logOffButton.addActionListener(e -> {
+            Dashboard.this.dispose();
+            new Login().setVisible(true);
+        });
+        
+        FancyHoverButton2 oldTimeyButton = new FancyHoverButton2("Old-Timey Style");
+        oldTimeyButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        oldTimeyButton.addActionListener(e -> {
+            this.dispose();
+            new oldDashboard(professor).setVisible(true);
+        });
+
+        topPanel.add(logOffButton);
+        topPanel.add(oldTimeyButton);
+
+        frame.add(topPanel, BorderLayout.NORTH);
+    }
     private void openCreateClassDialog() {
         JDialog dialog = new JDialog(this, "Create New Class", true);
         dialog.setSize(400, 250);
