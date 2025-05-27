@@ -4,10 +4,7 @@
  */
 package form;
 
-/**
- *
- * @author nguyenp
- */
+
 public class Professor {
     private String professorName;
     private String email;

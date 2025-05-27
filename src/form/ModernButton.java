@@ -4,10 +4,6 @@
  */
 package form;
 
-/**
- *
- * @author nguyenp
- */
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -15,8 +11,9 @@ import javax.swing.*;
 class ModernButton extends JButton {
     private Color normalColor = Color.BLACK;
     private Color hoverColor = new Color(30, 144, 255); // DodgerBlue
+    private Color noteHoverColor = new Color(0,100,0); //Dark Green
 
-    public ModernButton(String text) {
+    public ModernButton(String text, boolean noteHover) {
         super(text);
         setFont(new Font("Roboto", Font.BOLD, 14));
         setForeground(normalColor);
@@ -29,7 +26,12 @@ class ModernButton extends JButton {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                setForeground(hoverColor);
+                if(noteHover){
+                    setForeground(noteHoverColor);
+                }
+                else{
+                    setForeground(hoverColor);
+                }
             }
             @Override
             public void mouseExited(MouseEvent e) {

@@ -4,10 +4,6 @@
  */
 package form;
 
-/**
- *
- * @author nguyenp
- */
 import javax.swing.JTextField;
 import java.awt.Color;
 import java.awt.Graphics;

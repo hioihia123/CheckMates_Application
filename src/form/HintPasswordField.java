@@ -4,10 +4,7 @@
  */
 package form;
 
-/**
- *
- * @author nguyenp
- */
+
 import javax.swing.JPasswordField;
 import java.awt.Color;
 import java.awt.Graphics;

@@ -4,10 +4,6 @@
  */
 package form;
 
-/**
- *
- * @author nguyenp
- */
 import java.awt.Button;
 import java.awt.Image;
 import java.awt.Graphics;
