@@ -103,7 +103,7 @@ class DashboardTest {
     }
     @Test
     void testButtonClickLogoff() {
-        ModernButton viewLogoffButton = new ModernButton("Log Off");
+        ModernButton viewLogoffButton = new ModernButton("Log Off", false);
         final boolean[] clicked = {false}; // Track if actionPerformed executes
 
         viewLogoffButton.addActionListener(e -> clicked[0] = true);

@@ -36,6 +36,7 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.prefs.Preferences;
 
 /**
@@ -57,6 +58,9 @@ public class Dashboard extends javax.swing.JFrame {
 
     private static final String KEY_SHOW_TOUR = "showCoachMarkTour";
     static boolean show;
+    
+    private final JPanel notePanel;
+    private final ModernButton noteButton;
 
 
 
@@ -67,12 +71,20 @@ public class Dashboard extends javax.swing.JFrame {
         this.professor = professor;
         setBackground(Color.WHITE);
         initComponents();
+        noteButton = new ModernButton("\u270e", true);
+        notePanel = new JPanel(new FlowLayout(FlowLayout.LEFT,200, 0));
+
         initializeUI();
 
         // Explicitly set the size of the JFrame
         setSize(1200, 1000);
         // Center the window on the screen
         setLocationRelativeTo(null);
+    }
+
+    private void openNoteStyleWindow() {
+         Note.setProfessor(professor);
+         Note.launch();  // Calls static method from other class
     }
 
     /**
@@ -116,24 +128,30 @@ public class Dashboard extends javax.swing.JFrame {
         // Right side: buttons
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         rightPanel.setOpaque(false);
-
-        // Add Old-Timey Style button that will open oldDashboard.java
+        
+        //FIX ME- WILL FIX IT LATER - DO NOT DELETE
+        /* Add Old-Timey Style button that will open oldDashboard.java
         FancyHoverButton oldTimeyButton = new FancyHoverButton("Old-Timey Style");
         oldTimeyButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         oldTimeyButton.addActionListener(e -> {
             this.dispose();
             new oldDashboard(professor).setVisible(true);
         });
-        rightPanel.add(oldTimeyButton);
+        */
+        ModernButton setting = new ModernButton("\u2699", false);
+        //setting.setPreferredSize(new Dimension(30,50));
+        setting.setFont(new Font("Helvetica Neue", Font.BOLD, 50));
+        rightPanel.add(setting);
 
-        // Add log off button
-        ModernButton logOffButton = new ModernButton("Log Off");
+        //FIX ME - WILL FIX IT LATER - DO NOT DELETE
+        /*
+        ModernButton logOffButton = new ModernButton("d", false);
         logOffButton.addActionListener(e -> {
             this.dispose();
             new Login().setVisible(true);
         });
         rightPanel.add(logOffButton);
-
+        */
         topBar.add(leftPanel, BorderLayout.WEST);
         topBar.add(rightPanel, BorderLayout.EAST);
 
@@ -239,15 +257,15 @@ public class Dashboard extends javax.swing.JFrame {
         JPanel notePanel = new JPanel(new FlowLayout(FlowLayout.LEFT,200, 0));
         
         notePanel.setOpaque(false);
+                
+        noteButton.setFont(new Font("Helvetica Neue", Font.BOLD, 25));
         
-        FancyHoverButton3 plusButton = new FancyHoverButton3("\u270e");
+        noteButton.setPreferredSize(new Dimension(60, 50));
         
-        plusButton.setFont(new Font("Helvetica Neue", Font.BOLD, 25));
-        
-        plusButton.setPreferredSize(new Dimension(60, 50));
+        noteButton.addActionListener(e -> openNoteStyleWindow());
         
 
-        notePanel.add(plusButton);
+        notePanel.add(noteButton);
         topSection.add(notePanel);
         
         // --- Main panel setup ---
@@ -295,7 +313,7 @@ public class Dashboard extends javax.swing.JFrame {
                     new GuideStep(emailButton,    
                    "4) Click here to notify missing students."),
                     
-                    new GuideStep(plusButton,    
+                    new GuideStep(noteButton,    
                    "5) Click here to create notes.")
                     
                     
@@ -304,7 +322,6 @@ public class Dashboard extends javax.swing.JFrame {
             ));
         }
 
-        JLabel lblTerms = new JLabel("<html><a href=''>Terms and Conditions</a></html>");
 
         panel.add(bottomPanel, BorderLayout.SOUTH);
         panel.setPreferredSize(new Dimension(1200, 1000));
@@ -317,7 +334,7 @@ public class Dashboard extends javax.swing.JFrame {
         repaint();
     }
 
-  private void sendEmail(String professorId){
+    private void sendEmail(String professorId){
       
     // send HTTP request to  PHP endpoint
     new Thread(() -> {
@@ -455,47 +472,40 @@ public class Dashboard extends javax.swing.JFrame {
         chkIP.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         chkIP.setBackground(Color.WHITE);
 
-        // Make the checkbox respond to Enter key (toggle state)
         chkIP.addActionListener(e -> {
-            if (e.getSource() == chkIP) {
-                chkIP.setSelected(!chkIP.isSelected());
-            }
+  if (chkIP.isSelected()) {
+      isIPRTurnOn = true;
+    new Thread(() -> {
+      try {
+        String[] ips = fetchBothPublicIPs();
+        String ipv4 = ips[0], ipv6 = ips[1];
+        // after fetchBothPublicIPs():
+        String rawV6 = ips[1];              // full IPv6
+        String prefix = prefix64(rawV6);    // "0000:0000:00f0:0000"
+        collectedIPv6 = prefix;
+        SwingUtilities.invokeLater(() ->
+          ipStatusLabel.setText(String.format(
+            "IP Restriction: ON  v4=%s  v6=%s",
+            ipv4.isEmpty() ? "n/a" : ipv4,
+            ipv6.isEmpty() ? "n/a" : ipv6
+          ))
+        );
+      } catch(Exception ex) {
+        SwingUtilities.invokeLater(() -> {
+          chkIP.setSelected(false);
+          JOptionPane.showMessageDialog(this,
+            "Failed to fetch IPs: "+ex.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
         });
-
-        chkIP.addActionListener(e -> {
-            if (chkIP.isSelected()) {
-                isIPRTurnOn = true;
-                new Thread(() -> {
-                    try {
-                        String[] ips = fetchBothPublicIPs();
-                        String ipv4 = ips[0], ipv6 = ips[1];
-                        // after fetchBothPublicIPs():
-                        String rawV6 = ips[1];              // full IPv6
-                        String prefix = prefix64(rawV6);    // "0000:0000:00f0:0000"
-                        collectedIPv6 = prefix;
-                        SwingUtilities.invokeLater(() ->
-                                ipStatusLabel.setText(String.format(
-                                        "IP Restriction: ON  v4=%s  v6=%s",
-                                        ipv4.isEmpty() ? "n/a" : ipv4,
-                                        ipv6.isEmpty() ? "n/a" : ipv6
-                                ))
-                        );
-                    } catch(Exception ex) {
-                        SwingUtilities.invokeLater(() -> {
-                            chkIP.setSelected(false);
-                            JOptionPane.showMessageDialog(this,
-                                    "Failed to fetch IPs: "+ex.getMessage(),
-                                    "Error", JOptionPane.ERROR_MESSAGE);
-                        });
-                    }
-                }).start();
-            } else {
-                isIPRTurnOn = false;
-                String collectedIPv4 = "";
-                String collectedIPv6 = "";
-                ipStatusLabel.setText("IP Restriction: OFF");
-            }
-        });
+      }
+    }).start();
+  } else {
+    isIPRTurnOn = false;
+    String collectedIPv4 = "";
+    String collectedIPv6 = "";
+    ipStatusLabel.setText("IP Restriction: OFF");
+  }
+});
 
         centerPanel.add(chkIP);
 
@@ -870,8 +880,8 @@ static class GuideTour {
         tip.getContentPane().add(msg, BorderLayout.CENTER);
        
         FancyHoverButton2 next = new FancyHoverButton2("\u2192");
-        ModernButton xButton = new ModernButton("X");
-        ModernButton doNotShow = new ModernButton("Do Not Show This Again");
+        ModernButton xButton = new ModernButton("X", false);
+        ModernButton doNotShow = new ModernButton("Do Not Show This Again", false);
 
 
         next.addActionListener((ActionEvent e) -> {

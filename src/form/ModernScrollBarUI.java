@@ -4,10 +4,6 @@
  */
 package form;
 
-/**
- *
- * @author nguyenp
- */
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.*;
@@ -47,7 +43,7 @@ public class ModernScrollBarUI extends BasicScrollBarUI {
     g.setColor(trackColor);
     g.fillRoundRect(trackBounds.x, trackBounds.y,
                     trackBounds.width, trackBounds.height,
-                    8, 8);
+                    5, 5);
   }
 
   @Override
@@ -55,7 +51,7 @@ public class ModernScrollBarUI extends BasicScrollBarUI {
     g.setColor(thumbColor);
     g.fillRoundRect(thumbBounds.x, thumbBounds.y,
                     thumbBounds.width, thumbBounds.height,
-                    8, 8);
+                    5, 5);
   }
 }
 

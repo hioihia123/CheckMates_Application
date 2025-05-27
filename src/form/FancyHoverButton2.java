@@ -9,12 +9,12 @@ import java.awt.geom.RoundRectangle2D;
 public class FancyHoverButton2 extends JButton {
 
     // Idle (normal) colors
-    private final Color idleOutlineColor = (Color.BLACK);  // Dark Green
+    private final Color idleOutlineColor = (Color.BLACK);  // BLACK
 
     private final Color idleTextColor = idleOutlineColor;
 
     // Hover colors
-    private final Color hoverOutlineColor =  (Color.RED); // Orange
+    private final Color hoverOutlineColor =  (Color.RED); // RED
     private final Color hoverTextColor = Color.RED;
 
     // Track whether the mouse is hovering
