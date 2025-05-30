@@ -6,3 +6,7 @@ Effortless attendance tracking for professors and students—powered by QR codes
 
 🚀 Features
 
+
+
+https://github.com/user-attachments/assets/7133460b-eece-4ffc-9f05-96b0190c91e3
+
