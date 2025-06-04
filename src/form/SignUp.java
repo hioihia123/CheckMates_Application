@@ -152,7 +152,7 @@ public class SignUp extends JFrame {
   btnSubmit.setForeground(Color.BLACK);
   btnSubmit.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
   btnSubmit.setEnabled(false); // Disabled until checkbox is checked
-add(btnSubmit);
+  add(btnSubmit);
 
 // Then add the listener for the checkbox that enables/disables the button
 chkTerms.addActionListener(new ActionListener() {

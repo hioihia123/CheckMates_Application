@@ -69,7 +69,7 @@ public class Login extends javax.swing.JFrame {
         };
 
         // Set a layout for custom panel
-        backgroundPanel.setLayout(null); // or any other layout
+        backgroundPanel.setLayout(null);
 
         // 3) Make this custom panel the frame's content pane
         setContentPane(backgroundPanel);
@@ -91,27 +91,6 @@ public class Login extends javax.swing.JFrame {
         // Add it to the content pane.
         getContentPane().add(outlinedText);
     }
-
-
-
-     /*@Override
-public void paint(Graphics g) {
-    super.paint(g);  // Let Swing do its usual background painting first
-
-    Graphics2D g2 = (Graphics2D) g;
-    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-    // 1) Fill the entire background with white
-    g2.setColor(Color.WHITE);
-    g2.fillRect(0, 0, getWidth(), getHeight());
-
-    // 2) Then draw  round rectangle 
-    g2.setColor(Color.WHITE); // or any other color
-    g2.fillRoundRect(20, 20, getWidth() - 40, getHeight() - 40, 50, 50);
-}
-    */
-
-
 
 
     /**
@@ -395,18 +374,7 @@ public void paint(Graphics g) {
         jUserName.setBackground(Color.WHITE);
         jUserName.setForeground(Color.BLACK);
         jUserName.setFont(new Font("Arial", Font.PLAIN, 16));
-        // Note: AWT TextField cannot have borders like Swing components.
 
-
-
-
-    /* 2) Password field (JPasswordField) styling remains unchanged
-    pWord.setBackground(Color.WHITE);
-    pWord.setForeground(Color.BLACK);
-    pWord.setCaretColor(Color.BLACK);
-    pWord.setFont(new Font("Arial", Font.PLAIN, 16));
-    pWord.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2, true));
-    */
 
 
         // 3) Style the Login button as text-only with no box or border.
