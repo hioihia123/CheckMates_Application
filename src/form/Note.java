@@ -20,6 +20,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONObject; // Make sure to include a JSON library
 import org.json.JSONArray;
+import javafx.embed.swing.JFXPanel;
+
 
 
 /**
@@ -97,7 +99,8 @@ public class Note {
         scroll.setBorder(null);
 
         frame.add(scroll, BorderLayout.CENTER);
-
+        
+        //Create a list of notes to store the notes
         List<RealisticNotePanel> notes = new ArrayList<>();
 
         // 3) “Add Note” behavior
@@ -271,10 +274,10 @@ public class Note {
                 String line;
                 while ((line = r.readLine()) != null) sb.append(line);
             }
-            
+            /*
             String raw = sb.toString();
             System.out.println("▶ getNotes raw response: " + raw);
-
+            */
 
             JSONObject resp = new JSONObject(sb.toString());
             if (!"success".equalsIgnoreCase(resp.optString("status"))) {
@@ -286,8 +289,7 @@ public class Note {
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
                 String text = obj.getString("note");
-                // If you stored color in DB, parse it here.
-                // For now, just pick a random pastel color:
+                //  pick a random pastel color:
                 Random rand = new Random();
                 Color bg = new Color(
                     200 + rand.nextInt(56),

@@ -27,6 +27,11 @@ import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import org.json.JSONObject; // Make sure to include a JSON library
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 
 
 
@@ -56,12 +61,13 @@ public class Dashboard extends javax.swing.JFrame {
     private static final Preferences PREFS = 
         Preferences.userNodeForPackage(Dashboard.class);
 
-    private static final String KEY_SHOW_TOUR = "showCoachMarkTour";
+   private static final String KEY_SHOW_TOUR = "showCoachMarkTour";
     static boolean show;
     
     private final JPanel notePanel;
     private final ModernButton noteButton;
-
+    private final ModernButton chatButton;
+     private JFXPanel chatFXPanel;
 
 
     /**
@@ -72,6 +78,9 @@ public class Dashboard extends javax.swing.JFrame {
         setBackground(Color.WHITE);
         initComponents();
         noteButton = new ModernButton("\u270e", true);
+        String chatIcon = "\uD83D\uDCAC"; // 💬
+
+        chatButton = new ModernButton(chatIcon, true);
         notePanel = new JPanel(new FlowLayout(FlowLayout.LEFT,200, 0));
 
         initializeUI();
@@ -241,6 +250,7 @@ public class Dashboard extends javax.swing.JFrame {
         
         JPanel notePanel = new JPanel(new FlowLayout(FlowLayout.LEFT,200, 0));
         
+        
         notePanel.setOpaque(false);
                 
         noteButton.setFont(new Font("Helvetica Neue", Font.BOLD, 25));
@@ -249,8 +259,15 @@ public class Dashboard extends javax.swing.JFrame {
         
         noteButton.addActionListener(e -> openNoteStyleWindow());
         
-
+        chatButton.setFont(new Font("Helvetica Neue", Font.BOLD, 25));
+        
+        chatButton.addActionListener(e -> {
+            profChat chatFeatures = new profChat(Dashboard.this, professor);
+            chatFeatures.setVisible(true);
+        });
+                
         notePanel.add(noteButton);
+        notePanel.add(chatButton);
         topSection.add(notePanel);
         
         // --- Main panel setup ---
@@ -308,7 +325,7 @@ public class Dashboard extends javax.swing.JFrame {
                    
             ));
         }
-
+            
 
         panel.add(bottomPanel, BorderLayout.SOUTH);
         panel.setPreferredSize(new Dimension(1200, 1000));
@@ -914,7 +931,7 @@ static class GuideTour {
         
         });
         doNotShow.addActionListener((ActionEvent e) -> {
-            PREFS.putBoolean(KEY_SHOW_TOUR, false);
+            //PREFS.putBoolean(KEY_SHOW_TOUR, false);
             overlay.setVisible(false); 
             tip.dispose();
         });
