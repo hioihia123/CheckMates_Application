@@ -78,7 +78,7 @@ public class Dashboard extends javax.swing.JFrame {
         setBackground(Color.WHITE);
         initComponents();
         noteButton = new ModernButton("\u270e", true);
-        String chatIcon = "\uD83D\uDCAC"; // 💬
+        String chatIcon = "\uD83D\uDCAD"; // 💬
 
         chatButton = new ModernButton(chatIcon, true);
         notePanel = new JPanel(new FlowLayout(FlowLayout.LEFT,200, 0));
