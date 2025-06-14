@@ -23,8 +23,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import com.formdev.flatlaf.FlatLightLaf;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Random;
 import javax.swing.UIManager;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONException;
+
 
 public class profChat extends JDialog {
     private final JTextArea chatArea;
@@ -58,6 +63,7 @@ public class profChat extends JDialog {
         professorComboBox.setFont(new Font("SansSerif", Font.PLAIN,14));
         professorComboBox.setBackground(Color.WHITE);
         topPanel.add(professorComboBox);
+        loadComboBox();
         add(topPanel, BorderLayout.NORTH);
         
          // Chat area with modern styling
@@ -72,13 +78,48 @@ public class profChat extends JDialog {
                 new EmptyBorder(10, 10, 10, 10)
         ));
         
-         // after classComboBox…
+         // after classComboBox… -> Add button
        JButton addButton = new JButton("\u002b");
        addButton.setFont(new Font("SansSerif", Font.PLAIN, 14));
        addButton.setBackground(Color.WHITE);
        addButton.setFocusPainted(false);
        addButton.addActionListener(e -> addProfessor());
        topPanel.add(addButton);
+       
+       //Delete button
+       JButton removeButton = new JButton("\u2212"); // Unicode minus sign
+       removeButton.setFont(new Font("SansSerif", Font.PLAIN, 14));
+       removeButton.setBackground(Color.WHITE);
+       removeButton.setFocusPainted(false);
+       removeButton.addActionListener(ev -> {
+        otherProfessors sel = (otherProfessors) professorComboBox.getSelectedItem();
+        System.out.println("Selected professor id: " + sel.professor.getProfessorID()); //Null
+        
+        if (sel == null) return;
+        
+        //Extract the Professor object and its ID
+        Professor selectedProf = sel.professor;
+        System.out.println("Selected professor id: " + selectedProf.getProfessorID()); //Null
+
+        
+        int choice = JOptionPane.showConfirmDialog(
+            profChat.this,
+            "Remove \"" + sel.display + "\" from your contacts?",
+            "Confirm Remove",
+            JOptionPane.YES_NO_OPTION
+        );
+        if (choice == JOptionPane.YES_OPTION) {
+            // (A) Delete from DB
+            deleteProfessorFromDatabase(this.professor.getProfessorID(), selectedProf.getProfessorID());
+            // (B) Remove from combo box
+            professorComboBox.removeItem(sel);
+            // (C) Clear chat area if they were selected
+            chatArea.setText("");
+        }
+    });
+
+       topPanel.add(removeButton);
+
        
        JScrollPane scrollPane = new JScrollPane(chatArea);
       scrollPane.setBorder(null);
@@ -131,7 +172,7 @@ public class profChat extends JDialog {
         if (existingId != null && existingId.equals(idToAdd)) {
             JOptionPane.showMessageDialog(
                 profChat.this,
-                "Professor \"" + idToAdd + "\" is already in your list.",
+                "Professor \"" + existing.professor.getProfessorName() +"\n with id:  "+idToAdd + "\" is already in your list.",
                 "Already Added",
                 JOptionPane.INFORMATION_MESSAGE
             );
@@ -139,7 +180,7 @@ public class profChat extends JDialog {
         }
     }
 
-    // 2) If we get here, no duplicate was found. Now fetch from PHP/DB.
+    // 2) If we get here, no duplicate was found. Now fetch from PHP.
     Professor foundProfessor = fetchProfessorById(idToAdd);
     if (foundProfessor == null) {
         JOptionPane.showMessageDialog(
@@ -150,21 +191,13 @@ public class profChat extends JDialog {
         );
         return;
     }
+    saveContactToDatabase(professor.getProfessorID(), foundProfessor.getProfessorID(), foundProfessor);
 
-    // 3) Add the new professor to the combo box
-    String displayName = foundProfessor.getProfessorName();
-    //System.out.println(displayName);
-    professorComboBox.addItem(new otherProfessors(foundProfessor, displayName));
-    JOptionPane.showMessageDialog(
-        profChat.this,
-        "Added Professor \"" + displayName + "\" to your list.",
-        "Success",
-        JOptionPane.INFORMATION_MESSAGE
-    );
+    
 }
 
     
-    public static Professor fetchProfessorById(String professorId){
+    private static Professor fetchProfessorById(String professorId){
             try{
                 String urlString ="http://cm8tes.com/getProfessors.php?professor_id=" +
                        URLEncoder.encode(String.valueOf(professorId), StandardCharsets.UTF_8.toString());
@@ -199,7 +232,7 @@ public class profChat extends JDialog {
                     //System.out.println("Parsed id:   " + id);
                     //System.out.println("Parsed name: " + name);
 
-                    Professor fetchedProfessor = new Professor(name, id, null);
+                    Professor fetchedProfessor = new Professor(name, null, id);
                     //System.out.println("professor.getProfessorName(): " + fetchedProfessor.getProfessorName());
 
                     return fetchedProfessor;
@@ -216,6 +249,242 @@ public class profChat extends JDialog {
             
    }
             
+    private void saveContactToDatabase(String owner_id, String contact_id, Professor foundProfessor) {
+        System.out.println("DEBUG: owner_id=" + owner_id + ", contact_id=" + contact_id);
+        if (owner_id == null || contact_id == null) {
+        System.err.printf("Cannot save contact – missing ID(s): owner_id=%s, contact_id=%s%n",
+                          owner_id, contact_id);
+        SwingUtilities.invokeLater(() ->
+            JOptionPane.showMessageDialog(this,
+                "Error Saving Contact: missing owner or contact ID",
+                "Error",
+                JOptionPane.ERROR_MESSAGE)
+        );
+        return;
+    }
+        new Thread(() -> {
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL("https://cm8tes.com/addProfessorContact.php");
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+                conn.setRequestProperty(
+                  "Content-Type","application/x-www-form-urlencoded; charset=UTF-8"
+                );
+
+                String body = "owner_id="  + URLEncoder.encode(
+                                  owner_id, StandardCharsets.UTF_8.name())
+                            + "&contact_id=" + URLEncoder.encode(
+                                  contact_id,    StandardCharsets.UTF_8.name());
+
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(body.getBytes(StandardCharsets.UTF_8));
+                }
+
+                int code = conn.getResponseCode();
+                InputStream is = (code>=200 && code<300)
+                              ? conn.getInputStream()
+                              : conn.getErrorStream();
+                StringBuilder sb = new StringBuilder();
+                try (BufferedReader rd = new BufferedReader(
+                      new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = rd.readLine()) != null) sb.append(line);
+                }
+
+                JSONObject json = new JSONObject(sb.toString());
+                String status  = json.optString("status", "error");
+                String message = json.optString("message","Unknown error");
+
+                // Update UI on EDT
+                SwingUtilities.invokeLater(() -> {
+                    if ("success".equalsIgnoreCase(status)) {
+                        professorComboBox.addItem(
+                            new otherProfessors(foundProfessor, foundProfessor.getProfessorName())
+                        );
+                        JOptionPane.showMessageDialog(
+                            this,
+                            message,
+                            "Contact Saved",
+                            JOptionPane.INFORMATION_MESSAGE
+                        );
+                    } else {
+                        JOptionPane.showMessageDialog(
+                            this,
+                            message,
+                            "Error Saving Contact",
+                            JOptionPane.ERROR_MESSAGE
+                        );
+                    }
+                });
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(
+                        this,
+                        "Network error: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                    );
+                });
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }).start();
+    }
+    
+     private void loadComboBox() {
+        // Clear any existing items
+        professorComboBox.removeAllItems();
+
+        new Thread(() -> {
+            HttpURLConnection conn = null;
+            try {
+                // Build URL for fetching contacts
+                String ownerId = URLEncoder.encode(professor.getProfessorID(), StandardCharsets.UTF_8.name());
+                URL url = new URL("https://cm8tes.com/loadContacts.php?owner_id=" + ownerId);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+
+                int code = conn.getResponseCode();
+                InputStream is = (code >= 200 && code < 300)
+                                ? conn.getInputStream()
+                                : conn.getErrorStream();
+
+                StringBuilder sb = new StringBuilder();
+                try (BufferedReader rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = rd.readLine()) != null) {
+                        sb.append(line);
+                    }
+                }
+
+                // Debug: print raw response to catch unexpected content
+                String raw = sb.toString();
+                System.out.println("DEBUG loadComboBox raw response: [" + raw + "]");
+
+                // Trim BOM or whitespace before parsing
+                raw = raw.trim();
+
+                JSONObject json;
+                try {
+                    json = new JSONObject(raw);
+                } catch (JSONException je) {
+                    // Print error and raw for analysis
+                    System.err.println("JSON parse error in loadComboBox: " + je.getMessage());
+                    return;
+                }
+
+                if ("success".equalsIgnoreCase(json.optString("status"))) {
+                    JSONArray contacts = json.optJSONArray("contacts");
+                    if (contacts != null) {
+                        // Populate combo box on the EDT
+                        SwingUtilities.invokeLater(() -> {
+                            for (int i = 0; i < contacts.length(); i++) {
+                                JSONObject obj = contacts.optJSONObject(i);
+                                if (obj == null) continue;
+                                String id = obj.optString("professor_id", null);
+                                String name = obj.optString("professorName", "");
+                                if (id != null) {
+                                    Professor p = new Professor(name, null, id);
+                                    professorComboBox.addItem(new otherProfessors(p, name));
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    System.err.println("Failed to load contacts: " + json.optString("message"));
+                }
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            } finally {
+                if (conn != null) conn.disconnect();
+            }
+        }).start();
+    }
+     private static void deleteProfessorFromDatabase(String owner_id, String contact_id){
+     System.out.println("DELETING: owner_id=" + owner_id + ", contact_id=" + contact_id);
+
+    new Thread(() -> {
+        HttpURLConnection conn = null;
+        try {
+            // 1) Open connection to your delete endpoint
+            URL url = new URL("https://cm8tes.com/deleteChat.php");
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty(
+                "Content-Type",
+                "application/x-www-form-urlencoded; charset=UTF-8"
+            );
+            conn.setDoOutput(true);
+
+            // 2) Build and send the form body
+            String urlParameters = 
+                  "owner_id=" + URLEncoder.encode(owner_id, "UTF-8")
+                + "&contact_id="         + URLEncoder.encode(contact_id,   "UTF-8");
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(urlParameters.getBytes(StandardCharsets.UTF_8));
+            }
+
+            // 3) Check HTTP response
+            int code = conn.getResponseCode();
+            System.out.println("▶ deleteChat returned HTTP " + code);
+
+            // 4) Read JSON response
+            InputStream is = (code >= 200 && code < 300)
+                          ? conn.getInputStream()
+                          : conn.getErrorStream();
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader in = new BufferedReader(
+                     new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    sb.append(line);
+                }
+            }
+
+            JSONObject json = new JSONObject(sb.toString());
+            String status  = json.optString("status",  "error");
+            String message = json.optString("message", "Unknown error");
+
+            // 5) Update UI on the EDT
+            SwingUtilities.invokeLater(() -> {
+                if ("success".equalsIgnoreCase(status)) {
+                    JOptionPane.showMessageDialog(
+                        null,
+                        message,
+                        "Contact Deleted Successfully",
+                        JOptionPane.INFORMATION_MESSAGE
+                    );
+                } else {
+                    JOptionPane.showMessageDialog(
+                        null,
+                        message,
+                        "Error Deleting Contact",
+                        JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            });
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(
+                    null,
+                    "Network error: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+            });
+        } finally {
+            if (conn != null) conn.disconnect();
+        }
+    }).start();
+}
+
     
         //Inner class to hold other professor details for the combo Box
         public static class otherProfessors{
@@ -245,10 +514,9 @@ public class profChat extends JDialog {
 
         Professor professor = new Professor("Dr Smith", "example@123.com", "dsmith");
         // Prepare the objects that ChatDialog needs:
-        //    a) A parent frame 
-        JFrame parentFrame = null; // or: new Dashboard();
+        //    A parent frame 
+        JFrame parentFrame = null; // 
 
-        //    b) A Professor object 
 
 
         // Launch the dialog on the EDT
