@@ -29,7 +29,15 @@ import javax.swing.UIManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
+import java.net.HttpURLConnection;
+import java.lang.Exception;
+import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
+
+import java.util.*;
+import java.util.Map;
 
 public class profChat extends JDialog {
     private final JTextArea chatArea;
@@ -62,6 +70,13 @@ public class profChat extends JDialog {
         professorComboBox = new JComboBox();
         professorComboBox.setFont(new Font("SansSerif", Font.PLAIN,14));
         professorComboBox.setBackground(Color.WHITE);
+        professorComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+              otherProfessors sel = (otherProfessors)e.getItem();
+              loadHistory(sel.professor.getProfessorID());
+            }
+        });
+
         topPanel.add(professorComboBox);
         loadComboBox();
         add(topPanel, BorderLayout.NORTH);
@@ -120,6 +135,15 @@ public class profChat extends JDialog {
 
        topPanel.add(removeButton);
 
+        //TO DO Delete conversation button
+       JButton deleteConversationButton = new JButton("🗑️"); // Unicode minus sign
+       deleteConversationButton.setFont(new Font("SansSerif", Font.PLAIN, 14));
+       deleteConversationButton.setBackground(Color.WHITE);
+       deleteConversationButton.setFocusPainted(false);
+       deleteConversationButton.addActionListener(ev -> {
+ 
+    });
+       topPanel.add(deleteConversationButton);
        
        JScrollPane scrollPane = new JScrollPane(chatArea);
       scrollPane.setBorder(null);
@@ -145,13 +169,71 @@ public class profChat extends JDialog {
        sendButton.setFocusPainted(false);
        sendButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
        sendButton.setToolTipText("Send message");
+       sendButton.addActionListener(evt -> {
+            String text = inputField.getText().trim(); if (text.isEmpty()) return;
+            otherProfessors sel = (otherProfessors)professorComboBox.getSelectedItem();
+
+            // 1) encrypt
+            Map<String,String> enc;
+            try{
+                enc = AESUtil.encrypt(text);
+            } catch(Exception e){
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(parent, "Encryption error: " + 
+                        e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                return; //stop if encryption fails
+            }
+            
+            String c  = enc.get("cipher");
+            String iv = enc.get("iv");
+
+            // 2) POST to PHP
+            new Thread(() -> {
+              try{
+                JSONObject resp = httpPost(
+                  "https://cm8tes.com/postMessages.php",
+                  Map.of(
+                    "sender_id",   professor.getProfessorID(),
+                    "receiver_id", sel.professor.getProfessorID(),
+                    "cipher",      c,
+                    "iv",          iv
+                  )
+                );
+              } catch(Exception ex){
+                  ex.printStackTrace();
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(
+                    ((Frame) null),
+                    "Network error: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+            });
+              }
+              // handle resp if needed
+            }).start();
+
+            // 3) append locally
+            chatArea.append("Me: " + text + "\n");
+            inputField.setText("");
+       });
+
        inputPanel.add(inputField, BorderLayout.CENTER);
        inputPanel.setBackground(new Color(255, 255, 255));
        inputPanel.add(sendButton, BorderLayout.EAST);
        add(inputPanel, BorderLayout.SOUTH);
         
-       
-    }
+       Executors.newSingleThreadScheduledExecutor()
+  .scheduleAtFixedRate(() -> {
+        SwingUtilities.invokeLater(() -> {
+          otherProfessors sel = (otherProfessors) professorComboBox.getSelectedItem();
+          if (sel != null) {
+            loadHistory(sel.professor.getProfessorID());
+          }
+        });
+      }, 2, 2, TimeUnit.SECONDS);
+
+}
     
     private void addProfessor() {
     String idToAdd = JOptionPane.showInputDialog(
@@ -425,6 +507,7 @@ public class profChat extends JDialog {
             String urlParameters = 
                   "owner_id=" + URLEncoder.encode(owner_id, "UTF-8")
                 + "&contact_id="         + URLEncoder.encode(contact_id,   "UTF-8");
+            
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(urlParameters.getBytes(StandardCharsets.UTF_8));
             }
@@ -501,6 +584,77 @@ public class profChat extends JDialog {
                 return display;
         }
     }
+    
+    // Simple HTTP GET → String
+private String httpGet(String urlStr) throws IOException {
+    URL url = new URL(urlStr);
+    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+    con.setRequestMethod("GET");
+    try (BufferedReader in = new BufferedReader(
+           new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = in.readLine()) != null) sb.append(line);
+        return sb.toString();
+    } finally {
+        con.disconnect();
+    }
+}
+
+// Simple HTTP POST form → JSON response
+private JSONObject httpPost(String urlStr, Map<String,String> params) throws IOException, JSONException {
+    URL url = new URL(urlStr);
+    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+    con.setRequestMethod("POST");
+    con.setDoOutput(true);
+    con.setRequestProperty("Content-Type","application/x-www-form-urlencoded; charset=UTF-8");
+
+    // build body: key1=val1&key2=val2...
+    StringJoiner sj = new StringJoiner("&");
+    for (var e : params.entrySet()) {
+        sj.add(URLEncoder.encode(e.getKey(),"UTF-8")
+             + "="
+             + URLEncoder.encode(e.getValue(),"UTF-8"));
+    }
+    try (OutputStream os = con.getOutputStream()) {
+        os.write(sj.toString().getBytes(StandardCharsets.UTF_8));
+    }
+
+    try (BufferedReader in = new BufferedReader(
+           new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8))) {
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = in.readLine()) != null) sb.append(line);
+        return new JSONObject(sb.toString());
+    } finally {
+        con.disconnect();
+    }
+}
+
+private void loadHistory(String otherId) {
+  new Thread(() -> {
+    try {
+      String u1 = URLEncoder.encode(professor.getProfessorID(),"UTF-8");
+      String u2 = URLEncoder.encode(otherId,             "UTF-8");
+      String json = httpGet("https://cm8tes.com/getMessages.php?user1=" + u1 + "&user2=" + u2);
+
+      JSONArray arr = new JSONArray(json);
+      StringBuilder buf = new StringBuilder();
+      for (int i = 0; i < arr.length(); i++) {
+        JSONObject m = arr.getJSONObject(i);
+        String from = m.getString("from");
+        String text = m.getString("plaintext");
+        String time = m.getString("time");
+        buf.append(from).append(": ").append(text).append("\n");
+      }
+
+      SwingUtilities.invokeLater(() -> chatArea.setText(buf.toString()));
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }).start();
+}
+
     
     public static void main(String[] args) {
         // set FlatLaf globally
