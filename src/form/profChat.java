@@ -34,6 +34,8 @@ import java.lang.Exception;
 import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
+
 
 
 import java.util.*;
@@ -45,6 +47,7 @@ public class profChat extends JDialog {
     private final JButton sendButton;
     private final Professor professor;
     public final JComboBox<otherProfessors> professorComboBox;
+    
     
     public profChat(JFrame parent, Professor professor){
         super(parent, "Messenger", true);
@@ -141,8 +144,8 @@ public class profChat extends JDialog {
        deleteConversationButton.setBackground(Color.WHITE);
        deleteConversationButton.setFocusPainted(false);
        deleteConversationButton.addActionListener(ev -> {
- 
-    });
+            deleteChatMessages(chatArea);
+        });
        topPanel.add(deleteConversationButton);
        
        JScrollPane scrollPane = new JScrollPane(chatArea);
@@ -176,7 +179,9 @@ public class profChat extends JDialog {
             // 1) encrypt
             Map<String,String> enc;
             try{
+                
                 enc = AESUtil.encrypt(text);
+                
             } catch(Exception e){
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(parent, "Encryption error: " + 
@@ -231,7 +236,7 @@ public class profChat extends JDialog {
             loadHistory(sel.professor.getProfessorID());
           }
         });
-      }, 2, 2, TimeUnit.SECONDS);
+      }, 1, 1, TimeUnit.SECONDS);
 
 }
     
@@ -567,7 +572,12 @@ public class profChat extends JDialog {
         }
     }).start();
 }
-
+    
+     
+private static void deleteChatMessages(JTextArea chatArea){
+    chatArea.setText("");
+    
+}
     
         //Inner class to hold other professor details for the combo Box
         public static class otherProfessors{
@@ -635,7 +645,7 @@ private void loadHistory(String otherId) {
   new Thread(() -> {
     try {
       String u1 = URLEncoder.encode(professor.getProfessorID(),"UTF-8");
-      String u2 = URLEncoder.encode(otherId,             "UTF-8");
+      String u2 = URLEncoder.encode(otherId, "UTF-8");
       String json = httpGet("https://cm8tes.com/getMessages.php?user1=" + u1 + "&user2=" + u2);
 
       JSONArray arr = new JSONArray(json);
@@ -649,6 +659,7 @@ private void loadHistory(String otherId) {
       }
 
       SwingUtilities.invokeLater(() -> chatArea.setText(buf.toString()));
+      
     } catch (Exception ex) {
       ex.printStackTrace();
     }
