@@ -1,5 +1,6 @@
-CheckMates - The AI-Powered Attendance App 🎓🤖✨
-CheckMates is a comprehensive and stylish desktop application built with Java Swing, designed to make attendance tracking and class management effortless and insightful for educators. It goes beyond simple record-keeping by integrating a powerful AI assistant, secure messaging, and a highly customizable user interface.
+<ins>CheckMates - The AI-Powered Attendance App 🎓🤖✨</ins>
+
+    CheckMates is a comprehensive and stylish desktop application built with Java Swing, designed to make attendance tracking and class management effortless and insightful for educators. It goes beyond simple record-keeping by integrating a powerful AI assistant, secure messaging, and a highly customizable user interface.
 
 https://github.com/user-attachments/assets/7133460b-eece-4ffc-9f05-96b0190c91e3
 
