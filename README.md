@@ -7,17 +7,17 @@ https://github.com/user-attachments/assets/7133460b-eece-4ffc-9f05-96b0190c91e3
 
 🤖 AI Assistant 'Saki' (Powered by GPT-4):
 
-Get instant, natural-language answers about attendance data.
-
-Request detailed summaries and analytics for a single class or across all classes.
-
-Receive AI-generated tips on how to improve class attendance and engagement.
+    Get instant, natural-language answers about attendance data.
+    
+    Request detailed summaries and analytics for a single class or across all classes.
+    
+    Receive AI-generated tips on how to improve class attendance and engagement.
 
 🎨 Dual-Theme Interface:
 
-Modern Mode: A clean, sleek, and responsive UI using the FlatLaf look and feel.
-
-Old-Timey Mode: A charming, unique interface with parchment backgrounds, sepia tones, and typewriter fonts for a nostalgic feel.
+    Modern Mode: A clean, sleek, and responsive UI using the FlatLaf look and feel.
+    
+    Old-Timey Mode: A charming, unique interface with parchment backgrounds, sepia tones, and typewriter fonts for a nostalgic feel.
 
 ✔️ Effortless Attendance Tracking:
 
