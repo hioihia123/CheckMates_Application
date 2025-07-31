@@ -52,7 +52,7 @@ https://github.com/user-attachments/assets/7133460b-eece-4ffc-9f05-96b0190c91e3
 
 **🛠️ Tech Stack**
 
-    Frontend: Java Swing
+    Frontend: Java Swing, HTML, CSS, JavaScript
     
     Styling: FlatLaf Look and Feel Library
     
