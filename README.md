@@ -4,6 +4,9 @@
  
 https://github.com/user-attachments/assets/7133460b-eece-4ffc-9f05-96b0190c91e3
 
+##**User Diagram**
+![Image](https://github.com/user-attachments/assets/c521cb67-5b1d-4b2a-b84b-943573cff14f)
+
 **Simple View of the CheckMates System Sequence Diagram**
 
 ![Image](https://github.com/user-attachments/assets/3a7c31f6-aa13-41ec-b676-a87b28a723ab)
