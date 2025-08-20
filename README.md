@@ -4,6 +4,15 @@
  
 https://github.com/user-attachments/assets/7133460b-eece-4ffc-9f05-96b0190c91e3
 
+**UPDATE #2: Chat Feature**
+  Professors can communicate with their peers in a fast and secure way.
+  Chat encryption using AES-256.
+  Delay between messages are within 2 seconds.
+
+https://github.com/user-attachments/assets/27eafa08-2cb0-428e-8f47-d92d6dc0a654
+
+
+
 **User Diagram**
 ![Image](https://github.com/user-attachments/assets/c521cb67-5b1d-4b2a-b84b-943573cff14f)
 
