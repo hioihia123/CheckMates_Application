@@ -318,7 +318,7 @@ public class Note {
     new Thread(() -> {
         HttpURLConnection conn = null;
         try {
-            // 1) Open connection to your delete endpoint
+            // Open connection to  delete endpoint
             URL url = new URL("https://cm8tes.com/deleteNote.php");
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -328,7 +328,7 @@ public class Note {
             );
             conn.setDoOutput(true);
 
-            // 2) Build and send the form body
+            // Build and send the form body
             String urlParameters = 
                   "professor_id=" + URLEncoder.encode(professorId, "UTF-8")
                 + "&note="         + URLEncoder.encode(note,   "UTF-8");
@@ -336,11 +336,11 @@ public class Note {
                 os.write(urlParameters.getBytes(StandardCharsets.UTF_8));
             }
 
-            // 3) Check HTTP response
+            // Check HTTP response
             int code = conn.getResponseCode();
             System.out.println("▶ deleteNote returned HTTP " + code);
 
-            // 4) Read JSON response
+            // Read JSON response
             InputStream is = (code >= 200 && code < 300)
                           ? conn.getInputStream()
                           : conn.getErrorStream();

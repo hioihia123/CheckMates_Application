@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.Base64;
 
 public class AESUtil {
-  // must match your PHP hex key:
+  // must match  PHP hex key:
   private static final byte[] KEY = hexStringToByteArray(
     "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
   );

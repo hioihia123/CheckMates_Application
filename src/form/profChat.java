@@ -139,12 +139,27 @@ public class profChat extends JDialog {
        topPanel.add(removeButton);
 
         //TO DO Delete conversation button
-       JButton deleteConversationButton = new JButton("🗑️"); // Unicode minus sign
+       JButton deleteConversationButton = new JButton("🔥"); //
        deleteConversationButton.setFont(new Font("SansSerif", Font.PLAIN, 14));
        deleteConversationButton.setBackground(Color.WHITE);
        deleteConversationButton.setFocusPainted(false);
        deleteConversationButton.addActionListener(ev -> {
-            deleteChatMessages(chatArea);
+            otherProfessors sel = (otherProfessors) professorComboBox.getSelectedItem();
+            if (sel == null) return;
+        
+            //Extract the Professor object and its ID
+            Professor selectedProf = sel.professor;
+            int confirm = JOptionPane.showConfirmDialog(
+                null,
+                "Are you sure want to delete this conversation",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION
+            );
+            
+            if(confirm == JOptionPane.YES_OPTION){
+                deleteChatMessages(this.professor.getProfessorID(), selectedProf.getProfessorID(),chatArea);
+            }
+            
         });
        topPanel.add(deleteConversationButton);
        
@@ -252,7 +267,7 @@ public class profChat extends JDialog {
     }
     idToAdd = idToAdd.trim();
 
-    // 1) Duplicate check: return only if you actually find a match
+    // Duplicate check: return only if actually find a match
     for (int i = 0; i < professorComboBox.getItemCount(); i++) {
         otherProfessors existing = (otherProfessors) professorComboBox.getItemAt(i);
         String existingId = existing.professor.getProfessorID();
@@ -267,7 +282,7 @@ public class profChat extends JDialog {
         }
     }
 
-    // 2) If we get here, no duplicate was found. Now fetch from PHP.
+    // If the code get here, no duplicate was found. Now fetch from PHP.
     Professor foundProfessor = fetchProfessorById(idToAdd);
     if (foundProfessor == null) {
         JOptionPane.showMessageDialog(
@@ -370,9 +385,11 @@ public class profChat extends JDialog {
                 }
 
                 int code = conn.getResponseCode();
+                
                 InputStream is = (code>=200 && code<300)
                               ? conn.getInputStream()
                               : conn.getErrorStream();
+                
                 StringBuilder sb = new StringBuilder();
                 try (BufferedReader rd = new BufferedReader(
                       new InputStreamReader(is, StandardCharsets.UTF_8))) {
@@ -574,9 +591,78 @@ public class profChat extends JDialog {
 }
     
      
-private static void deleteChatMessages(JTextArea chatArea){
-    chatArea.setText("");
+private static void deleteChatMessages(String sender_id, String receiver_id, JTextArea chatArea){
     
+    new Thread(() -> {
+        HttpURLConnection conn = null;
+        
+        try{
+            // Open connection to delete endpoint
+            URL url = new URL("https://cm8tes.com/deleteMessages.php");
+            
+            conn = (HttpURLConnection) url.openConnection();
+            
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty(
+                    "Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"
+            );
+            
+            conn.setDoOutput(true);
+            
+            //Build & Send the form body
+            
+            String urlParameters = 
+                    "sender_id=" + URLEncoder.encode(sender_id, "UTF-8")
+                    + "&receiver_id=" + URLEncoder.encode(receiver_id, "UTF-8");
+            
+            try(OutputStream os = conn.getOutputStream()){
+                os.write(urlParameters.getBytes(StandardCharsets.UTF_8));
+            }
+            
+            //Check HTTP Response
+            int response = conn.getResponseCode();
+            System.out.println("delete message returned HTTP" + response);
+            
+            //Read JSON response
+            InputStream is = (response >= 200 && response < 300)
+                    ? conn.getInputStream()
+                    : conn.getErrorStream();
+            
+            StringBuilder sb = new StringBuilder();
+            
+            try(BufferedReader in = new BufferedReader(
+                      new InputStreamReader(is, StandardCharsets.UTF_8))){
+                String line;
+                while((line = in.readLine()) != null){
+                    sb.append(line);
+                }
+            }
+            
+            JSONObject json = new JSONObject(sb.toString());
+            String status = json.optString("status", "error");
+            String message = json.optString("message", "Unknown error");
+            
+            //Update UI
+            SwingUtilities.invokeLater(() -> {
+                if("success".equalsIgnoreCase(status)) {
+                    chatArea.setText("");
+                    JOptionPane.showMessageDialog(null, message, "Messages deleted successfully", JOptionPane.INFORMATION_MESSAGE);
+                }
+            });
+            
+        } catch(Exception ex){
+            ex.printStackTrace();
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(null, "Network error: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            });
+        } finally {
+            if(conn != null){
+                conn.disconnect();
+            }
+        }
+    }).start();
+       
 }
     
         //Inner class to hold other professor details for the combo Box
