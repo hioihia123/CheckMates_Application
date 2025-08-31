@@ -474,7 +474,7 @@ public class Login extends javax.swing.JFrame {
     }
     private String sendLoginRequest(String email, String password) throws IOException {
         // Update  PHP endpoint URL
-        String urlString = "http://cm8tes.com/login.php";
+        String urlString = "https://cm8tes.com/login.php";
         String urlParameters = "email=" + URLEncoder.encode(email, "UTF-8") +
                 "&passWord=" + URLEncoder.encode(password, "UTF-8");
 

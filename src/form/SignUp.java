@@ -231,7 +231,7 @@ chkTerms.addActionListener(new ActionListener() {
    // Helper method to send sign-up data to the PHP bridge
     private String sendSignUpRequest(String name, String email, String password) throws IOException {
         // URL to  PHP endpoint
-        String urlString = "http://cm8tes.com/signup.php";
+        String urlString = "https://cm8tes.com/signup.php";
         // Build the POST parameters
         String urlParameters = "professorName=" + URLEncoder.encode(name, "UTF-8") +
                 "&email=" + URLEncoder.encode(email, "UTF-8") +
